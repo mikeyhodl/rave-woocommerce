@@ -1,7 +1,6 @@
 <?php
 // Prevent direct access to this class
 define("BASEPATH", 1);
-
 include('lib/rave.php');
 include('lib/raveEventHandlerInterface.php');
 
