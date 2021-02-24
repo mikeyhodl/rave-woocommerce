@@ -3,8 +3,8 @@
  - **Contributors:** Flutterwave Developers
  - **Tags:** rave, woocommerce, payment gateway, bank account, credit card, debit card, nigeria, kenya, international, mastercard, visa, barter
  - **Requires at least:** 4.4
- - **Tested up to:** 5.2.1
- - **Stable tag:** 2.2.1
+ - **Tested up to:** 5.6.1
+ - **Stable tag:** 2.2.6
  - **License:** MIT - see below
 
 Take payments on your store using Rave.
@@ -63,6 +63,19 @@ For Recurring payment, you will need to install the [WooCommerce Subscriptions](
 For FTP manual installation, [check here](http://codex.wordpress.org/Managing_Plugins#Manual_Plugin_Installation).
 
 
+## Split payment feature
+* Enable the split payment in the rave woocommerce settings page.
+* Enter the specify subaccounts for the split (create can create subaccounts on your Flutterwave dashboard).
+* save and start transaction
+
+This split will be initiated for all transactions.
+
+## Assign a subaccount to a Product
+* Disable the split payment in the rave woocommerce settings page.
+* Click on "Products".
+* Select "Add New".
+* Scroll down until you see the 'Flutterwave - Select subaccount'.
+* Select a subaccount.
 
 ### Configure the plugin
 To configure the plugin, go to __WooCommerce > Settings__ from the left menu, click __Payments__ tab. Click on __Rave__.

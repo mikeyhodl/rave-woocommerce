@@ -8,9 +8,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 require __DIR__.'/../vendor/autoload.php';
 
 use Monolog\Logger;
+use Monolog\Handler\NullHandler;
 use Monolog\Handler\RotatingFileHandler;
+use Monolog\Handler\SyslogUdpHandler;
 use Unirest\Request;
 use Unirest\Request\Body;
+
 
 /**
  * Flutterwave's Rave payment gateway PHP SDK
@@ -37,6 +40,7 @@ class Rave {
     protected $payButtonText = 'Make Payment';
     protected $redirectUrl;
     protected $meta = array();
+    public $subaccount = array();
     // protected $env = 'staging';
     protected $transactionPrefix;
     public $logger;
@@ -58,7 +62,7 @@ class Rave {
      * @param boolean $overrideRefWithPrefix Set this parameter to true to use your prefix as the transaction reference
      * @return object
      * */
-    function __construct($publicKey, $secretKey, $prefix, $overrideRefWithPrefix = false){
+    function __construct($publicKey, $secretKey, $prefix, $overrideRefWithPrefix = false,$disable_logging_option){
         $this->publicKey = $publicKey;
         $this->secretKey = $secretKey;
         // $this->env = $env;
@@ -68,7 +72,20 @@ class Rave {
         // create a log channel
         $log = new Logger('flutterwave/rave');
         $this->logger = $log;
-        $log->pushHandler(new RotatingFileHandler('rave.log', 90, Logger::DEBUG));
+
+        if($disable_logging_option === 'yes'){
+
+            $log->pushHandler(new NullHandler()); 
+
+        }else{
+
+            $log->pushHandler(new RotatingFileHandler('rave.log', 90, Logger::DEBUG)); 
+
+        }
+
+        //$log->pushHandler(new RotatingFileHandler('rave.log', 90, Logger::DEBUG));  
+
+        
         $this->createReferenceNumber();
         
         // if($this->env === 'staging'){
@@ -220,6 +237,54 @@ class Rave {
     function setDescription($customDescription){
         $this->customDescription = $customDescription;
         return $this;
+    }
+    /**
+     * gets the subaccounts
+     * @return string
+     * */
+    function getSubaccounts(){
+        return $this->subaccount;
+    }
+    
+    /**
+     * add subaccount details description
+     * @param string $subaccountInfo the array filled with subacount details
+     * */
+    function setSubaccounts($subaccountInfo){
+        // echo "<pre>";
+        // print_r($subaccountInfo);
+        // echo "</pre>";
+        // exit();
+
+        if(!isset($subaccountInfo[0]['transaction_charge'])){
+
+            for ($i=0, $count_subsid = count($subaccountInfo) ; $i < $count_subsid; $i++) {  
+                array_push($this->subaccount, [
+                    'id' => $subaccountInfo[$i]['id']
+                    ]);
+            }
+        }else{
+
+            for ($i=0, $count_subsid = count($subaccountInfo[0]['id']) ; $i < $count_subsid; $i++) { 
+                for ($j=0, $count_subscharge = count($subaccountInfo[0]['transaction_charge']); $j < $count_subscharge ; $j++) { 
+                    if($i == $j){
+                        array_push($this->subaccount, [
+                            'id' => $subaccountInfo[0]['id'][$i],
+                            'transaction_charge_type'  => 'flat_subaccount',
+                            'transaction_charge' => $subaccountInfo[0]['transaction_charge'][$j]
+                            ]);
+                    }
+    
+                }
+            }
+
+        }
+
+
+
+        return $this;
+        
+        
     }
     
     /**
@@ -456,16 +521,23 @@ class Rave {
             'SECKEY' => $this->secretKey,
         );
 
+
         // make request to endpoint using unirest.
-        $headers = array('Content-Type' => 'application/json');
-        $body = Body::json($data);
+       
         $url = $this->baseUrl.'/flwv3-pug/getpaidx/api/v2/verify';
 
         // try and catch error if any
         try {
 
             // Make `POST` request and handle response with unirest
-            $response = Request::post($url, $headers, $body);
+            $json_encoded_data = json_encode($data, JSON_UNESCAPED_SLASHES);
+            $response = wp_remote_post($url, array('headers' => ['Content-Type'=> 'application/json'],'body' =>  $json_encoded_data ) );
+
+            if ( is_array( $response ) && ! is_wp_error( $response ) ) {
+  
+                $response = json_decode($response['body'], true); 
+
+              }
 
         } catch (Exception $e) {
 
@@ -476,27 +548,27 @@ class Rave {
         }
   
         //check the status is success
-        if ($response->body && $response->body->status === "success") {
-            if($response->body && $response->body->data && $response->body->data->status === "successful"){
-                $this->logger->notice('Requeryed a successful transaction....'.json_encode($response->body->data));
+        if ($response['status'] === "success") {
+            if($response['data']['status'] === "successful"){
+                $this->logger->notice('Requeryed a successful transaction....'.json_encode($response['data']));
                 // Handle successful
                 if(isset($this->handler)){
-                    $this->handler->onSuccessful($response->body->data);
+                    $this->handler->onSuccessful($response['data']);
                 }
-            }elseif($response->body && $response->body->data && $response->body->data->status === "failed"){
+            }elseif($response['data']['status'] === "failed"){
                 // Handle Failure
-                $this->logger->warn('Requeryed a failed transaction....'.json_encode($response->body->data));
+                $this->logger->warn('Requeryed a failed transaction....'.json_encode($response['data']));
                 if(isset($this->handler)){
-                    $this->handler->onFailure($response->body->data);
+                    $this->handler->onFailure($response['data']);
                 }
             }else{
                 // Handled an undecisive transaction. Probably timed out.
-                $this->logger->warn('Requeryed an undecisive transaction....'.json_encode($response->body->data));
+                $this->logger->warn('Requeryed an undecisive transaction....'.json_encode($response['data']));
                 // I will requery again here. Just incase we have some devs that cannot setup a queue for requery. I don't like this.
                 if($this->requeryCount > 4){
                     // Now you have to setup a queue by force. We couldn't get a status in 5 requeries.
                     if(isset($this->handler)){
-                        $this->handler->onTimeout($this->txref, $response->body);
+                        $this->handler->onTimeout($this->txref, $response);
                     }
                 }else{
                     $this->logger->notice('delaying next requery for 3 seconds');
@@ -506,10 +578,10 @@ class Rave {
                 }
             }
         }else{
-            $this->logger->warn('Requery call returned error for transaction reference.....'.json_encode($response->body).'Transaction Reference: '. $this->txref);
+            $this->logger->warn('Requery call returned error for transaction reference.....'.json_encode($response).'Transaction Reference: '. $this->txref);
             // Handle Requery Error
             if(isset($this->handler)){
-                $this->handler->onRequeryError($response->body);
+                $this->handler->onRequeryError($response);
             }
         }
         return $this;
@@ -526,8 +598,20 @@ class Rave {
         if(isset($this->handler)){
             $this->handler->onInit($this->transactionData);
         }
+
+        $this->transactionData["subaccounts"] = $this->subaccount;
+
+        // echo "<pre>";
+        // print_r($this->transactionData);
+        // echo "</pre>";
+        // exit();
         
-        $json = json_encode($this->transactionData);
+        $json = json_encode($this->transactionData, true);
+
+        // echo "<pre>";
+        // echo $json;
+        // echo "</pre>";
+        // exit();
         echo '<html>';
         echo '<body>';
         echo '<center>Proccessing...<br /><img src="'.plugins_url('Flutterwave-Rave-PHP-SDK/ajax-loader.gif', FLW_WC_PLUGIN_FILE).'" /></center>';

@@ -24,6 +24,7 @@ var amount = flw_payment_args.amount,
     firstname = flw_payment_args.firstname,
     lastname = flw_payment_args.lastname,
     form   = jQuery( '#flw-pay-now-button' ),
+    subaccountList = [],
     // logo   = flw_payment_args.logo || raveLogo,
     p_key  = flw_payment_args.p_key,
     title  = flw_payment_args.title,
@@ -31,7 +32,9 @@ var amount = flw_payment_args.amount,
     paymentOptions = flw_payment_args.payment_options,
     paymentStyle  = flw_payment_args.payment_style,
     disableBarter  = flw_payment_args.barter,
+    disableSplit  = flw_payment_args.split_payment,
     redirect_url;
+
 
 if ( form ) {
 
@@ -69,6 +72,8 @@ switch (curr) {
 var processPayment = function() {
   // console.log(firstname+" .......... "+lastname);
 
+
+
   // setup payload
   var ravePayload = {
     amount: amount,
@@ -83,11 +88,12 @@ var processPayment = function() {
     txref: txref,
     payment_options: paymentOptions,
     PBFPubKey: p_key,
-    onclose: function() {},
+    onclose: function() {
+      subaccountList = [];
+    },
     callback: function(response){
       if ( response.tx.chargeResponseCode == "00" || response.tx.chargeResponseCode == "0" ) {
-          // popup.close();
-                      
+          // popup.close();         
           redirectPost(cbUrl,response.tx);
       }else{
           alert(response.respmsg);
@@ -100,6 +106,24 @@ var processPayment = function() {
   // disable barter or not
   if(disableBarter == 'yes'){
     ravePayload.disable_pwb = true;
+  }
+
+  if(disableSplit == 'no'){
+
+    let sub_id = flw_payment_args.subaccounts[0].id;
+    let sub_charge = flw_payment_args.subaccounts[0].transaction_charge;
+    
+    for (let i = 0; i < sub_id.length; i++) {
+      for (let j = 0; j < sub_charge.length; j++) {
+        if(i === j){
+            subaccountList.push({id:sub_id[i],transaction_charge_type: 'flat_subaccount', transaction_charge: sub_charge[j] });
+        }
+      }
+    }
+    ravePayload.subaccounts = subaccountList;
+
+  }else{
+    ravePayload.subaccounts = flw_payment_args.subaccounts;
   }
 
   // add payload

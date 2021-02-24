@@ -1,9 +1,9 @@
-=== Rave Woocommerce Payment Gatewayay ===
+=== Rave Woocommerce Payment Gateway ===
 Contributors: theflutterwave
 Tags: rave,flutterwave, woocommerce, payments, nigeria, mastercard, visa, target,Naira,payments,verve,donation,church,shop,store, ghana, kenya, international, mastercard, visa
 Requires at least: 3.1
-Tested up to: 5.1.1
-Stable tag: 2.2.0
+Tested up to: 5.6.1
+Stable tag: 2.2.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,19 +12,19 @@ Accept Credit card, Debit card and Bank account payment directly on your store w
 
 == Description ==
 
-Accept Credit card, Debit card and Bank account payment directly on your store with the *official* Rave payment gateway for Woo commerce.
+Accept Credit card, Debit card and Bank account payment directly on your store with the official Rave payment gateway for Woo commerce.
 
 Rave is available in:
 
 * __Nigeria__
 * __Ghana__
 * __Kenya__
-*__Uganda__
-*__Tanzania__
-*__Rwanda__
-*__South Africa__
-*__Zambia__
-*__Sierra Leone__
+* __Uganda__
+* __Tanzania__
+* __Rwanda__
+* __South Africa__
+* __Zambia__
+* __Sierra Leone__
 
 = Plugin Features =
 
@@ -82,12 +82,20 @@ To configure the plugin, go to __WooCommerce > Settings__ from the left menu, cl
 
 
 == Changelog ==
+= 2.2.6 =
+* Support for Subaccount and payment Plans for products.
+= 2.2.5 =
+  Regular Update for woocommerce and WordPress Compatability.
+= 2.2.4 =
+ Fixes to the Wooommerce blank settings page.
 = 2.2.0 =
 * Use one base URL for live and test mode.
 
 * Merchants can get their [test and live](https://developer.flutterwave.com/docs/api-keys) keys [here](https://rave.flutterwave.com/dashboard/settings/apis)
 
 * Using test keys keeps you in test mode, to move to live mode add live keys.
+
+* Support for Woocommerce recurring, this allows merchants to collect recurring payments in woocommerce.
 
 = 2.1.0 =
 * Support for Woocommerce recurring, this allows merchants to collect recurring payments in woocommerce.
