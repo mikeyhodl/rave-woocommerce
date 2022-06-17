@@ -1,592 +1,444 @@
 <?php
 
-  if( ! defined( 'ABSPATH' ) ) { exit; }
-  
-  define("BASEPATH", 1);
-  require_once( FLW_WC_DIR_PATH . 'flutterwave-rave-php-sdk/lib/rave.php' );
-  require_once( FLW_WC_DIR_PATH . 'includes/eventHandler.php' );
-      
-  use Flutterwave\Rave;
+if (!defined('ABSPATH')) {
+  exit;
+}
+
+define("BASEPATH", 1);
+require_once(FLW_WC_DIR_PATH . 'flutterwave-rave-php-sdk/lib/rave.php');
+require_once(FLW_WC_DIR_PATH . 'includes/eventHandler.php');
+
+use Flutterwave\Rave;
+
+/**
+ * Main Rave Gateway Class
+ */
+class FLW_WC_Payment_Gateway extends WC_Payment_Gateway
+{
 
   /**
-   * Main Rave Gateway Class
+   * Constructor
+   *
+   * @return void
    */
-  class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
+  public function __construct()
+  {
+
+
+
+    $this->base_url = 'https://api.ravepay.co';
+    $this->id = 'rave';
+    $this->icon = plugins_url('assets/img/rave.png', FLW_WC_PLUGIN_FILE);
+    $this->has_fields = false;
+    $this->method_title = __('Rave', 'flw-payments');
+    $this->method_description = __('Rave allows you to accept payment from cards and bank accounts in multiple currencies. You can also accept payment offline via USSD and POS.', 'flw-payments');
+    $this->supports = array(
+      'products',
+    );
+
+    $this->init_form_fields();
+    $this->init_settings();
+
+    $this->title = $this->get_option('title');
+    $this->description = $this->get_option('description');
+    $this->enabled = $this->get_option('enabled');
+    $this->test_public_key = $this->get_option('test_public_key');
+    $this->test_secret_key = $this->get_option('test_secret_key');
+    $this->live_public_key = $this->get_option('live_public_key');
+    $this->live_secret_key = $this->get_option('live_secret_key');
+    $this->auto_complete_order = get_option('autocomplete_order');
+    $this->go_live = $this->get_option('go_live');
+    $this->payment_options = $this->get_option('payment_options');
+    $this->payment_style = $this->get_option('payment_style');
+    $this->barter = $this->get_option('barter');
+    $this->logging_option = $this->get_option('logging_option');
+    $this->country = "";
+    // $this->modal_logo = $this->get_option( 'modal_logo' );
+
+    // enable saved cards
+    // $this->saved_cards = $this->get_option( 'saved_cards' ) === 'yes' ? true : false;
+
+    // declare support for Woocommerce subscription
+    $this->supports = array(
+      'products',
+      'tokenization',
+      'subscriptions',
+      'subscription_cancellation',
+      'subscription_suspension',
+      'subscription_reactivation',
+      'subscription_amount_changes',
+      'subscription_date_changes',
+      'subscription_payment_method_change',
+      'subscription_payment_method_change_customer',
+      'subscription_payment_method_change_admin',
+      'multiple_subscriptions',
+    );
+
+    add_action('admin_notices', array($this, 'admin_notices'));
+    add_action('woocommerce_receipt_' . $this->id, array($this, 'receipt_page'));
+    add_action('woocommerce_api_flw_wc_payment_gateway', array($this, 'flw_verify_payment'));
+
+    // Webhook listener/API hook
+    add_action('woocommerce_api_flw_wc_payment_webhook', array($this, 'flw_rave_webhooks'));
+
+    if (is_admin()) {
+      add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
+    }
+
+    $this->public_key = $this->test_public_key;
+    $this->secret_key = $this->test_secret_key;
+
+
+
+
+    if ('yes' === $this->go_live) {
+      // $this->base_url = 'https://api.ravepay.co';
+      $this->public_key = $this->live_public_key;
+      $this->secret_key = $this->live_secret_key;
+
+    }
+
+    add_action('wp_enqueue_scripts', array($this, 'load_scripts'));
+
+  }
+
+  /**
+   * Initial gateway settings form fields
+   *
+   * @return void
+   */
+  public function init_form_fields()
+  {
+
+    $this->form_fields = array(
+
+      'enabled' => array(
+        'title' => __('Enable/Disable', 'flw-payments'),
+        'label' => __('Enable Rave Payment Gateway', 'flw-payments'),
+        'type' => 'checkbox',
+        'description' => __('Enable Rave Payment Gateway as a payment option on the checkout page', 'flw-payments'),
+        'default' => 'no',
+        'desc_tip' => true
+      ),
+      'go_live' => array(
+        'title' => __('Mode', 'flw-payments'),
+        'label' => __('Live mode', 'flw-payments'),
+        'type' => 'checkbox',
+        'description' => __('Check this box if you\'re using your live keys.', 'flw-payments'),
+        'default' => 'no',
+        'desc_tip' => true
+      ),
+      'logging_option' => array(
+        'title' => __('Disable Logging', 'flw-payments'),
+        'label' => __('Disable Logging', 'flw-payments'),
+        'type' => 'checkbox',
+        'description' => __('Check this box if you\'re disabling logging.', 'flw-payments'),
+        'default' => 'no',
+        'desc_tip' => true
+      ),
+      'barter' => array(
+        'title' => __('Disable Barter', 'flw-payments'),
+        'label' => __('Disable Barter', 'flw-payments'),
+        'type' => 'checkbox',
+        'description' => __('Check the box if you want to disable barter.', 'flw-payments'),
+        'default' => 'no',
+        'desc_tip' => true
+      ),
+      'webhook' => array(
+        'title' => __('Webhook Instruction', 'flw-payments'),
+        'type' => 'hidden',
+        'description' => __('Please copy this webhook URL and paste on the webhook section on your dashboard <strong style="color: red"><pre><code>' . WC()->api_request_url('Flw_WC_Payment_Webhook') . '</code></pre></strong> (<a href="https://rave.flutterwave.com/dashboard/settings/webhooks" target="_blank">Rave Account</a>)', 'flw-payments'),
+      ),
+      'secret_hash' => array(
+        'title' => __('Enter Secret Hash', 'flw-payments'),
+        'type' => 'text',
+        'description' => __('Ensure that <b>SECRET HASH</b> is the same with the one on your Rave dashboard', 'flw-payments'),
+        'default' => 'Rave-Secret-Hash'
+      ),
+      'title' => array(
+        'title' => __('Payment method title', 'flw-payments'),
+        'type' => 'text',
+        'description' => __('Optional', 'flw-payments'),
+        'default' => 'Rave'
+      ),
+      'description' => array(
+        'title' => __('Payment method description', 'flw-payments'),
+        'type' => 'text',
+        'description' => __('Optional', 'flw-payments'),
+        'default' => 'Powered by Flutterwave: Accepts Mastercard, Visa, Verve, Discover, AMEX, Diners Club and Union Pay.'
+      ),
+      'test_public_key' => array(
+        'title' => __('Rave Test Public Key', 'flw-payments'),
+        'type' => 'text',
+        // 'description' => __( 'Required! Enter your Rave test public key here', 'flw-payments' ),
+        'default' => ''
+      ),
+      'test_secret_key' => array(
+        'title' => __('Rave Test Secret Key', 'flw-payments'),
+        'type' => 'text',
+        // 'description' => __( 'Required! Enter your Rave test secret key here', 'flw-payments' ),
+        'default' => ''
+      ),
+      'live_public_key' => array(
+        'title' => __('Rave Live Public Key', 'flw-payments'),
+        'type' => 'text',
+        // 'description' => __( 'Required! Enter your Rave live public key here', 'flw-payments' ),
+        'default' => ''
+      ),
+      'live_secret_key' => array(
+        'title' => __('Rave Live Secret Key', 'flw-payments'),
+        'type' => 'text',
+        // 'description' => __( 'Required! Enter your Rave live secret key here', 'flw-payments' ),
+        'default' => ''
+      ),
+      'payment_style' => array(
+        'title' => __('Payment Style on checkout', 'flw-payments'),
+        'type' => 'select',
+        'description' => __('Optional - Choice of payment style to use. Either inline or redirect. (Default: inline)', 'flw-payments'),
+        'options' => array(
+          'inline' => esc_html_x('Popup(Keep payment experience on the website)', 'payment_style', 'flw-payments'),
+          'redirect' => esc_html_x('Redirect', 'payment_style', 'flw-payments'),
+        ),
+        'default' => 'inline'
+      ),
+      'autocomplete_order' => array(
+        'title' => __('Autocomplete Order After Payment', 'flw-payments'),
+        'label' => __('Autocomplete Order', 'flw-payments'),
+        'type' => 'checkbox',
+        'class' => 'wc-flw-autocomplete-order',
+        'description' => __('If enabled, the order will be marked as complete after successful payment', 'flw-payments'),
+        'default' => 'no',
+        'desc_tip' => true,
+      ),
+      'payment_options' => array(
+        'title' => __('Payment Options', 'flw-payments'),
+        'type' => 'select',
+        'description' => __('Optional - Choice of payment method to use. Card, Account etc.', 'flw-payments'),
+        'options' => array(
+          '' => esc_html_x('Default', 'payment_options', 'flw-payments'),
+          'card' => esc_html_x('Card Only', 'payment_options', 'flw-payments'),
+          'account' => esc_html_x('Account Only', 'payment_options', 'flw-payments'),
+          'ussd' => esc_html_x('USSD Only', 'payment_options', 'flw-payments'),
+          'qr' => esc_html_x('QR Only', 'payment_options', 'flw-payments'),
+          'mpesa' => esc_html_x('Mpesa Only', 'payment_options', 'flw-payments'),
+          'mobilemoneyghana' => esc_html_x('Ghana MM Only', 'payment_options', 'flw-payments'),
+          'mobilemoneyrwanda' => esc_html_x('Rwanda MM Only', 'payment_options', 'flw-payments'),
+          'mobilemoneyzambia' => esc_html_x('Zambia MM Only', 'payment_options', 'flw-payments'),
+          'mobilemoneytanzania' => esc_html_x('Tanzania MM Only', 'payment_options', 'flw-payments'),
+        ),
+        'default' => ''
+      ),
+
+    );
+
+  }
+
+  /**
+   * Process payment at checkout
+   *
+   * @return int $order_id
+   */
+  public function process_payment($order_id)
+  {
+
+    $order = wc_get_order($order_id);
+
+    return array(
+      'result' => 'success',
+      'redirect' => $order->get_checkout_payment_url(true)
+    );
+
+  }
+
+
+  /**
+   * Handles admin notices
+   *
+   * @return void
+   */
+  public function admin_notices()
+  {
+
+    if ('no' == $this->enabled) {
+      return;
+    }
 
     /**
-     * Constructor
-     *
-     * @return void
+     * Check if public key is provided
      */
-    public function __construct() {
-
-      
-      $this->subaccount_list = [];
-      $this->product_id_list = [];
-      $this->subtotal_charge = [];
-      $this->transaction_charge = [];
-      $this->subaccount_ratio = [];
-      $this->base_url = 'https://api.ravepay.co';
-      $this->id = 'rave';
-      $this->icon = plugins_url('assets/img/rave.png', FLW_WC_PLUGIN_FILE);
-      $this->has_fields         = false;
-      $this->method_title       = __( 'Rave', 'flw-payments' );
-      $this->method_description = __( 'Flutterwave allows you to accept payment from cards and bank accounts in multiple currencies. You can also accept payment offline via USSD and POS.', 'flw-payments' );
-      $this->supports = array(
-        'products',
+    if (!$this->public_key || !$this->secret_key) {
+      $mode = ('yes' === $this->go_live) ? 'live' : 'test';
+      echo '<div class="error"><p>';
+      echo sprintf(
+        'Provide your ' . $mode . ' public key and secret key <a href="%s">here</a> to be able to use the Rave Payment Gateway plugin. If you don\'t have one, kindly sign up at <a href="https://rave.flutterwave.com" target="_blank>https://rave.flutterwave.com</a>, navigate to the settings page and click on API.',
+        admin_url('admin.php?page=wc-settings&tab=checkout&section=rave')
       );
+      echo '</p></div>';
+      return;
+    }
 
-      $this->init_form_fields();
-      $this->init_settings();
+  }
 
-      $this->title        = $this->get_option( 'title' );
-      $this->description  = $this->get_option( 'description' );
-      $this->enabled      = $this->get_option( 'enabled' );
-      $this->test_public_key   = $this->get_option( 'test_public_key' );
-      $this->test_secret_key   = $this->get_option( 'test_secret_key' );
-      $this->live_public_key   = $this->get_option( 'live_public_key' );
-      $this->live_secret_key   = $this->get_option( 'live_secret_key' );
-      $this->split_enabled     = $this->get_option( 'split_enabled' );
-      $this->subaccount_ids   = array( $this->get_option( 'subaccount_id' ), $this->get_option( 'subaccount_id_2' ), $this->get_option( 'subaccount_id_3' ), $this->get_option( 'subaccount_id_4' )  );
-      $this->go_live      = $this->get_option( 'go_live' );
-      $this->payment_options = $this->get_option( 'payment_options' );
-      $this->payment_style = $this->get_option( 'payment_style' );
-      $this->barter = $this->get_option( 'barter' );
-      $this->logging_option = $this->get_option('logging_option');
-      $this->country ="";
-      // $this->modal_logo = $this->get_option( 'modal_logo' );
+  /**
+   * Checkout receipt page
+   *
+   * @return void
+   */
+  public function receipt_page($order)
+  {
 
-      // enable saved cards
-      // $this->saved_cards = $this->get_option( 'saved_cards' ) === 'yes' ? true : false;
+    $order = wc_get_order($order);
 
-      // declare support for Woocommerce subscription
-      $this->supports = array(
-        'products',
-        'tokenization',
-        'subscriptions',
-        'subscription_cancellation', 
-        'subscription_suspension', 
-        'subscription_reactivation',
-        'subscription_amount_changes',
-        'subscription_date_changes',
-        'subscription_payment_method_change',
-        'subscription_payment_method_change_customer',
-        'subscription_payment_method_change_admin',
-        'multiple_subscriptions',
-      );
+    echo '<p>' . __('Thank you for your order, please click the <b>Make Payment</b> button below to make payment. You will be redirected to a secure page where you can enter you card details or bank account details. <b>Please, do not close your browser at any point in this process.</b>', 'flw-payments') . '</p>';
+    echo '<a class="button cancel" href="' . esc_url($order->get_cancel_order_url()) . '">';
+    echo __('Cancel order &amp; restore cart', 'flw-payments') . '</a> ';
+    echo '<button class="button alt  wc-forward" id="flw-pay-now-button">Make Payment</button> ';
 
-      add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ) );
-      add_action( 'admin_notices', array( $this, 'admin_notices' ) );
-      add_action( 'woocommerce_receipt_' . $this->id, array($this, 'receipt_page'));
-      add_action( 'woocommerce_api_flw_wc_payment_gateway', array($this, 'flw_verify_payment'));
 
-      // Webhook listener/API hook
-      add_action( 'woocommerce_api_flw_wc_payment_webhook', array($this, 'flw_rave_webhooks'));
-      
-      if ( is_admin() ) {
-        add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
+  }
+
+  /**
+   * Loads (enqueue) static files (js & css) for the checkout page
+   *
+   * @return void
+   */
+  public function load_scripts()
+  {
+
+    if (!is_checkout_pay_page())
+      return;
+    $p_key = $this->public_key;
+    $payment_options = $this->payment_options;
+
+    if ($this->payment_style == 'inline') {
+      wp_enqueue_script('flwpbf_inline_js', $this->base_url . '/flwv3-pug/getpaidx/api/flwpbf-inline.js', array(), '1.0.0', true);
+    }
+
+    wp_enqueue_script('flw_js', plugins_url('assets/js/flw.js', FLW_WC_PLUGIN_FILE), array('jquery'), '1.0.0', true);
+
+    if (get_query_var('order-pay')) {
+
+      $order_key = urldecode($_REQUEST['key']);
+      $order_id = absint(get_query_var('order-pay'));
+      $cb_url = WC()->api_request_url('FLW_WC_Payment_Gateway') . '?rave_id=' . $order_id;
+
+      if ($this->payment_style == 'inline') {
+        wp_enqueue_script('flwpbf_inline_js', $this->base_url . '/flwv3-pug/getpaidx/api/flwpbf-inline.js', array(), '1.0.0', true);
+        $cb_url = WC()->api_request_url('FLW_WC_Payment_Gateway');
       }
 
-      add_action( 'woocommerce_thankyou_'. $this->id, array( $this, 'thankyou_page'));
+      $order = wc_get_order($order_id);
 
+      $txnref = "WOOC_" . $order_id . '_' . time();
+      $txnref = filter_var($txnref, FILTER_SANITIZE_STRING); //sanitizr=e this field
 
-      $this->public_key   = $this->test_public_key;
-      $this->secret_key   = $this->test_secret_key;
-     
-      
-      
-
-      if ( 'yes' === $this->go_live ) {
-        // $this->base_url = 'https://api.ravepay.co';
-        $this->public_key   = $this->live_public_key;
-        $this->secret_key   = $this->live_secret_key;
-     
+      if (version_compare(WOOCOMMERCE_VERSION, '2.7.0', '>=')) {
+        $amount = $order->get_total();
+        $email = $order->get_billing_email();
+        $currency = $order->get_currency();
+        $main_order_key = $order->get_order_key();
+      }
+      else {
+        $args = array(
+          'name' => $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),
+          'email' => $order->get_billing_email(),
+          'contact' => $order->get_billing_phone(),
+        );
+        $amount = $order->get_total();
+        $main_order_key = $order->get_order_key();
+        $email = $order->get_billing_email();
+        $currency = $order->get_currency();
       }
 
-      $this->load_scripts();
+      // $amount    = $order->order_total;
+      // $email     = $order->billing_email;
+      // $currency     = $order->get_order_currency();
 
-    }
+      //set the currency to route to their countries
+      switch ($currency) {
+        case 'KES':
+          $this->country = 'KE';
+          break;
+        case 'GHS':
+          $this->country = 'GH';
+          break;
+        case 'ZAR':
+          $this->country = 'ZA';
+          break;
+        case 'TZS':
+          $this->country = 'TZ';
+          break;
 
-    /**
-     * Initial gateway settings form fields
-     *
-     * @return void
-     */
-    public function init_form_fields() {
-
-      $this->form_fields = array(
-
-        'enabled' => array(
-          'title'       => __( 'Enable/Disable', 'flw-payments' ),
-          'label'       => __( 'Enable Flutterwave Payment Gateway', 'flw-payments' ),
-          'type'        => 'checkbox',
-          'description' => __( 'Enable Flutterwave Payment Gateway as a payment option on the checkout page', 'flw-payments' ),
-          'default'     => 'no',
-          'desc_tip'    => true
-        ),
-        'go_live' => array(
-          'title'       => __( 'Mode', 'flw-payments' ),
-          'label'       => __( 'Live mode', 'flw-payments' ),
-          'type'        => 'checkbox',
-          'description' => __( 'Check this box if you\'re using your live keys.', 'flw-payments' ),
-          'default'     => 'no',
-          'desc_tip'    => true
-        ),
-        'logging_option' => array(
-          'title'       => __( 'Disable Logging', 'flw-payments' ),
-          'label'       => __( 'Disable Logging', 'flw-payments' ),
-          'type'        => 'checkbox',
-          'description' => __( 'Check this box if you\'re disabling logging.', 'flw-payments' ),
-          'default'     => 'no',
-          'desc_tip'    => true
-        ),
-        'barter' => array(
-          'title'       => __( 'Disable Barter Payment', 'flw-payments' ),
-          'label'       => __( 'Disable Barter Payment', 'flw-payments' ),
-          'type'        => 'checkbox',
-          'description' => __( 'Check the box if you want to disable barter.', 'flw-payments' ),
-          'default'     => 'no',
-          'desc_tip'    => true
-        ),
-        'webhook' => array(
-          'title'       => __( 'Webhook Instruction', 'flw-payments' ),
-          'type'        => 'hidden',
-          'description' => __( 'Please copy this webhook URL and paste on the webhook section on your dashboard <strong style="color: red"><pre><code>'.WC()->api_request_url('Flw_WC_Payment_Webhook').'</code></pre></strong> (<a href="https://rave.flutterwave.com/dashboard/settings/webhooks" target="_blank">Rave Account</a>)', 'flw-payments' ),
-        ),
-        'secret_hash' => array(
-          'title'       => __( 'Enter Secret Hash', 'flw-payments' ),
-          'type'        => 'text',
-          'description' => __( 'Ensure that <b>SECRET HASH</b> is the same with the one on your Rave dashboard', 'flw-payments' ),
-          'default'     => 'Rave-Secret-Hash'
-        ),
-        'title' => array(
-          'title'       => __( 'Payment method title', 'flw-payments' ),
-          'type'        => 'text',
-          'description' => __( 'Optional', 'flw-payments' ),
-          'default'     => 'Flutterwave'
-        ),
-        'description' => array(
-          'title'       => __( 'Payment method description', 'flw-payments' ),
-          'type'        => 'text',
-          'description' => __( 'Optional', 'flw-payments' ),
-          'default'     => 'Powered by Flutterwave: Accepts Mastercard, Visa, Verve, Discover, AMEX, Diners Club and Union Pay.'
-        ),
-        'test_public_key' => array(
-          'title'       => __( 'Rave Test Public Key', 'flw-payments' ),
-          'type'        => 'text',
-          // 'description' => __( 'Required! Enter your Rave test public key here', 'flw-payments' ),
-          'default'     => ''
-        ),
-        'test_secret_key' => array(
-          'title'       => __( 'Rave Test Secret Key', 'flw-payments' ),
-          'type'        => 'text',
-          // 'description' => __( 'Required! Enter your Rave test secret key here', 'flw-payments' ),
-          'default'     => ''
-        ),
-        'live_public_key' => array(
-          'title'       => __( 'Rave Live Public Key', 'flw-payments' ),
-          'type'        => 'text',
-          // 'description' => __( 'Required! Enter your Rave live public key here', 'flw-payments' ),
-          'default'     => ''
-        ),
-        'live_secret_key' => array(
-          'title'       => __( 'Rave Live Secret Key', 'flw-payments' ),
-          'type'        => 'text',
-          // 'description' => __( 'Required! Enter your Rave live secret key here', 'flw-payments' ),
-          'default'     => ''
-        ),
-        'split_enabled' => array(
-          'title'       => __( 'Split Payment', 'flw-payments' ),
-          'label'       => __( 'Enable Split Payment', 'flw-payments' ),
-          'type'        => 'checkbox',
-          'description' => 'Once enabled subaccount ids are used for all transactions',
-          'class'       => 'woocommerce_flutterwave_split_payment',
-          'default'     => 'no',
-          'desc_tip'    => true,
-        ),
-        'subaccount_count_saved' => array(
-          'type'        => 'hidden',
-          'class'       => 'woocommerce_flutterwave_subaccount_count_saved',
-          'default'     => '',
-        ),
-        'subaccount_id' => array(
-          'title'       => __( 'Subaccount Id ', 'flw-payments' ),
-          'type'        => 'text',
-          'description' => __( 'Enter the subaccount id here.', 'flw-payments' ),
-          'class'       => __( 'woocommerce_flutterwave_subaccount_code', 'flw-payments' ),
-          'default'     => '',
-        ),
-        'subaccount_id_2' => array(
-          'title'       => __( 'Subaccount Id 2', 'flw-payments' ),
-          'type'        => 'text',
-          'description' => __( 'Enter the subaccount id 2 here.', 'flw-payments' ),
-          'class'       => __( 'woocommerce_flutterwave_subaccount_code_2', 'flw-payments' ),
-          'default'     => '',
-        ),
-        'subaccount_id_3' => array(
-          'title'       => __( 'Subaccount Id 3', 'flw-payments' ),
-          'type'        => 'text',
-          'description' => __( 'Enter the subaccount id 3 here.', 'flw-payments' ),
-          'class'       => __( 'woocommerce_flutterwave_subaccount_code_3', 'flw-payments' ),
-          'default'     => '',
-        ),
-        'subaccount_id_4' => array(
-          'title'       => __( 'Subaccount Id 4', 'flw-payments' ),
-          'type'        => 'text',
-          'description' => __( 'Enter the subaccount id 4 here.', 'flw-payments' ),
-          'class'       => __( 'woocommerce_flutterwave_subaccount_code_4', 'flw-payments' ),
-          'default'     => '',
-        ),
-        'add_subaccount_id' => array(
-          'type'        => 'button',
-          'description' => __( 'add new subaccount id.', 'flw-payments' ),
-          'class'       => __( 'woocommerce_flutterwave_subaccount_button', 'flw-payments' ),
-          'default'     => 'Add subaccount id',
-        ),
-
-        'payment_style' => array(
-          'title'       => __( 'Payment Style on checkout', 'flw-payments' ),
-          'type'        => 'select',
-          'description' => __( 'Optional - Choice of payment style to use. Either inline or redirect. (Default: inline)', 'flw-payments' ),
-          'options'     => array(
-            'inline' => esc_html_x( 'Popup(Keep payment experience on the website)', 'payment_style', 'flw-payments' ),
-            'redirect'  => esc_html_x( 'Redirect',  'payment_style', 'flw-payments' ),
-          ),
-          'default'     => 'inline'
-        ),
-        'payment_options' => array(
-          'title'       => __( 'Payment Options', 'flw-payments' ),
-          'type'        => 'select',
-          'description' => __( 'Optional - Choice of payment method to use. Card, Account etc.', 'flw-payments' ),
-          'options'     => array(
-            '' => esc_html_x( 'Default', 'payment_options', 'flw-payments' ),
-            'card'  => esc_html_x( 'Card Only',  'payment_options', 'flw-payments' ),
-            'account'  => esc_html_x( 'Account Only',  'payment_options', 'flw-payments' ),
-            'ussd'  => esc_html_x( 'USSD Only',  'payment_options', 'flw-payments' ),
-            'qr'  => esc_html_x( 'QR Only',  'payment_options', 'flw-payments' ),
-            'mpesa'  => esc_html_x( 'Mpesa Only',  'payment_options', 'flw-payments' ),
-            'mobilemoneyghana'  => esc_html_x( 'Ghana MM Only',  'payment_options', 'flw-payments' ),
-          ),
-          'default'     => ''
-        ),
-        'subaccount_remove_sub' => array(
-          'type'        => 'hidden',
-          'class'       => 'woocommerce_flutterwave_subaccount_remove_sub',
-          'default'     => '',
-        ),
-
-      );
-
-    }
-
-    /**
-     * Process payment at checkout
-     *
-     * @return int $order_id
-     */
-    public function process_payment( $order_id ) {
-
-      $order = wc_get_order( $order_id );
-  
-      return array(
-        'result'   => 'success',
-        'redirect' => $order->get_checkout_payment_url( true )
-      );
-
-    }
-
-    
-    /**
-     * Handles admin notices
-     *
-     * @return void
-     */
-    public function admin_notices() {
-
-      if ( 'no' == $this->enabled ) {
-        return;
+        default:
+          $this->country = 'NG';
+          break;
       }
 
-      /**
-       * Check if public key is provided
-       */
-      if ( ! $this->public_key || ! $this->secret_key ) {
-        $mode = ('yes' === $this->go_live) ? 'live' : 'test';
-        echo '<div class="error"><pre>';
-        echo sprintf(
-          'Provide your '.$mode .' public key and secret key <a href="%s">here</a> to be able to use the Rave Payment Gateway plugin. If you don\'t have one, kindly sign up at <a href="https://rave.flutterwave.com" target="_blank>https://rave.flutterwave.com</a>, navigate to the settings page and click on API.',
-           admin_url( 'admin.php?page=wc-settings&tab=checkout&section=rave' )
-         );
-        echo '</pre></div>';
-        return;
+      $country = $this->country;
+      $payment_style = $this->payment_style;
+
+      if ($main_order_key == $order_key) {
+
+        $payment_args = compact('amount', 'email', 'txnref', 'p_key', 'currency', 'country', 'payment_options', 'cb_url', 'payment_style');
+        $payment_args['desc'] = filter_var($this->description, FILTER_SANITIZE_STRING);
+        $payment_args['title'] = filter_var($this->title, FILTER_SANITIZE_STRING);
+        // $payment_args['logo'] = filter_var($this->modal_logo, FILTER_SANITIZE_URL);
+        $payment_args['firstname'] = $order->get_billing_first_name();
+        $payment_args['lastname'] = $order->get_billing_last_name();
+        $payment_args['barter'] = $this->barter;
       }
 
-    }
-
-    public function thankyou_page($orderid){
-      $order = wc_get_order( $orderid );
+      update_post_meta($order_id, '_flw_payment_txn_ref', $txnref);
 
     }
 
+    wp_localize_script('flw_js', 'flw_payment_args', $payment_args);
+  }
 
-    public function admin_scripts(){
+  /**
+   * Verify payment made on the checkout page
+   *
+   * @return void
+   */
+  public function flw_verify_payment()
+  {
 
-      $flutterwave_admin_params = array(
-        'plugin_url' => FLW_WC_ASSET_URL,
-        'countSubaccount' => $this->get_option( 'subaccount_count_saved' )
-      );
-  
-      wp_enqueue_script( 'wc_flutterwave_admin', plugins_url( 'assets/js/flw-admin.js', FLW_WC_PLUGIN_FILE ), array(), '2.2.5', true );
-  
-      wp_localize_script( 'wc_flutterwave_admin', 'wc_flutterwave_admin_params', $flutterwave_admin_params );
+    $publicKey = $this->public_key;
+    $secretKey = $this->secret_key;
+    $logging_option = $this->logging_option;
 
-    }
 
-    /**
-     * Checkout receipt page
-     *
-     * @return void
-     */
-    public function receipt_page( $order ) {
+    // if($this->go_live === 'yes'){
+    //   $env = 'live';
+    // }else{
+    //   $env = 'staging';
+    // }
+    $overrideRef = true;
 
-      $order = wc_get_order( $order );
-      
-      echo '<p>'.__( 'Thank you for your order, please click the <b>Make Payment</b> button below to make payment. You will be redirected to a secure page where you can enter you card details or bank account details. <b>Please, do not close your browser at any point in this process.</b>', 'flw-payments' ).'</p>';
-      echo '<a class="button cancel" href="' . esc_url( $order->get_cancel_order_url() ) . '">';
-      echo __( 'Cancel order &amp; restore cart', 'flw-payments' ) . '</a> ';
-      echo '<button class="button alt  wc-forward" id="flw-pay-now-button">Make Payment</button> ';
-      
+    if (isset($_GET['rave_id']) && urldecode($_GET['rave_id'])) {
+      $order_id = urldecode($_GET['rave_id']);
 
-    }
-
-    /**
-     * Loads (enqueue) static files (js & css) for the checkout page
-     *
-     * @return void
-     */
-    public function load_scripts() {
-
-      if ( ! is_checkout_pay_page() ) return;
-      $p_key = $this->public_key;
-      $payment_options = $this->payment_options;
-       
-      if( $this->payment_style == 'inline'){
-        wp_enqueue_script( 'flwpbf_inline_js', $this->base_url . '/flwv3-pug/getpaidx/api/flwpbf-inline.js', array(), '1.0.0', true );
+      if (!$order_id) {
+        $order_id = urldecode($_GET['order_id']);
       }
+      $order = wc_get_order($order_id);
 
-      wp_enqueue_script( 'flw_js', plugins_url( 'assets/js/flw.js', FLW_WC_PLUGIN_FILE ), array( 'jquery' ), '1.0.0', true );
+      $redirectURL = WC()->api_request_url('FLW_WC_Payment_Gateway') . '?order_id=' . $order_id;
 
-      if ( get_query_var( 'order-pay' ) ) {
-        
-        $order_key = urldecode( $_REQUEST['key'] );
-        $order_id  = absint( get_query_var( 'order-pay' ) );
-        $cb_url = WC()->api_request_url( 'FLW_WC_Payment_Gateway' ).'?rave_id='.$order_id;
-       
-        if( $this->payment_style == 'inline'){
-          wp_enqueue_script( 'flwpbf_inline_js', $this->base_url . '/flwv3-pug/getpaidx/api/flwpbf-inline.js', array(), '1.0.0', true );
-          $cb_url = WC()->api_request_url('FLW_WC_Payment_Gateway');
-        }
+      $ref = uniqid("WOOC_" . $order_id . "_" . time() . "_");
 
-        $order     = wc_get_order( $order_id );
-        
-        $txnref    = "WOOC_" . $order_id . '_' . time();
-        $txnref    = filter_var($txnref, FILTER_SANITIZE_STRING);//sanitizr=e this field
-       
-        if (version_compare(WOOCOMMERCE_VERSION, '2.7.0', '>=')){
-              $amount    = $order->get_total();
-              $email     = $order->get_billing_email();
-              $currency     = $order->get_currency();
-              $main_order_key = $order->get_order_key();
-        }else{
-            $args = array(
-                'name'    => $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),
-                'email'   => $order->get_billing_email(),
-                'contact' => $order->get_billing_phone(),
-            );
-            $amount    = $order->get_total();
-            $main_order_key = $order->get_order_key();
-            $email     = $order->get_billing_email();
-            $currency     = $order->get_currency();
-        }
-        
-        // $amount    = $order->order_total;
-        // $email     = $order->billing_email;
-        // $currency     = $order->get_order_currency();
-        
-        //set the currency to route to their countries
-        switch ($currency) {
-            case 'KES':
-              $this->country = 'KE';
-              break;
-            case 'GHS':
-              $this->country = 'GH';
-              break;
-            case 'ZAR':
-              $this->country = 'ZA';
-              break;
-            case 'TZS':
-              $this->country = 'TZ';
-              break;
-            
-            default:
-              $this->country = 'NG';
-              break;
-        }
-        
-        $country  = $this->country;
-        $payment_style  = $this->payment_style;
+      $payment = new Rave($publicKey, $secretKey, $ref, $overrideRef, $logging_option);
 
-        $cart_p = WC()->cart;
-
-        // Loop over $cart items
-      foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
-        $product_cart = $cart_item['data'];
-        $product_id_cart = $cart_item['product_id'];
-        $price_cart = WC()->cart->get_product_price( $product_cart );
-        // $subtotal = WC()->cart->get_product_subtotal( $product_cart, $cart_item['quantity'] );
-        array_push($this->product_id_list, $product_id_cart);
-      }
-
-        if( 'yes' === $this->split_enabled ) {
-          foreach ($this->subaccount_ids as $value) {
-             if($value != ""){
-                array_push($this->subaccount_list, ['id' => $value]);
-             }
-          }//use to generate the subaccount ids
-
-          update_post_meta( $order_id, 'flw_subaccount_details', $this->subaccount_list);
-
-          
-        }else{
-
-          $this->subaccount_ids = [];
-  
-          $items = $order->get_items();
-          foreach ( $items as $item ) {
-            $product_name = $item->get_name();
-            $product_id = (int)$item->get_product_id();
-            $subtotal = (int)$item->get_subtotal();
-            array_push($this->subtotal_charge, $subtotal);
-            array_push($this->subaccount_ids, (empty(get_post_meta( $product_id, 'flw_subaccount_assign', true )))? 'RS_TEST': get_post_meta( $product_id, 'flw_subaccount_assign', true ));
-            array_push($this->subaccount_ratio, (empty(get_post_meta( $product_id, 'flw_subaccount_ratio', true )))? 0.5 : get_post_meta( $product_id, 'flw_subaccount_ratio', true ));
-
-          }
-
-          // transaction_charge_type: "flat_subaccount",
-          // transaction_charge: "1000"
-
-          function calculate_transaction_charge($subtotal, $perentage){
-
-              return $perentage * $subtotal;
-
-          }
-
-          for ($i=0, $sub_count = count($this->subtotal_charge); $i < $sub_count; $i++) { 
-            for ($j=0, $ratio_count = count($this->subaccount_ratio); $j < $ratio_count ; $j++) { 
-              if($i === $j){
-                  array_push($this->transaction_charge, (string)calculate_transaction_charge($this->subtotal_charge[$i],$this->subaccount_ratio[$j]));  
-              }
-              
-            }
-          }
-          
-
-          // echo "<pre>";
-          // print_r($this->subtotal_charge);
-          // print_r($this->subaccount_ratio);
-          // print_r($this->transaction_charge);
-          // echo "</pre>";
-          // exit();
-          array_push($this->subaccount_list, [
-            'id' => $this->subaccount_ids, 
-            'transaction_charge_type' => 'flat_subaccount', 
-            'transaction_charge' => [$this->transaction_charge][0], 
-            // 'product_number' => WC()->cart->get_cart_contents_count(),
-            // 'product_id_list' => [$this->product_id_list][0],
-            // 'product_price' => $price_cart,
-            // 'product_price_subtotal' => [$this->subtotal_charge][0]
-            ]);
-
-            if( $this->payment_style == 'redirect' ){
-              update_post_meta( $order_id, 'flw_subaccount_details', $this->subaccount_list);
-
-            }
-        }
-
-        if ( $main_order_key == $order_key ) {
-
-          $payment_args = compact( 'amount', 'email', 'txnref', 'p_key', 'currency', 'country', 'payment_options','cb_url','payment_style');
-          $payment_args['desc']   = filter_var($this->description, FILTER_SANITIZE_STRING);
-          $payment_args['title']  = filter_var($this->title, FILTER_SANITIZE_STRING);
-          // $payment_args['logo'] = filter_var($this->modal_logo, FILTER_SANITIZE_URL);
-          $payment_args['subaccounts'] = $this->subaccount_list;
-          $payment_args['firstname'] = $order->get_billing_first_name();
-          $payment_args['lastname'] = $order->get_billing_last_name();
-          $payment_args['barter'] = $this->barter;
-          $payment_args['split_payment'] = $this->split_enabled;
-        }
-
-        update_post_meta( $order_id, '_flw_payment_txn_ref', $txnref );
-
-      }
-
-      wp_localize_script( 'flw_js', 'flw_payment_args', $payment_args );
-
-
-    }
-
-    /**
-     * Verify payment made on the checkout page
-     *
-     * @return void
-     */
-    public function flw_verify_payment() {
-           
-      $publicKey = $this->public_key; 
-      $secretKey = $this->secret_key;
-      $logging_option = $this->logging_option; 
-      
-
-      
-      // if($this->go_live === 'yes'){
-      //   $env = 'live';
-      // }else{
-      //   $env = 'staging';
+      // if($this->modal_logo){
+      //   $rave_m_logo = $this->modal_logo;
       // }
-      $overrideRef = true;
-        
-      if(isset($_GET['rave_id']) && urldecode( $_GET['rave_id'] )){
-        $order_id = urldecode( $_GET['rave_id'] );
-        
-        if(!$order_id){
-          $order_id = urldecode( $_GET['order_id'] );
-        }
-        $order = wc_get_order( $order_id );
-        
-        $redirectURL =  WC()->api_request_url( 'FLW_WC_Payment_Gateway' ).'?order_id='.$order_id;
 
-        if( $this->payment_style == 'redirect' ){
+      //set variables
+      $modal_desc = $this->description != '' ? filter_var($this->description, FILTER_SANITIZE_STRING) : "Payment for Order ID: $order_id on " . get_bloginfo('name');
+      $modal_title = $this->title != '' ? filter_var($this->title, FILTER_SANITIZE_STRING) : get_bloginfo('name');
 
-            $subaccount = get_post_meta( $order_id, 'flw_subaccount_details', true );
-
-        }else{
-            $subaccount = [];
-        }
-        
-        $ref = uniqid("WOOC_". $order_id."_".time()."_");
-        
-        $payment = new Rave($publicKey, $secretKey, $ref, $overrideRef,$logging_option);
-        
-        // if($this->modal_logo){
-        //   $rave_m_logo = $this->modal_logo;
-        // }
-
-        //set variables
-        $modal_desc = $this->description != '' ? filter_var($this->description, FILTER_SANITIZE_STRING) : "Payment for Order ID: $order_id on ". get_bloginfo('name');
-        $modal_title = $this->title != '' ? filter_var($this->title, FILTER_SANITIZE_STRING) : get_bloginfo('name');
-        
-        // Make payment
-        $payment
+      // Make payment
+      $payment
         ->eventHandler(new myEventHandler($order))
         ->setAmount($order->get_total())
         ->setPaymentOptions($this->payment_options) // value can be card, account or both
@@ -598,175 +450,160 @@
         ->setFirstname($order->get_billing_first_name())
         ->setLastname($order->get_billing_last_name())
         ->setPhoneNumber($order->get_billing_phone())
-        ->setSubaccounts($subaccount)
         ->setDisableBarter($this->barter)
         ->setRedirectUrl($redirectURL)
-
         // ->setMetaData(array('metaname' => 'SomeDataName', 'metavalue' => 'SomeValue')) // can be called multiple times. Uncomment this to add meta datas
         // ->setMetaData(array('metaname' => 'SomeOtherDataName', 'metavalue' => 'SomeOtherValue')) // can be called multiple times. Uncomment this to add meta datas
-        ->initialize(); 
+        ->initialize();
+      die();
+    }
+    else {
+      if (isset($_GET['cancelled']) && isset($_GET['order_id'])) {
+        if (!$order_id) {
+          $order_id = urldecode($_GET['order_id']);
+        }
+        $order = wc_get_order($order_id);
+        $redirectURL = $order->get_checkout_payment_url(true);
+        header("Location: " . $redirectURL);
         die();
-      }else{
-        if(isset($_GET['cancelled']) && isset($_GET['order_id'])){
-          if(!$order_id){
-            $order_id = urldecode( $_GET['order_id'] );
-          }
-          $order = wc_get_order( $order_id );
-          $redirectURL = $order->get_checkout_payment_url( true );
-          header("Location: ".$redirectURL);
-          die(); 
-        }
-        
-        if ( isset( $_POST['txRef'] ) || isset($_GET['txref']) ) {
-            $txn_ref = isset($_POST['txRef']) ? $_POST['txRef'] : urldecode($_GET['txref']);
+      }
 
-            $o = explode('_', $txn_ref);
-            $order_id = intval( $o[1] );
-            $order = wc_get_order( $order_id );
-            $payment = new Rave($publicKey, $secretKey, $txn_ref, $overrideRef,$this->logging_option);
-        
-            $payment->logger->notice('Payment completed. Now requerying payment.');
-            
-            $payment->eventHandler(new myEventHandler($order))->requeryTransaction(urldecode($txn_ref));
-            
-            $redirect_url = $this->get_return_url( $order );
-            header("Location: ".$redirect_url);
-            die(); 
-        }else{
-          $payment = new Rave($publicKey, $secretKey, $txn_ref, $overrideRef, $this->logging_option);
-        
-          $payment->logger->notice('Error with requerying payment.');
-          
-          $payment->eventHandler(new myEventHandler($order))->doNothing();
-            die();
-        }
+      if (isset($_POST['txRef']) || isset($_GET['txref'])) {
+        $txn_ref = isset($_POST['txRef']) ? $_POST['txRef'] : urldecode($_GET['txref']);
+        $o = explode('_', $txn_ref);
+        $order_id = intval($o[1]);
+        $order = wc_get_order($order_id);
+        $payment = new Rave($publicKey, $secretKey, $txn_ref, $overrideRef, $this->logging_option);
+
+        $payment->logger->notice('Payment completed. Now requerying payment.');
+
+        $payment->eventHandler(new myEventHandler($order))->requeryTransaction(urldecode($txn_ref));
+
+        $redirect_url = $this->get_return_url($order);
+        header("Location: " . $redirect_url);
+        die();
+      }
+      else {
+        $payment = new Rave($publicKey, $secretKey, $txn_ref, $overrideRef, $this->logging_option);
+
+        $payment->logger->notice('Error with requerying payment.');
+        die();
       }
     }
+  }
 
-    /**
-	 * Process Webhook
-	 */
-    public function flw_rave_webhooks() {
+  /**
+   * Process Webhook
+   */
+  public function flw_rave_webhooks()
+  {
+    // Retrieve the request's body
+    $body = @file_get_contents("php://input");
 
-      // Retrieve the request's body
-      $body = @file_get_contents("php://input");
+    // retrieve the signature sent in the request header's.
+    $signature = (isset($_SERVER['HTTP_VERIF_HASH']) ? $_SERVER['HTTP_VERIF_HASH'] : '');
 
-      // retrieve the signature sent in the request header's.
-      $signature = (isset($_SERVER['HTTP_VERIF_HASH']) ? $_SERVER['HTTP_VERIF_HASH'] : '');
+    /* It is a good idea to log all events received. Add code *
+     * here to log the signature and body to db or file       */
 
-      /* It is a good idea to log all events received. Add code *
-      * here to log the signature and body to db or file       */
-
-      if (!$signature) {
-          // only a post with rave signature header gets our attention
-          exit();
-      }
-
-      // Store the same signature on your server as an env variable and check against what was sent in the headers
-      $local_signature = $this->get_option('secret_hash');
-
-      // confirm the event's signature
-      if( $signature !== $local_signature ){
-        // silently forget this ever happened
-        exit();
-      }
-      sleep(10);
-
-      http_response_code(200); // PHP 5.4 or greater
-      // parse event (which is json string) as object
-      // Give value to your customer but don't give any output
-      // Remember that this is a call from rave's servers and 
-      // Your customer is not seeing the response here at all
-      $response = json_decode($body);
-      if ($response['status'] == 'successful') {
-
-        $getOrderId = explode('_', $response->txRef);
-        $orderId = $getOrderId[1];
-        // $order = wc_get_order( $orderId );
-        $order = new WC_Order($orderId);
-
-        if ($order->status == 'pending') {
-          $order->update_status('processing');
-          $order->add_order_note('Payment was successful on Rave and verified via webhook');
-          $customer_note  = 'Thank you for your order.<br>';
-
-          $order->add_order_note( $customer_note, 1 );
-      
-          wc_add_notice( $customer_note, 'notice' );
-        }
-
-        
-        // $order->payment_complete($order->id);
-        // $order->add_order_note('Payment was successful on Rave and verified via webhook');
-        // $order->add_order_note('Flutterwave transaction reference: '.$response->flwRef); 
-        // $customer_note  = 'Thank you for your order.<br>';
-        // $customer_note .= 'Your payment was successful, we are now <strong>processing</strong> your order.';
-
-        // $order->add_order_note( $customer_note, 1 );
-    
-        // wc_add_notice( $customer_note, 'notice' );
-        // $this->flw_verify_payment();
-      }
-      exit();    
-
+    if (!$signature) {
+      // only a post with rave signature header gets our attention
+      echo "Access Denied Hash does not match";
+      exit();
     }
 
-    /**
-	 * Save Customer Card Details
-	 */
-    public static function save_card_details( $rave_response, $user_id, $order_id ) {
+    // Store the same signature on your server as an env variable and check against what was sent in the headers
+    $local_signature = $this->get_option('secret_hash');
 
-      if ( isset( $rave_response->card->card_tokens[0]->embedtoken ) ) {
-        $token_code = $rave_response->card->card_tokens[0]->embedtoken;
-      } else {
-        $token_code = '';
-      }
-
-      // save payment token to the order
-      self::save_subscription_payment_token( $order_id, $token_code );
-      // $save_card = get_post_meta( $order_id, '_wc_rave_save_card', true );
-
-      
+    // confirm the event's signature
+    if ($signature !== $local_signature) {
+      // silently forget this ever happened
+      exit();
     }
+    // sleep(10);
 
-    /**
-	  * Save payment token to the order for automatic renewal for further subscription payment
-	  */
-    public function save_subscription_payment_token( $order_id, $payment_token ) {
-
-      if ( ! function_exists ( 'wcs_order_contains_subscription' ) ) {
-        return;
-      }
-
-      if ( WC_Subscriptions_Order::order_contains_subscription( $order_id ) && ! empty( $payment_token ) ) {
-
-        // Also store it on the subscriptions being purchased or paid for in the order
-        if ( function_exists( 'wcs_order_contains_subscription' ) && wcs_order_contains_subscription( $order_id ) ) {
-
-          $subscriptions = wcs_get_subscriptions_for_order( $order_id );
-
-        } elseif ( function_exists( 'wcs_order_contains_renewal' ) && wcs_order_contains_renewal( $order_id ) ) {
-
-          $subscriptions = wcs_get_subscriptions_for_renewal_order( $order_id );
-
-        } else {
-
-          $subscriptions = array();
-
-        }
-
-        foreach ( $subscriptions as $subscription ) {
-
-          $subscription_id = $subscription->get_id();
-
-          update_post_meta( $subscription_id, '_rave_wc_token', $payment_token );
-
-        }
-      }
+    http_response_code(200); // PHP 5.4 or greater
+    // parse event (which is json string) as object
+    // Give value to your customer but don't give any output
+    // Remember that this is a call from rave's servers and 
+    // Your customer is not seeing the response here at all
+    $response = json_decode($body);
+    if ($response->status == 'successful' || $response->data->status == 'successful') {
+      $getOrderId = explode('_', $response->txRef ?? $response->data->tx_ref);
+      $orderId = $getOrderId[1];
+      // $order = wc_get_order( $orderId );
+      $order = new WC_Order($orderId);
+      $secretKey = $this->secret_key;
+      $publicKey = $this->public_key;
+      $payment = new Rave($publicKey, $secretKey, $txn_ref, $overrideRef, $this->logging_option);
+      $payment->eventHandler(new myEventHandler($order))->requeryTransaction($response->txRef ?? $response->data->tx_ref);
+      do_action('flw_webhook_after_action', json_encode($response, TRUE));
     }
+    else {
+      do_action('flw_webhook_transaction_failure_action', json_encode($response, TRUE));
+    }
+    exit();
 
   }
-  
+
+  /**
+   * Save Customer Card Details
+   */
+  public static function save_card_details($rave_response, $user_id, $order_id)
+  {
+
+    if (isset($rave_response->card->card_tokens[0]->embedtoken)) {
+      $token_code = $rave_response->card->card_tokens[0]->embedtoken;
+    }
+    else {
+      $token_code = '';
+    }
+
+    // save payment token to the order
+    self::save_subscription_payment_token($order_id, $token_code);
+  // $save_card = get_post_meta( $order_id, '_wc_rave_save_card', true );
+  }
+
+  /**
+   * Save payment token to the order for automatic renewal for further subscription payment
+   */
+  public static function save_subscription_payment_token($order_id, $payment_token)
+  {
+
+    if (!function_exists('wcs_order_contains_subscription')) {
+      return;
+    }
+
+    if (WC_Subscriptions_Order::order_contains_subscription($order_id) && !empty($payment_token)) {
+
+      // Also store it on the subscriptions being purchased or paid for in the order
+      if (function_exists('wcs_order_contains_subscription') && wcs_order_contains_subscription($order_id)) {
+
+        $subscriptions = wcs_get_subscriptions_for_order($order_id);
+
+      }
+      elseif (function_exists('wcs_order_contains_renewal') && wcs_order_contains_renewal($order_id)) {
+
+        $subscriptions = wcs_get_subscriptions_for_renewal_order($order_id);
+
+      }
+      else {
+
+        $subscriptions = array();
+
+      }
+
+      foreach ($subscriptions as $subscription) {
+
+        $subscription_id = $subscription->get_id();
+
+        update_post_meta($subscription_id, '_rave_wc_token', $payment_token);
+
+      }
+    }
+  }
+
+}
+
+
 ?>
-
-
