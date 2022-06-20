@@ -7,10 +7,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 require __DIR__.'/../vendor/autoload.php';
 
-use Monolog\Logger;
-use Monolog\Handler\NullHandler;
-use Monolog\Handler\RotatingFileHandler;
-use Monolog\Handler\SyslogUdpHandler;
 use Unirest\Request;
 use Unirest\Request\Body;
 
@@ -40,7 +36,6 @@ class Rave {
     protected $payButtonText = 'Make Payment';
     protected $redirectUrl;
     protected $meta = array();
-    public $subaccount = array();
     // protected $env = 'staging';
     protected $transactionPrefix;
     public $logger;
@@ -52,6 +47,7 @@ class Rave {
     protected $overrideTransactionReference;
     protected $requeryCount = 0;
     protected $disableBarter;
+	protected $context = array( 'source' => 'rave_for_woocommerce' );
     
     /**
      * Construct
@@ -62,7 +58,7 @@ class Rave {
      * @param boolean $overrideRefWithPrefix Set this parameter to true to use your prefix as the transaction reference
      * @return object
      * */
-    function __construct($publicKey, $secretKey, $prefix, $overrideRefWithPrefix = false,$disable_logging_option){
+    function __construct($publicKey, $secretKey, $prefix, $overrideRefWithPrefix,$disable_logging_option){
         $this->publicKey = $publicKey;
         $this->secretKey = $secretKey;
         // $this->env = $env;
@@ -70,20 +66,7 @@ class Rave {
         $this->overrideTransactionReference = $overrideRefWithPrefix;
 
         // create a log channel
-        $log = new Logger('flutterwave/rave');
-        $this->logger = $log;
-
-        if($disable_logging_option === 'yes'){
-
-            $log->pushHandler(new NullHandler()); 
-
-        }else{
-
-            $log->pushHandler(new RotatingFileHandler('rave.log', 90, Logger::DEBUG)); 
-
-        }
-
-        //$log->pushHandler(new RotatingFileHandler('rave.log', 90, Logger::DEBUG));  
+		$this->logger = wc_get_logger();
 
         
         $this->createReferenceNumber();
@@ -100,7 +83,7 @@ class Rave {
         $this->baseUrl = $this->liveUrl;
         
         // logs
-        $this->logger->notice('Rave Class Initializes....');
+		$this->logger->notice('Rave Class Initializes....', $this->context);
         
         return $this;
     }
@@ -110,10 +93,30 @@ class Rave {
      * @return object
      * */
     function createCheckSum(){
-        $this->logger->notice('Generating Checksum....');
+		$this->logger->notice('Generating Checksum....', $this->context);
+            //set the currency to route to their countries
+            switch ($this->currency) {
+                case 'KES':
+                    $this->country = 'KE';
+                    break;
+                case 'GHS':
+                    $this->country = 'GH';
+                    break;
+                case 'ZAR':
+                    $this->country = 'ZA';
+                    break;
+                case 'TZS':
+                    $this->country = 'TZ';
+                    break;
+    
+                default:
+                    $this->country = 'NG';
+                    break;
+            }
+
         $options = array( 
             "PBFPubKey" => $this->publicKey, 
-            "amount" => $this->amount, 
+            "amount" => (float) $this->amount, 
             "customer_email" => $this->customerEmail, 
             "customer_firstname" => $this->customerFirstname, 
             "customer_lastname" => $this->customerLastname, 
@@ -122,13 +125,15 @@ class Rave {
             "country" => $this->country, 
             "currency" => $this->currency, 
             "custom_description" => $this->customDescription, 
-            "custom_logo" => $this->customLogo, 
+            "custom_logo" => $this->customLogo ?? "https://flutterwave.com/images/logo/inverted.svg", 
             "custom_title" => $this->customTitle, 
             "customer_phone" => $this->customerPhone,
             "pay_button_text" => $this->payButtonText,
             "redirect_url" => $this->redirectUrl,
             "hosted_payment" => 1
         );
+		
+		$options['disable_pwb'] = 0;
 
         // check if the user disabled barter
         if ($this->getDisableBarter() == 'yes'){
@@ -157,13 +162,13 @@ class Rave {
      * @return object
      * */
     function createReferenceNumber(){
-        $this->logger->notice('Generating Reference Number....');
+		$this->logger->notice('Generating Reference Number....', $this->context);
         if($this->overrideTransactionReference){
             $this->txref = $this->transactionPrefix;
         }else{
             $this->txref = uniqid($this->transactionPrefix);
         }
-        $this->logger->notice('Generated Reference Number....'.$this->txref);
+		$this->logger->notice('Generated Reference Number....'.$this->txref, $this->context);
         return $this;
     }
     
@@ -237,54 +242,6 @@ class Rave {
     function setDescription($customDescription){
         $this->customDescription = $customDescription;
         return $this;
-    }
-    /**
-     * gets the subaccounts
-     * @return string
-     * */
-    function getSubaccounts(){
-        return $this->subaccount;
-    }
-    
-    /**
-     * add subaccount details description
-     * @param string $subaccountInfo the array filled with subacount details
-     * */
-    function setSubaccounts($subaccountInfo){
-        // echo "<pre>";
-        // print_r($subaccountInfo);
-        // echo "</pre>";
-        // exit();
-
-        if(!isset($subaccountInfo[0]['transaction_charge'])){
-
-            for ($i=0, $count_subsid = count($subaccountInfo) ; $i < $count_subsid; $i++) {  
-                array_push($this->subaccount, [
-                    'id' => $subaccountInfo[$i]['id']
-                    ]);
-            }
-        }else{
-
-            for ($i=0, $count_subsid = count($subaccountInfo[0]['id']) ; $i < $count_subsid; $i++) { 
-                for ($j=0, $count_subscharge = count($subaccountInfo[0]['transaction_charge']); $j < $count_subscharge ; $j++) { 
-                    if($i == $j){
-                        array_push($this->subaccount, [
-                            'id' => $subaccountInfo[0]['id'][$i],
-                            'transaction_charge_type'  => 'flat_subaccount',
-                            'transaction_charge' => $subaccountInfo[0]['transaction_charge'][$j]
-                            ]);
-                    }
-    
-                }
-            }
-
-        }
-
-
-
-        return $this;
-        
-        
     }
     
     /**
@@ -511,7 +468,7 @@ class Rave {
     function requeryTransaction($referenceNumber){
         $this->txref = $referenceNumber;
         $this->requeryCount++;
-        $this->logger->notice('Requerying Transaction....'.$this->txref);
+		$this->logger->notice('Requerying Transaction....'.$this->txref, $this->context);
         if(isset($this->handler)){
             $this->handler->onRequery($this->txref);
         }
@@ -521,23 +478,16 @@ class Rave {
             'SECKEY' => $this->secretKey,
         );
 
-
         // make request to endpoint using unirest.
-       
+        $headers = array('Content-Type' => 'application/json');
+        $body = Body::json($data);
         $url = $this->baseUrl.'/flwv3-pug/getpaidx/api/v2/verify';
 
         // try and catch error if any
         try {
 
             // Make `POST` request and handle response with unirest
-            $json_encoded_data = json_encode($data, JSON_UNESCAPED_SLASHES);
-            $response = wp_remote_post($url, array('headers' => ['Content-Type'=> 'application/json'],'body' =>  $json_encoded_data ) );
-
-            if ( is_array( $response ) && ! is_wp_error( $response ) ) {
-  
-                $response = json_decode($response['body'], true); 
-
-              }
+            $response = Request::post($url, $headers, $body);
 
         } catch (Exception $e) {
 
@@ -548,40 +498,40 @@ class Rave {
         }
   
         //check the status is success
-        if ($response['status'] === "success") {
-            if($response['data']['status'] === "successful"){
-                $this->logger->notice('Requeryed a successful transaction....'.json_encode($response['data']));
+        if ($response->body && $response->body->status === "success") {
+            if($response->body && $response->body->data && $response->body->data->status === "successful"){
+				$this->logger->notice('Requeryed a successful transaction....'.json_encode($response->body->data), $this->context);
                 // Handle successful
                 if(isset($this->handler)){
-                    $this->handler->onSuccessful($response['data']);
+                    $this->handler->onSuccessful($response->body->data);
                 }
-            }elseif($response['data']['status'] === "failed"){
+            }elseif($response->body && $response->body->data && $response->body->data->status === "failed"){
                 // Handle Failure
-                $this->logger->warn('Requeryed a failed transaction....'.json_encode($response['data']));
+				$this->logger->warning('Requeryed a failed transaction....'.json_encode($response->body->data), $this->context);
                 if(isset($this->handler)){
-                    $this->handler->onFailure($response['data']);
+                    $this->handler->onFailure($response->body->data);
                 }
             }else{
                 // Handled an undecisive transaction. Probably timed out.
-                $this->logger->warn('Requeryed an undecisive transaction....'.json_encode($response['data']));
+				$this->logger->warning('Requeryed an undecisive transaction....'.json_encode($response->body->data), $this->context);
                 // I will requery again here. Just incase we have some devs that cannot setup a queue for requery. I don't like this.
                 if($this->requeryCount > 4){
                     // Now you have to setup a queue by force. We couldn't get a status in 5 requeries.
                     if(isset($this->handler)){
-                        $this->handler->onTimeout($this->txref, $response);
+                        $this->handler->onTimeout($this->txref, $response->body);
                     }
                 }else{
-                    $this->logger->notice('delaying next requery for 3 seconds');
+					$this->logger->notice('delaying next requery for 3 seconds', $this->context);
                     sleep(3);
-                    $this->logger->notice('Now retrying requery...');
+					$this->logger->notice('Now retrying requery...', $this->context);
                     $this->requeryTransaction($this->txref);
                 }
             }
         }else{
-            $this->logger->warn('Requery call returned error for transaction reference.....'.json_encode($response).'Transaction Reference: '. $this->txref);
+			$this->logger->warning('Requery call returned error for transaction reference.....'.json_encode($response->body).'Transaction Reference: '. $this->txref, $this->context);
             // Handle Requery Error
             if(isset($this->handler)){
-                $this->handler->onRequeryError($response);
+                $this->handler->onRequeryError($response->body);
             }
         }
         return $this;
@@ -598,28 +548,55 @@ class Rave {
         if(isset($this->handler)){
             $this->handler->onInit($this->transactionData);
         }
-
-        $this->transactionData["subaccounts"] = $this->subaccount;
-
-        // echo "<pre>";
-        // print_r($this->transactionData);
-        // echo "</pre>";
-        // exit();
         
-        $json = json_encode($this->transactionData, true);
-
-        // echo "<pre>";
-        // echo $json;
-        // echo "</pre>";
-        // exit();
+        $json = json_encode($this->transactionData);
         echo '<html>';
         echo '<body>';
-        echo '<center>Proccessing...<br /><img src="'.plugins_url('Flutterwave-Rave-PHP-SDK/ajax-loader.gif', FLW_WC_PLUGIN_FILE).'" /></center>';
+        echo '<center>Proccessing...<br /><img src="'.plugins_url('flutterwave-rave-php-sdk/ajax-loader.gif', FLW_WC_PLUGIN_FILE).'" /></center>';
         echo '<script type="text/javascript" src="'.$this->baseUrl.'/flwv3-pug/getpaidx/api/flwpbf-inline.js"></script>';
         echo '<script>';
+        echo 'var isCompleted = false;';
 	    echo 'document.addEventListener("DOMContentLoaded", function(event) {';
-        echo 'var data = JSON.parse(\''.$json.'\');';
-        echo 'getpaidSetup(data);';
+        echo 'getpaidSetup({
+                PBFPubKey: "'. $this->transactionData['PBFPubKey'] .'",
+                  amount: '. $this->transactionData['amount'] .',
+                  payment_options: "'. $this->transactionData['payment_options'] .'",
+                  custom_description:
+                "'. $this->transactionData['custom_description'] . '",
+                  custom_logo: "'. $this->transactionData['custom_logo'] .'",
+                  custom_title: "' . $this->transactionData['custom_title'] . '",
+                  country: "' . $this->transactionData['country'] . '",
+                  currency: "'. $this->transactionData['currency'] .'",
+                 customer_email: "'. $this->transactionData['customer_email'] .'",
+                  customer_firstname: "'. $this->transactionData['customer_firstname'] .'",
+                  customer_lastname: "'. $this->transactionData['customer_lastname'] .'",
+                  customer_phone: "'. $this->transactionData['customer_phone'] .'",
+                  pay_button_text: "'. $this->transactionData['pay_button_text'] .'",
+                  txref: "' . $this->transactionData['txref'] . '",
+                  onclose: function() {
+                    if(window.isCompleted){
+                      window.location = "'. $this->transactionData['redirect_url'].'&txref='. $this->transactionData['txref'] .'"
+                  }
+                  window.location = "'. $_SERVER['HTTP_REFERER'] .'"
+                },
+                callback: function(response) {
+                  var txref = response.data.txRef;
+                  console.log("This is the response returned after a charge", response);
+                  if (
+                      response.tx.chargeResponseCode == "00" ||
+                      response.tx.chargeResponseCode == "0"
+                  ) {
+                      window.isCompleted = true;
+                      // redirect to a success page
+                      window.location = "'. $this->transactionData['redirect_url'].'&txref='. $this->transactionData['txref'] .'"
+                  } else {
+                      // redirect to a failure page.
+                      window.location = "'. $_SERVER['HTTP_REFERER'] .'"
+                  }
+
+                      x.close(); // use this to close the modal immediately after payment.
+              }
+        });';
         echo '});';
         echo '</script>';
         echo '</body>';
@@ -635,7 +612,7 @@ class Rave {
      * */
     function paymentCanceled($referenceNumber){
         $this->txref = $referenceNumber;
-        $this->logger->notice('Payment was canceled by user..'.$this->txref);
+		$this->logger->notice('Payment was canceled by user..'.$this->txref, $this->context);
         if(isset($this->handler)){
             $this->handler->onCancel($this->txref);
         }

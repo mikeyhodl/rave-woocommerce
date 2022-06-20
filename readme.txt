@@ -2,8 +2,8 @@
 Contributors: theflutterwave
 Tags: rave,flutterwave, woocommerce, payments, nigeria, mastercard, visa, target,Naira,payments,verve,donation,church,shop,store, ghana, kenya, international, mastercard, visa
 Requires at least: 3.1
-Tested up to: 5.6.1
-Stable tag: 2.2.6
+Tested up to: 6.0
+Stable tag: 2.2.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,12 +33,21 @@ Rave is available in:
 
 = Suggestions / Feature Request =
 
+Kindly read through the article [here](https://support.flutterwave.com/en/articles/3632754-how-to-integrate-flutterwave-into-woocommerce) for instructions 
+on how to install the plugin
+
 If you have suggestions or a new feature request, feel free to get in touch with us via [https://rave.flutterwave.com](https://rave.flutterwave.com)
 
 You can also follow us on Twitter! **[@theflutterwave](https://twitter.com/theflutterwave)**
 
 
 == Installation ==
+= Requirements =
+Make sure you have the following plugins already installed
+*   WooCommerce 
+*   WooCommerce Shipping & Tax 
+*   Facebook for WooCommerce 
+*   Google Ads & Marketing by Kliken
 
 = Automatic Installation =
 *   Login to your WordPress Dashboard.
@@ -60,6 +69,12 @@ You can also follow us on Twitter! **[@theflutterwave](https://twitter.com/thefl
 6.  Click on the __Rave__ link from the available Checkout Options
 7. Configure your __Rave Payment Gateway__ settings accordingly.
 
+= Best Practices =
+1. When in doubt about a transaction, always check the Flutterwave Dashboard to confirm the status of a transaction.
+2. Always ensure you keep your API keys securely and privately. Do not share with anyone
+3. Ensure you change from the default secret hash on the Wordpress admin and apply same on the Flutterwave Dashboard
+4. Always ensure you install the most recent version of the Flutterwave Wordpress plugin
+
 For FTP manual installation, [check here](http://codex.wordpress.org/Managing_Plugins#Manual_Plugin_Installation).
 
 = Configure the plugin =
@@ -69,6 +84,11 @@ To configure the plugin, go to __WooCommerce > Settings__ from the left menu, cl
 * __Pay Button Public Key__ - Enter your public key which can be retrieved from the "Pay Buttons" page on your Rave account dashboard.
 * __Modal Title__ - (Optional) customize the title of the Pay Modal. Default is Rave.
 * Click __Save Changes__ to save your changes.
+
+== Webhooks ==
+Handle Webhooks from Flutterwave with two new actions in WooCommerce.
+* flw_webhook_after_action : This action is fired after a transaction is completed and returns the transaction details (json).
+* flw_webhook_transaction_failure_action : This action is fired when a transaction fails and returns the transaction details (json).
 
 
 
@@ -82,12 +102,12 @@ To configure the plugin, go to __WooCommerce > Settings__ from the left menu, cl
 
 
 == Changelog ==
-= 2.2.6 =
-* Support for Subaccount and payment Plans for products.
-= 2.2.5 =
-  Regular Update for woocommerce and WordPress Compatability.
-= 2.2.4 =
- Fixes to the Wooommerce blank settings page.
+= 2.2.8 =
+*  Fixed: Woocommerce Subscription processing function error.
+*  New Feat: Switched to WC-Logger class for logging.
+= 2.2.7 =
+* fix: on payment completion redirect to order reciept page (redirect Method)
+* fix: PHP 8.0 compatibility ( optional method parameter )
 = 2.2.0 =
 * Use one base URL for live and test mode.
 
