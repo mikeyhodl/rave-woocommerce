@@ -4,8 +4,8 @@ Tags: rave, flutterwave, woocommerce, payments, nigeria, mastercard, visa, targe
 Requires at least: 3.1
 Tested up to: 6.0
 Stable tag: 2.2.8
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+License: MIT
+License URI: https://github.com/Flutterwave/rave-woocommerce/blob/master/LICENSE
 
 The WooCommerce Plugin makes it very easy and quick to add Flutterwave Payment option on Checkout for your online store. Accept Credit card, Debit card and Bank account payment directly on your store with the Rave payment gateway for WooCommerce.
 
