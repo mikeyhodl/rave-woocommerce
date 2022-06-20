@@ -1,6 +1,6 @@
 === Flutterwave WooCommerce ===
 Contributors: theflutterwave
-Tags: rave,flutterwave, woocommerce, payments, nigeria, mastercard, visa, target,Naira,payments,verve,donation,church,shop,store, ghana, kenya, international, mastercard, visa
+Tags: rave, flutterwave, woocommerce, payments, nigeria, mastercard, visa, target, naira, payments, verve, donation, church, shop, store, ghana, kenya, international, mastercard, visa
 Requires at least: 3.1
 Tested up to: 6.0
 Stable tag: 2.2.8
