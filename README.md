@@ -88,6 +88,6 @@ We love to get your input. Read more about our community contribution guidelines
 
 ## License
 
-By contributing to the Rave WooCommerce Plugin, you agree that your contributions will be licensed under its [MIT license](https://opensource.org/licenses/MIT).
+By contributing to the Rave WooCommerce Plugin, you agree that your contributions will be licensed under its [MIT license](/LICENSE).
 
 Copyright (c) Flutterwave Inc. 
