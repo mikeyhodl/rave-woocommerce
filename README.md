@@ -14,6 +14,7 @@ Available features include:
 - Recurring payments: Tokenization and Subscriptions (WooCommerce Subscriptions).
 - Split payments: Split payments between multiple recipients.
 
+
 ## Table of Contents
 
 1. [Requirements](#requirements)
@@ -23,8 +24,9 @@ Available features include:
 5. [Debugging Errors](#debugging-errors)
 6. [Support](#support)
 7. [Contribution guidelines](#contribution-guidelines)
-9. [License](#)
-10. [Changelog](#)
+9. [License](#license)
+10. [Changelog](#changelog)
+
 
 ## Requirements
 
@@ -34,6 +36,7 @@ Available features include:
 4. [Facebook for WooCommerce](https://wordpress.org/plugins/facebook-for-woocommerce/)
 5. [Google Ads & Marketing by Kliken](https://wordpress.org/plugins/kliken-marketing-for-google/)
 6. Supported PHP version: 5.6.0 - 8.1.0
+
 
 ## Installation
 
@@ -70,11 +73,13 @@ For FTP manual installation, [check here](http://codex.wordpress.org/Managing_Pl
 - Ensure you change from the default secret hash on the Wordpress admin and apply same on the Flutterwave Dashboard.
 - Always ensure you install the most recent version of the Flutterwave WooCommerce plugin.
 
+
 ## Debugging Errors
 
 We understand that you may run into some errors while integrating our plugin. You can read more about our error messages [here](https://developer.flutterwave.com/docs/integration-guides/errors).
 
 For `authorization` and `validation` error responses, double-check your API keys and request. If you get a `server` error, kindly engage the team for support.
+
 
 ## Support
 
@@ -82,12 +87,19 @@ For additional assistance using this library, contact the developer experience (
 
 You can also follow us [@FlutterwaveEng](https://twitter.com/FlutterwaveEng) and let us know what you think 😊.
 
+
 ## Contribution guidelines
 
 We love to get your input. Read more about our community contribution guidelines [here](/CONTRIBUTING.md)
+
 
 ## License
 
 By contributing to the Rave WooCommerce Plugin, you agree that your contributions will be licensed under its [MIT license](/LICENSE).
 
-Copyright (c) Flutterwave Inc. 
+Copyright (c) Flutterwave Inc.
+
+
+## Changelog
+
+Read about the changes we have made in our recent releases [here](/CHANGELOG.md)
