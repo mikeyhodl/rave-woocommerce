@@ -1,4 +1,4 @@
-=== Rave Woocommerce Payment Gateway ===
+=== Flutterwave WooCommerce ===
 Contributors: theflutterwave
 Tags: rave,flutterwave, woocommerce, payments, nigeria, mastercard, visa, target,Naira,payments,verve,donation,church,shop,store, ghana, kenya, international, mastercard, visa
 Requires at least: 3.1
@@ -7,58 +7,39 @@ Stable tag: 2.2.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-
-Accept Credit card, Debit card and Bank account payment directly on your store with the Flutterwave's Rave payment gateway for Wordpress Woo commerce.
+The WooCommerce Plugin makes it very easy and quick to add Flutterwave Payment option on Checkout for your online store. Accept Credit card, Debit card and Bank account payment directly on your store with the Rave payment gateway for WooCommerce.
 
 == Description ==
 
 Accept Credit card, Debit card and Bank account payment directly on your store with the official Rave payment gateway for Woo commerce.
 
-Rave is available in:
-
-* __Nigeria__
-* __Ghana__
-* __Kenya__
-* __Uganda__
-* __Tanzania__
-* __Rwanda__
-* __South Africa__
-* __Zambia__
-* __Sierra Leone__
-
 = Plugin Features =
 
-*   __Accept payment__ via MasterCard, Visa, Mpesa, TIGO, Mobile money, Bank accounts and Barter.
+* Collections: Card, Account, Mobile money, Bank Transfers, USSD, Barter, NQR.
+* Recurring payments: Tokenization and Subscriptions (WooCommerce Subscriptions).
+* Split payments: Split payments between multiple recipients.
 
+= Requirements =
 
-= Suggestions / Feature Request =
-
-Kindly read through the article [here](https://support.flutterwave.com/en/articles/3632754-how-to-integrate-flutterwave-into-woocommerce) for instructions 
-on how to install the plugin
-
-If you have suggestions or a new feature request, feel free to get in touch with us via [https://rave.flutterwave.com](https://rave.flutterwave.com)
-
-You can also follow us on Twitter! **[@theflutterwave](https://twitter.com/theflutterwave)**
-
+1. Flutterwave for business [API Keys](https://developer.flutterwave.com/docs/integration-guides/authentication)
+2. [WooCommerce](https://woocommerce.com/)
+3. [WooCommerce Shipping & Tax](https://wordpress.org/plugins/woocommerce-services/)
+4. [Facebook for WooCommerce](https://wordpress.org/plugins/facebook-for-woocommerce/)
+5. [Google Ads & Marketing by Kliken](https://wordpress.org/plugins/kliken-marketing-for-google/)
+6. Supported PHP version: 5.6.0 - 8.1.0
 
 == Installation ==
-= Requirements =
-Make sure you have the following plugins already installed
-*   WooCommerce 
-*   WooCommerce Shipping & Tax 
-*   Facebook for WooCommerce 
-*   Google Ads & Marketing by Kliken
 
 = Automatic Installation =
 *   Login to your WordPress Dashboard.
 *   Click on "Plugins > Add New" from the left menu.
-*   In the search box type __Rave Woocommerce Payment Gateway__.
-*   Click on __Install Now__ on __Rave Woocommerce Payment Gateway__ to install the plugin on your site.
+*   In the search box type __Flutterwave Woocommerce__.
+*   Click on __Install Now__ on __Flutterwave Woocommerce__ to install the plugin on your site.
 *   Confirm the installation.
 *   Activate the plugin.
 *   Click on "WooCommerce > Settings" from the left menu and click the "Checkout" tab.
 *   Click on the __Rave__ link from the available Checkout Options
-*   Configure your __Rave Payment Gateway__ settings accordingly.
+*   Configure your __Flutterwave Woocommerce__ settings accordingly.
 
 = Manual Installation =
 1.  Download the plugin zip file.
@@ -67,13 +48,7 @@ Make sure you have the following plugins already installed
 4.  Activate the plugin.
 5.  Click on "WooCommerce > Settings" from the left menu and click the "Checkout" tab.
 6.  Click on the __Rave__ link from the available Checkout Options
-7. Configure your __Rave Payment Gateway__ settings accordingly.
-
-= Best Practices =
-1. When in doubt about a transaction, always check the Flutterwave Dashboard to confirm the status of a transaction.
-2. Always ensure you keep your API keys securely and privately. Do not share with anyone
-3. Ensure you change from the default secret hash on the Wordpress admin and apply same on the Flutterwave Dashboard
-4. Always ensure you install the most recent version of the Flutterwave Wordpress plugin
+7. Configure your __Flutterwave WooCommerce__ settings accordingly.
 
 For FTP manual installation, [check here](http://codex.wordpress.org/Managing_Plugins#Manual_Plugin_Installation).
 
@@ -90,16 +65,38 @@ Handle Webhooks from Flutterwave with two new actions in WooCommerce.
 * flw_webhook_after_action : This action is fired after a transaction is completed and returns the transaction details (json).
 * flw_webhook_transaction_failure_action : This action is fired when a transaction fails and returns the transaction details (json).
 
+= Best Practices =
+1. When in doubt about a transaction, always check the Flutterwave Dashboard to confirm the status of a transaction.
+2. Always ensure you keep your API keys securely and privately. Do not share with anyone
+3. Ensure you change from the default secret hash on the Wordpress admin and apply same on the Flutterwave Dashboard
+4. Always ensure you install the most recent version of the Flutterwave Wordpress plugin
+
+= Debugging Errors =
+
+We understand that you may run into some errors while integrating our plugin. You can read more about our error messages [here](https://developer.flutterwave.com/docs/integration-guides/errors).
+
+For `authorization` and `validation` error responses, double-check your API keys and request. If you get a `server` error, kindly engage the team for support.
+
+= Support =
+
+For additional assistance using this library, contact the developer experience (DX) team via [email](mailto:developers@flutterwavego.com) or on [slack](https://bit.ly/34Vkzcg). 
+
+You can also follow us [@FlutterwaveEng](https://twitter.com/FlutterwaveEng) and let us know what you think 😊.
+
+= Contribution guidelines =
+
+We love to get your input. Read more about our community contribution guidelines [here](/CONTRIBUTING.md)
+
+= License = 
+
+By contributing to the Flutterwave WooCommerce, you agree that your contributions will be licensed under its [MIT license](/LICENSE).
 
 
 == Frequently Asked Questions ==
 
 = What Do I Need To Use The Plugin =
 
-1. You need to open an account on [Rave](https://rave.flutterwave.com)
-
-
-
+1. You need to open an account on [Flutterwave for Business](https://dashboard.flutterwave.com)
 
 == Changelog ==
 = 2.2.8 =
