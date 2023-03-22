@@ -306,7 +306,7 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway
 
     if (get_query_var('order-pay')) {
 
-      $order_key = urldecode($_REQUEST['key']);
+      $order_key = urldecode(sanitize_text_field($_REQUEST['key']));
       $order_id = absint(get_query_var('order-pay'));
       $cb_url = WC()->api_request_url('FLW_WC_Payment_Gateway') . '?rave_id=' . $order_id;
 
@@ -403,8 +403,8 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway
     // }
     $overrideRef = true;
 
-    if (isset($_GET['rave_id']) && urldecode($_GET['rave_id'])) {
-      $order_id = urldecode($_GET['rave_id']);
+    if (isset($_GET['rave_id'])) {
+      $order_id = urldecode(sanitize_text_field($_GET['rave_id']));
 
       if (!$order_id) {
         $order_id = urldecode($_GET['order_id']);
@@ -447,7 +447,7 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway
     }
     else {
       if (isset($_GET['cancelled']) && isset($_GET['order_id'])) {
-        $order_id = urldecode($_GET['order_id']);
+        $order_id = urldecode(sanitize_text_field($_GET['order_id']));
         $order = wc_get_order($order_id);
         $redirectURL = $order->get_checkout_payment_url(true);
         header("Location: " . $redirectURL);
@@ -455,7 +455,7 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway
       }
 
       if (isset($_POST['txRef']) || isset($_GET['txref'])) {
-        $txn_ref = $_POST['txRef'] ?? urldecode($_GET['txref']);
+        $txn_ref = sanitize_text_field($_POST['txRef']) ?? urldecode(sanitize_text_field($_GET['txref']));
         $o = explode('_', $txn_ref);
         $order_id = intval($o[1]);
         $order = wc_get_order($order_id);
@@ -481,7 +481,7 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway
     $body = @file_get_contents("php://input");
 
     // retrieve the signature sent in the request header's.
-    $signature = (isset($_SERVER['HTTP_VERIF_HASH']) ? $_SERVER['HTTP_VERIF_HASH'] : '');
+    $signature = (isset($_SERVER['HTTP_VERIF_HASH']) ? sanitize_text_field($_SERVER['HTTP_VERIF_HASH']) : '');
 
     /* It is a good idea to log all events received. Add code *
      * here to log the signature and body to db or file       */
