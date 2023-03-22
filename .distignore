@@ -1,0 +1,11 @@
+.distignore
+.gitignore
+.github
+package-lock.json
+package.json
+README.md
+webpack.config.js
+Makefile
+assets/src
+cypress
+cypress.config.js
