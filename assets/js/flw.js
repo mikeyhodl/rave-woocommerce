@@ -63,12 +63,14 @@ var processPayment = function () {
     PBFPubKey: p_key,
     onclose: function () {},
     callback: function (response) {
+      var tr =
+        response.data.data?.txRef || response.data.transactionobject?.txRef;
       if (
         response.tx.chargeResponseCode == "00" ||
         response.tx.chargeResponseCode == "0"
       ) {
         // popup.close();
-        redirectPost(cbUrl + "?txref=" + response.data.data.txRef, response.tx);
+        redirectPost(cbUrl + "?txref=" + tr, response.tx);
       } else {
         alert(response.respmsg);
       }

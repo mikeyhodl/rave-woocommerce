@@ -23,9 +23,6 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway
    */
   public function __construct()
   {
-
-
-
     $this->base_url = 'https://api.ravepay.co';
     $this->id = 'rave';
     $this->icon = plugins_url('assets/img/rave.png', FLW_WC_PLUGIN_FILE);
@@ -251,33 +248,24 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway
   }
 
 
-  /**
-   * Handles admin notices
-   *
-   * @return void
-   */
-  public function admin_notices()
-  {
-
-    if ('no' == $this->enabled) {
-      return;
-    }
-
     /**
-     * Check if public key is provided
+     * Handles admin notices
+     *
+     * @return void
      */
-    if (!$this->public_key || !$this->secret_key) {
-      $mode = ('yes' === $this->go_live) ? 'live' : 'test';
-      echo '<div class="error"><p>';
-      echo sprintf(
-        'Provide your ' . $mode . ' public key and secret key <a href="%s">here</a> to be able to use the Rave Payment Gateway plugin. If you don\'t have one, kindly sign up at <a href="https://rave.flutterwave.com" target="_blank>https://rave.flutterwave.com</a>, navigate to the settings page and click on API.',
-        admin_url('admin.php?page=wc-settings&tab=checkout&section=rave')
-      );
-      echo '</p></div>';
-      return;
-    }
+    public function admin_notices()
+    {
 
-  }
+        if ( 'yes' === $this->enabled ) {
+
+            if ( empty( $this->public_key ) || empty( $this->secret_key ) ) {
+
+                echo '<div class="error"><p>' . sprintf( __( 'Flutterwave is enabled, but the <strong>Public Key</strong> and <strong>Secret Key</strong> are not configured. Please <a href="%s">click here</a> to configure it.', 'flw-payments' ), admin_url( 'admin.php?page=wc-settings&tab=checkout&section=rave' ) ) . '</p></div>';
+
+            }
+        }
+
+    }
 
   /**
    * Checkout receipt page
@@ -459,9 +447,7 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway
     }
     else {
       if (isset($_GET['cancelled']) && isset($_GET['order_id'])) {
-        if (!$order_id) {
-          $order_id = urldecode($_GET['order_id']);
-        }
+        $order_id = urldecode($_GET['order_id']);
         $order = wc_get_order($order_id);
         $redirectURL = $order->get_checkout_payment_url(true);
         header("Location: " . $redirectURL);
@@ -469,7 +455,7 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway
       }
 
       if (isset($_POST['txRef']) || isset($_GET['txref'])) {
-        $txn_ref = isset($_POST['txRef']) ? $_POST['txRef'] : urldecode($_GET['txref']);
+        $txn_ref = $_POST['txRef'] ?? urldecode($_GET['txref']);
         $o = explode('_', $txn_ref);
         $order_id = intval($o[1]);
         $order = wc_get_order($order_id);
@@ -481,12 +467,6 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway
 
         $redirect_url = $this->get_return_url($order);
         header("Location: " . $redirect_url);
-        die();
-      }
-      else {
-        $payment = new Rave($publicKey, $secretKey, $txn_ref, $overrideRef, $this->logging_option);
-
-        $payment->logger->notice('Error with requerying payment.');
         die();
       }
     }
@@ -528,19 +508,38 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway
     // Remember that this is a call from rave's servers and 
     // Your customer is not seeing the response here at all
     $response = json_decode($body);
-    if ($response->status == 'successful' || $response->data->status == 'successful') {
-      $getOrderId = explode('_', $response->txRef ?? $response->data->tx_ref);
-      $orderId = $getOrderId[1];
-      // $order = wc_get_order( $orderId );
-      $order = new WC_Order($orderId);
-      $secretKey = $this->secret_key;
-      $publicKey = $this->public_key;
-      $payment = new Rave($publicKey, $secretKey, $txn_ref, $overrideRef, $this->logging_option);
-      $payment->eventHandler(new myEventHandler($order))->requeryTransaction($response->txRef ?? $response->data->tx_ref);
-      do_action('flw_webhook_after_action', json_encode($response, TRUE));
-    }
-    else {
-      do_action('flw_webhook_transaction_failure_action', json_encode($response, TRUE));
+    $response_version = (property_exists($response, 'status')) ? "v2" : "v3";
+
+    if ($response_version) {
+
+      switch ($response_version) {
+        case 'v3':
+          $getOrderId = explode('_', $response->data->tx_ref);
+          $orderId = $getOrderId[1];
+          // $order = wc_get_order( $orderId );
+          $order = new WC_Order($orderId);
+          $secretKey = $this->secret_key;
+          $publicKey = $this->public_key;
+          $txn_ref = $response->data->tx_ref;
+          $order->add_order_note('Webhook verification initiated - v3');
+          $payment = new Rave($publicKey, $secretKey, $txn_ref, true, $this->logging_option);
+          $payment->eventHandler(new myEventHandler($order))->requeryTransaction($response->data->tx_ref);
+          do_action('flw_webhook_after_action', json_encode($response->data, TRUE));
+          break;
+        default:
+          $getOrderId = explode('_', $response->txRef);
+          $orderId = $getOrderId[1];
+          // $order = wc_get_order( $orderId );
+          $order = new WC_Order($orderId);
+          $secretKey = $this->secret_key;
+          $publicKey = $this->public_key;
+          $txn_ref = $response->txRef;
+          $order->add_order_note('Webhook verification initiated - v2');
+          $payment = new Rave($publicKey, $secretKey, $txn_ref, true, $this->logging_option);
+          $payment->eventHandler(new myEventHandler($order))->requeryTransaction($response->txRef);
+          do_action('flw_webhook_after_action', json_encode($response, TRUE));
+          break;
+      }
     }
     exit();
 
