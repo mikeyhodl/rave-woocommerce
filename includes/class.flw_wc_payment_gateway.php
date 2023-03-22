@@ -299,10 +299,10 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway
     $payment_options = $this->payment_options;
 
     if ($this->payment_style == 'inline') {
-      wp_enqueue_script('flwpbf_inline_js', $this->base_url . '/flwv3-pug/getpaidx/api/flwpbf-inline.js', array(), '1.0.0', true);
+      wp_enqueue_script('flwpbf_inline_js', $this->base_url . '/flwv3-pug/getpaidx/api/flwpbf-inline.js', array(), FLW_WC_VERSION, true);
     }
 
-    wp_enqueue_script('flw_js', plugins_url('assets/js/flw.js', FLW_WC_PLUGIN_FILE), array('jquery'), '1.0.0', true);
+    wp_enqueue_script('flw_js', plugins_url('assets/build/js/checkout.js', FLW_WC_PLUGIN_FILE), array('jquery'), FLW_WC_VERSION, true);
 
     if (get_query_var('order-pay')) {
 
