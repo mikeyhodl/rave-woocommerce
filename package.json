@@ -21,8 +21,9 @@
     "test:e2e": "wp-scripts test-e2e",
     "test:unit": "wp-scripts test-unit-js",
     "cypress:open": "node_modules/.bin/cypress open",
-    "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs"
+    "docs:dev": "vitepress dev  docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "repository": {
     "type": "git",
@@ -51,7 +52,7 @@
     "@wordpress/scripts": "^26.0.0",
     "cross-env": "^7.0.3",
     "cypress": "^12.8.1",
-    "vuepress": "^1.9.9",
+    "vitepress": "^1.0.0-alpha.61",
     "webpack": "^5.76.3",
     "webpack-cli": "^5.0.1"
   }

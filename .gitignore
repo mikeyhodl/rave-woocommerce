@@ -1,2 +1,4 @@
 node_modules
 /vendor/
+docs/.vitepress/dist
+docs/.vitepress/cache

@@ -12,6 +12,12 @@ dev:
 build:
 	npm run prod
 
+docs-build:
+	npm run docs:build
+
+devdocs:
+	npm run docs:dev
+
 wp-format:
 	npm run format
 
