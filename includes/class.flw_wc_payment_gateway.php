@@ -455,8 +455,8 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway
       }
 
       if (isset($_POST['txRef']) || isset($_GET['txref'])) {
-        $txn_ref = sanitize_text_field($_POST['txRef']) ?? urldecode(sanitize_text_field($_GET['txref']));
-        $o = explode('_', $txn_ref);
+        $txn_ref = $_POST['txRef'] ?? urldecode(sanitize_text_field($_GET['txref']));
+        $o = explode('_', sanitize_text_field($txn_ref));
         $order_id = intval($o[1]);
         $order = wc_get_order($order_id);
         $payment = new Rave($publicKey, $secretKey, $txn_ref, $overrideRef, $this->logging_option);
