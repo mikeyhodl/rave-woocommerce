@@ -1,0 +1,59 @@
+{
+  "name": "woocommerce-rave",
+  "version": "2.3.1",
+  "description": "Official WooCommerce payment gateway for Flutterwave",
+  "main": "assets/js/src/checkout.js",
+  "scripts": {
+    "prod": "cross-env NODE_ENV=production webpack --mode production --progress",
+    "dev": "cross-env NODE_ENV=development webpack --watch --mode development --progress",
+    "clean": "rm -rf assets/build/*",
+    "build": "wp-scripts build",
+    "check-engines": "wp-scripts check-engines",
+    "check-licenses": "wp-scripts check-licenses",
+    "format": "wp-scripts format",
+    "lint:css": "wp-scripts lint-style",
+    "lint:js": "wp-scripts lint-js",
+    "lint:md:docs": "wp-scripts lint-md-docs",
+    "lint:pkg-json": "wp-scripts lint-pkg-json",
+    "packages-update": "wp-scripts packages-update",
+    "plugin-zip": "wp-scripts plugin-zip",
+    "start": "wp-scripts start",
+    "test:e2e": "wp-scripts test-e2e",
+    "test:unit": "wp-scripts test-unit-js",
+    "cypress:open": "node_modules/.bin/cypress open",
+    "docs:dev": "vitepress dev  docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bajoski34/Woocommerce-v2.git"
+  },
+  "keywords": [
+    "payment",
+    "applepay",
+    "googlepay",
+    "woocommerce",
+    "flutterwave",
+    "rave",
+    "fintech",
+    "africa",
+    "payments",
+    "payout"
+  ],
+  "author": "Flutterwave Developers",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bajoski34/Woocommerce-v2/issues"
+  },
+  "homepage": "https://github.com/bajoski34/Woocommerce-v2#readme",
+  "devDependencies": {
+    "@svgr/cli": "^6.5.1",
+    "@wordpress/scripts": "^26.0.0",
+    "cross-env": "^7.0.3",
+    "cypress": "^12.8.1",
+    "vitepress": "^1.0.0-alpha.61",
+    "webpack": "^5.76.3",
+    "webpack-cli": "^5.0.1"
+  }
+}

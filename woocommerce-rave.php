@@ -3,11 +3,12 @@
 /*
 Plugin Name: Flutterwave WooCommerce
 Plugin URI: https://rave.flutterwave.com/
-Description: Official WooCommerce payment gateway for Rave.
-Version: 2.2.8
+Description: Official WooCommerce payment gateway for Flutterwave.
+Version: 2.3.2
 Author: Flutterwave Developers
 Author URI: http://developer.flutterwave.com
 License: MIT License
+Text Domain: flw-payments
 WC requires at least:   3.0.0
 WC tested up to:        4.9.2
 */
@@ -19,7 +20,7 @@ if (!defined('ABSPATH')) {
 
 define('FLW_WC_PLUGIN_FILE', __FILE__);
 define('FLW_WC_DIR_PATH', plugin_dir_path(FLW_WC_PLUGIN_FILE));
-
+define('FLW_WC_VERSION', '2.3.2');
 
 
 function flw_woocommerce_rave_init()
@@ -52,7 +53,7 @@ function flw_plugin_action_links($links)
 {
 
   $rave_settings_url = esc_url(get_admin_url(null, 'admin.php?page=wc-settings&tab=checkout&section=rave'));
-  array_unshift($links, "<a title='Rave Settings Page' href='$rave_settings_url'>Settings</a>");
+  array_unshift($links, "<a title='Flutterwave Settings Page' href='$rave_settings_url'>Settings</a>");
 
   return $links;
 
@@ -73,8 +74,7 @@ function flw_woocommerce_add_rave_gateway($methods)
 
     $methods[] = 'FLW_WC_Payment_Gateway_Subscriptions';
 
-  }
-  else {
+  } else {
 
     $methods[] = 'FLW_WC_Payment_Gateway';
   }

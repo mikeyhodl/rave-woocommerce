@@ -1,22 +1,22 @@
 === Flutterwave WooCommerce ===
 Contributors: theflutterwave
-Tags: rave, flutterwave, woocommerce, payments, nigeria, mastercard, visa, target, naira, payments, verve, donation, church, shop, store, ghana, kenya, international, mastercard, visa
+Tags: rave,flutterwave, woocommerce, payments, nigeria, mastercard, visa, target,Naira,payments,verve,donation,church,shop,store, ghana, kenya, international, mastercard, visa
 Requires at least: 3.1
-Tested up to: 6.0
-Stable tag: 2.2.8
+Tested up to: 6.1
+Stable tag: 2.3.2
 License: MIT
 License URI: https://github.com/Flutterwave/rave-woocommerce/blob/master/LICENSE
 
-The WooCommerce Plugin makes it very easy and quick to add Flutterwave Payment option on Checkout for your online store. Accept Credit card, Debit card and Bank account payment directly on your store with the Rave payment gateway for WooCommerce.
+The WooCommerce Plugin makes it very easy and quick to add Flutterwave Payment option on Checkout for your online store. Accept Credit card, Debit card and Bank account payment directly on your store with the Flutterwave Plugin for WooCommerce.
 
 == Description ==
 
-Accept Credit card, Debit card and Bank account payment directly on your store with the official Rave payment gateway for Woo commerce.
+Accept Credit card, Debit card and Bank account payment directly on your store with the official Flutterwave Plugin for WooCommerce.
 
 = Plugin Features =
 
-* Collections: Card, Account, Mobile money, Bank Transfers, USSD, Barter, NQR.
-* Recurring payments: Tokenization and Subscriptions (WooCommerce Subscriptions).
+* Collections: Card, Account, Mobile money, Bank Transfers, USSD, Barter, 1voucher.
+* Recurring payments: Tokenization and Subscriptions.
 * Split payments: Split payments between multiple recipients.
 
 = Requirements =
@@ -60,7 +60,7 @@ To configure the plugin, go to __WooCommerce > Settings__ from the left menu, cl
 * __Modal Title__ - (Optional) customize the title of the Pay Modal. Default is Rave.
 * Click __Save Changes__ to save your changes.
 
-== Webhooks ==
+= Webhooks =
 Handle Webhooks from Flutterwave with two new actions in WooCommerce.
 * flw_webhook_after_action : This action is fired after a transaction is completed and returns the transaction details (json).
 * flw_webhook_transaction_failure_action : This action is fired when a transaction fails and returns the transaction details (json).
@@ -81,7 +81,7 @@ For `authorization` and `validation` error responses, double-check your API keys
 
 For additional assistance using this library, contact the developer experience (DX) team via [email](mailto:developers@flutterwavego.com) or on [slack](https://bit.ly/34Vkzcg). 
 
-You can also follow us [@FlutterwaveEng](https://twitter.com/FlutterwaveEng) and let us know what you think 😊.
+You can also follow us [@FlutterwaveEng](https://twitter.com/FlutterwaveEng) and let us know what you think ðŸ˜Š.
 
 = Contribution guidelines =
 
@@ -99,6 +99,10 @@ By contributing to the Flutterwave WooCommerce, you agree that your contribution
 1. You need to open an account on [Flutterwave for Business](https://dashboard.flutterwave.com)
 
 == Changelog ==
+= 2.3.0 =
+* Fix: Handled MobileMoney Payment Handler Error.
+= 2.2.9 =
+*  Fixed: PHP 8 support for v3 Webhook Handler.
 = 2.2.8 =
 *  Fixed: Woocommerce Subscription processing function error.
 *  New Feat: Switched to WC-Logger class for logging.

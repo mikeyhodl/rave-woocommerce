@@ -1,0 +1,26 @@
+{
+    "name": "flutterwave/woocommerce-v2",
+    "description": "About",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Flutterwave\\Woocommerce\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Official WooCommerce Plugin for Flutterwave for Business (F4B) v2 APIs"
+        }
+    ],
+    "require-dev": {
+        "wp-coding-standards/wpcs": "^2.3",
+        "phpcompatibility/phpcompatibility-wp": "*",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.7"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}
