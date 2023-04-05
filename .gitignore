@@ -3,3 +3,7 @@ node_modules
 docs/.vitepress/dist
 docs/.vitepress/cache
 .idea
+*.zip
+.env
+.env.e2e
+.phpunit.result.cache
