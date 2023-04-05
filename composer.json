@@ -5,7 +5,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Flutterwave\\Woocommerce\\": "src/"
+            "Flutterwave\\Woocommerce\\": "includes/"
         }
     },
     "authors": [
@@ -16,11 +16,20 @@
     "require-dev": {
         "wp-coding-standards/wpcs": "^2.3",
         "phpcompatibility/phpcompatibility-wp": "*",
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.7"
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
+        "woocommerce/woocommerce-sniffs": "^0.1.3"
     },
     "config": {
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
         }
+    },
+    "scripts": {
+        "standards:check": "./vendor/bin/phpcs --standard=WordPress --extensions=php --ignore=vendor/* .",
+        "standards:fix": "./vendor/bin/phpcbf --standard=WordPress --extensions=php --ignore=vendor/* .",
+        "phpcompatibility:check": "./vendor/bin/phpcs --standard=PHPCompatibilityWP --extensions=php --ignore=vendor/* .",
+        "phpcompatibility:fix": "./vendor/bin/phpcbf --standard=PHPCompatibilityWP --extensions=php --ignore=vendor/* .",
+        "phpcompatibility:check:php-7-2": "./vendor/bin/phpcs --runtime-set testVersion 7.2- --standard=PHPCompatibilityWP --extensions=php --ignore=vendor/* .",
+        "woocommerce:check": "./vendor/bin/phpcs --standard=Woocommerce-Core --extensions=php --ignore=vendor/* ."
     }
 }
