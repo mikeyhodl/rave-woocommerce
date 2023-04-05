@@ -7,5 +7,4 @@ README.md
 webpack.config.js
 Makefile
 assets/src
-cypress
-cypress.config.js
+
