@@ -1,5 +1,5 @@
 node_modules
-/vendor/
+vendor/
 docs/.vitepress/dist
 docs/.vitepress/cache
 .idea
@@ -7,3 +7,5 @@ docs/.vitepress/cache
 .env
 .env.e2e
 .phpunit.result.cache
+.DS_Store
+*/.DS_Store
