@@ -1,72 +1,82 @@
 {
-  "name": "woocommerce-rave",
-  "version": "2.3.1",
-  "description": "Official WooCommerce payment gateway for Flutterwave",
-  "main": "assets/js/src/checkout.js",
-  "scripts": {
-    "prod": "cross-env NODE_ENV=production webpack --mode production --progress",
-    "dev": "cross-env NODE_ENV=development webpack --watch --mode development --progress",
-    "clean": "rm -rf assets/build/*",
-    "build": "wp-scripts build",
-    "check-engines": "wp-scripts check-engines",
-    "check-licenses": "wp-scripts check-licenses",
-    "format": "wp-scripts format",
-    "lint:woocommerce": "vendor/bin/phpcs --standard=WooCommerce-Core --extensions=php --ignore=vendor/* .",
-    "lint:php": "vendor/bin/phpcs --standard=WordPress --extensions=php --ignore=vendor/* .",
-    "lint:php:fix": "vendor/bin/phpcbf",
-    "lint:css": "wp-scripts lint-style",
-    "lint:js": "wp-scripts lint-js",
-    "lint:md:docs": "wp-scripts lint-md-docs",
-    "lint:pkg-json": "wp-scripts lint-pkg-json",
-    "packages-update": "wp-scripts packages-update",
-    "plugin-zip": "wp-scripts plugin-zip",
-    "start": "wp-scripts start",
-    "test:e2e": "wp-scripts test-e2e",
-    "test:unit": "wp-scripts test-unit-js",
-    "docs:dev": "vitepress dev  docs",
-    "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs",
-    "wp-env:clean": "wp-env clean",
-    "wp-env:start": "wp-env start",
-    "pw-install": "npm playwright install --with-deps",
-    "pw-tests": "npm playwright test",
-    "pw-tests-headed": "npm playwright test --headed"
-  },
-  "config": {
-    "wp_org_slug": "woocommerce-rave"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/bajoski34/Woocommerce-v2.git"
-  },
-  "keywords": [
-    "payment",
-    "applepay",
-    "googlepay",
-    "woocommerce",
-    "flutterwave",
-    "rave",
-    "fintech",
-    "africa",
-    "payments",
-    "payout"
-  ],
-  "author": "Flutterwave Developers",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/bajoski34/Woocommerce-v2/issues"
-  },
-  "homepage": "https://github.com/bajoski34/Woocommerce-v2#readme",
-  "devDependencies": {
-    "@playwright/test": "^1.32.0",
-    "@svgr/cli": "^6.5.1",
-    "@wordpress/env": "^5.15.0",
-    "@wordpress/prettier-config": "^2.12.0",
-    "@wordpress/scripts": "^26.0.0",
-    "cross-env": "^7.0.3",
-    "dotenv": "^16.0.3",
-    "vitepress": "^1.0.0-alpha.61",
-    "webpack": "^5.76.3",
-    "webpack-cli": "^5.0.1"
-  }
+	"name": "woocommerce-rave",
+	"version": "2.3.2",
+	"description": "Official WooCommerce payment gateway for Flutterwave",
+	"main": "assets/js/src/checkout.js",
+	"scripts": {
+		"prod": "cross-env NODE_ENV=production webpack --mode production --progress",
+		"dev": "cross-env NODE_ENV=development webpack --watch --mode development --progress",
+		"clean": "rm -rf assets/build/*",
+		"build": "wp-scripts build",
+		"check-engines": "wp-scripts check-engines",
+		"check-licenses": "wp-scripts check-licenses",
+		"format": "wp-scripts format",
+		"lint:woocommerce": "vendor/bin/phpcs --standard=WooCommerce-Core --extensions=php --ignore=vendor/* .",
+		"lint:php": "vendor/bin/phpcs --standard=WordPress --extensions=php --ignore=vendor/* .",
+		"lint:php:fix": "vendor/bin/phpcbf",
+		"lint:css": "wp-scripts lint-style",
+		"lint:js": "wp-scripts lint-js",
+		"lint:md:docs": "wp-scripts lint-md-docs",
+		"lint:pkg-json": "wp-scripts lint-pkg-json",
+		"packages-update": "wp-scripts packages-update",
+		"plugin-zip": "wp-scripts plugin-zip",
+		"start": "wp-scripts start",
+		"test:e2e": "wp-scripts test-e2e",
+		"test:unit": "wp-scripts test-unit-js",
+		"docs:dev": "vitepress dev  docs",
+		"docs:build": "vitepress build docs",
+		"docs:preview": "vitepress preview docs",
+		"wp-env:clean": "wp-env clean",
+		"wp-env:start": "wp-env start",
+		"pw-install": "npm playwright install --with-deps",
+		"pw-tests": "npm playwright test",
+		"pw-tests-headed": "npm playwright test --headed"
+	},
+	"config": {
+		"wp_org_slug": "woocommerce-rave"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/bajoski34/Woocommerce-v2.git"
+	},
+	"keywords": [
+		"payment",
+		"applepay",
+		"googlepay",
+		"woocommerce",
+		"flutterwave",
+		"rave",
+		"fintech",
+		"africa",
+		"payments",
+		"payout"
+	],
+	"author": "Flutterwave Developers",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/bajoski34/Woocommerce-v2/issues"
+	},
+	"files": [
+		"assets",
+		"includes",
+		"woocommerce-rave.php",
+		"README.md",
+		"LICENSE",
+		"CHANGELOG.md",
+		"changelog.txt",
+		"readme.txt"
+	],
+	"homepage": "https://github.com/bajoski34/Woocommerce-v2#readme",
+	"devDependencies": {
+		"@playwright/test": "^1.32.0",
+		"@svgr/cli": "^6.5.1",
+		"@wordpress/env": "^5.15.0",
+		"@wordpress/prettier-config": "^2.12.0",
+		"@wordpress/scripts": "^26.0.0",
+		"cross-env": "^7.0.3",
+		"dotenv": "^16.0.3",
+		"vitepress": "^1.0.0-alpha.61",
+		"webpack": "^5.76.3",
+		"webpack-cli": "^5.0.1"
+	}
 }
