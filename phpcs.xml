@@ -8,7 +8,7 @@
 	<ini name="error_reporting" value="E_ALL &#38; ~E_DEPRECATED" />
 
 	<config name="minimum_supported_wp_version" value="4.7" />
-	<config name="testVersion" value="7.2-" />
+	<config name="testVersion" value="7.4+" />
 
 	<rule ref="PHPCompatibility">
 		<exclude-pattern>*/node_modules/*</exclude-pattern>
