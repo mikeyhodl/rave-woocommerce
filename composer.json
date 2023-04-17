@@ -10,7 +10,7 @@
     },
     "authors": [
         {
-            "name": "Official WooCommerce Plugin for Flutterwave for Business (F4B) v2 APIs"
+            "name": "Flutterwave Developers"
         }
     ],
     "require-dev": {
@@ -31,5 +31,8 @@
         "phpcompatibility:fix": "./vendor/bin/phpcbf --standard=PHPCompatibilityWP --extensions=php --ignore=vendor/* .",
         "phpcompatibility:check:php-7-2": "./vendor/bin/phpcs --runtime-set testVersion 7.2- --standard=PHPCompatibilityWP --extensions=php --ignore=vendor/* .",
         "woocommerce:check": "./vendor/bin/phpcs --standard=Woocommerce-Core --extensions=php --ignore=vendor/* ."
-    }
+    },
+  "require": {
+    "ext-json": "*"
+  }
 }
