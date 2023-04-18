@@ -1,6 +1,6 @@
 {
     "name": "flutterwave/woocommerce-v2",
-    "description": "About",
+    "description": "The Official Flutterwave Woocommerce Plugin",
     "type": "library",
     "license": "MIT",
     "autoload": {
