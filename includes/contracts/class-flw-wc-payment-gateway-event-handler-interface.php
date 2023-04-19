@@ -18,28 +18,28 @@ interface FLW_WC_Payment_Gateway_Event_Handler_Interface {
 	 *
 	 * @param object $initialization_data This is the initial transaction data as passed.
 	 * */
-	public function on_init( $initialization_data);
+	public function on_init( object $initialization_data);
 
 	/**
 	 * This is called only when a transaction is successful
 	 *
 	 * @param object $transaction_data This is the transaction data as returned from the Rave payment. gateway.
 	 * */
-	public function on_successful( $transaction_data);
+	public function on_successful( object $transaction_data);
 
 	/**
 	 * This is called only when a transaction failed
 	 *
 	 * @param object $transaction_data This is the transaction data as returned from the Rave payment gateway.
 	 * */
-	public function on_failure( $transaction_data);
+	public function on_failure( object $transaction_data);
 
 	/**
 	 * This is called when a transaction is requeryed from the payment gateway
 	 *
 	 * @param string $transaction_reference This is the transaction reference as returned from the Rave payment gateway.
 	 * */
-	public function on_requery( $transaction_reference);
+	public function on_requery( string $transaction_reference);
 
 	/**
 	 * This is called a transaction requery returns with an error
@@ -67,7 +67,7 @@ interface FLW_WC_Payment_Gateway_Event_Handler_Interface {
 	 * This is called when a webhook is received
 	 *
 	 * @param string $event_type This is the event type as returned from the Rave payment gateway.
-	 * @param array  $event_data This is the event data as returned from the Rave payment gateway.
+	 * @param object $event_data This is the event data as returned from the Rave payment gateway.
 	 * */
-	public function on_webhook( string $event_type, array $event_data );
+	public function on_webhook( string $event_type, object $event_data );
 }

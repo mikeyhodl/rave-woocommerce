@@ -2,12 +2,16 @@
 /**
  * The client-specific functionality of the plugin.
  *
+ * This class handles all events from the Rave class
+ *
  * @link       https://flutterwave.com
  * @since      2.3.2
  * @class      FLW_WC_Payment_Gateway_Event_Handler
  * @package    Flutterwave\WooCommerce
  * @subpackage FLW_WC_Payment_Gateway/includes
  */
+
+declare(strict_types=1);
 
 require FLW_WC_DIR_PATH . 'includes/contracts/class-flw-wc-payment-gateway-event-handler-interface.php';
 
@@ -35,7 +39,7 @@ class FLW_WC_Payment_Gateway_Event_Handler implements FLW_WC_Payment_Gateway_Eve
 	 *
 	 * @param object $initialization_data - This is the transaction data as returned from the Flutterwave payment gateway.
 	 */
-	public function on_init( $initialization_data ) {
+	public function on_init( object $initialization_data ) {
 		// Save the transaction to your DB.
 		$this->order->add_order_note( 'Payment initialized via Flutterwave' );
 		update_post_meta( $this->order->get_id(), '_flw_payment_txn_ref', $initialization_data->txref );
@@ -47,7 +51,7 @@ class FLW_WC_Payment_Gateway_Event_Handler implements FLW_WC_Payment_Gateway_Eve
 	 *
 	 * @param object $transaction_data - This is the transaction data as returned from the Flutterwave payment gateway.
 	 */
-	public function on_successful( $transaction_data ) {
+	public function on_successful( object $transaction_data ) {
 		if ( 'successful' === $transaction_data->status ) {
 
 			$amount = (string) $transaction_data->amount;
@@ -96,7 +100,7 @@ class FLW_WC_Payment_Gateway_Event_Handler implements FLW_WC_Payment_Gateway_Eve
 	 *
 	 * @param object $transaction_data - This is the transaction data as returned from the Flutterwave payment gateway.
 	 */
-	public function on_failure( $transaction_data ) {
+	public function on_failure( object $transaction_data ) {
 		$this->order->update_status( 'Failed' );
 		$this->order->add_order_note( 'The payment failed on Rave' );
 		$customer_note  = 'Your payment <strong>failed</strong>. ';
@@ -112,7 +116,7 @@ class FLW_WC_Payment_Gateway_Event_Handler implements FLW_WC_Payment_Gateway_Eve
 	 *
 	 * @param string $transaction_reference - This is the transaction reference (txref) of the transaction you want to requery.
 	 * */
-	public function on_requery( $transaction_reference ) {
+	public function on_requery( string $transaction_reference ) {
 		// Do something, anything!.
 		$this->order->add_order_note( 'Confirming payment on Flutterwave' );
 	}
@@ -159,7 +163,7 @@ class FLW_WC_Payment_Gateway_Event_Handler implements FLW_WC_Payment_Gateway_Eve
 	 * @param string $transaction_reference - This is the transaction reference (txref) of the transaction you want to requery.
 	 * @param object $data - This is the data returned from the payment gateway.
 	 * */
-	public function on_timeout( $transaction_reference, $data ) {
+	public function on_timeout( string $transaction_reference, object $data ) {
 		// Get the transaction from your DB using the transaction reference (txref)
 		// Queue it for requery. Preferably using a queue system. The requery should be about 15 minutes after.
 		// Ask the customer to contact your support and you should escalate this issue to the flutterwave support team. Send this as an email and as a notification on the page. just incase the page timesout or disconnects.
