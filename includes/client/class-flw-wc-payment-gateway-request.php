@@ -42,13 +42,13 @@ final class FLW_WC_Payment_Gateway_Request {
 	 *  Pointer to gateway making the request.
 	 */
 	public function __construct() {
-		 $this->notify_url = WC()->api_request_url( 'FLW_WC_Payment_Gateway' );
+		$this->notify_url = WC()->api_request_url( 'FLW_WC_Payment_Gateway' );
 	}
 
 	/**
 	 * This method prepares the payload for the request
 	 *
-	 * @param \WC_Order $order
+	 * @param \WC_Order $order Order object.
 	 *
 	 * @return array
 	 */
@@ -73,31 +73,10 @@ final class FLW_WC_Payment_Gateway_Request {
 			),
 			'customizations'  => array(
 				'title'       => get_bloginfo( 'name' ),
-				'description' => sprintf( __( 'Payment for order %s', 'flw-payments' ), $order->get_order_number() ),
+				'description' => sprintf( __( 'Payment for order %s', 'flutterwave-woo' ), $order->get_order_number() ), // phpcs:ignore
 				// phpcs:ignore
 //				'logo' => $this->gateway->get_option('logo'),
 			),
 		);
-	}
-
-	/**
-	 * @param $paylaod
-	 *
-	 * @return void
-	 */
-	private function get_flutterwave_standard_url( $paylaod ) {
-		$response = $this->client->request( $this->endpoint, 'POST', $paylaod );
-
-		// TODO: Test on null response.
-		if ( ! is_null( $response ) && isset( $response->data->link ) ) {
-			return $response->data->link;
-		}
-
-		if ( is_null( $response ) && self::$count < 3 ) {
-			self::$count++;
-			$this->get_flutterwave_standard_url( $paylaod );
-		}
-		self::$count = 0;
-		wc_add_notice( 'Unable to connect to Flutterwave Standard Service .', 'error' );
 	}
 }
