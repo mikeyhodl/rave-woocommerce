@@ -13,6 +13,10 @@
             "name": "Flutterwave Developers"
         }
     ],
+    "require": {
+        "php": ">=7.4",
+        "ext-json": "*"
+    },
     "require-dev": {
         "wp-coding-standards/wpcs": "^2.3",
         "phpcompatibility/phpcompatibility-wp": "*",
@@ -25,14 +29,29 @@
         }
     },
     "scripts": {
+        "test": "./vendor/bin/pest --coverage=coverage --coverage-text",
         "standards:check": "./vendor/bin/phpcs --standard=WordPress --extensions=php --ignore=vendor/* .",
         "standards:fix": "./vendor/bin/phpcbf --standard=WordPress --extensions=php --ignore=vendor/* .",
         "phpcompatibility:check": "./vendor/bin/phpcs --standard=PHPCompatibilityWP --extensions=php --ignore=vendor/* .",
         "phpcompatibility:fix": "./vendor/bin/phpcbf --standard=PHPCompatibilityWP --extensions=php --ignore=vendor/* .",
         "phpcompatibility:check:php-7-2": "./vendor/bin/phpcs --runtime-set testVersion 7.2- --standard=PHPCompatibilityWP --extensions=php --ignore=vendor/* .",
-        "woocommerce:check": "./vendor/bin/phpcs --standard=Woocommerce-Core --extensions=php --ignore=vendor/* ."
+        "woocommerce:check": [
+            "./vendor/bin/phpcs --standard=Woocommerce-Core --extensions=php --ignore=vendor/* ."
+        ],
+        "makepot-audit": [
+            "wp --allow-root i18n make-pot . --exclude=\".github,.wordpress-org,bin,node_modules,tests,docs\" --slug=woocommerce-rave --debug"
+        ],
+        "makepot": [
+            "@makepot-audit --skip-audit"
+        ]
     },
-  "require": {
-    "ext-json": "*"
-  }
+    "extra": {
+        "scripts-description": {
+            "test": "Run unit tests",
+            "standards:check": "Analyze code against the WordPress coding standards with PHP_CodeSniffer",
+            "standards:fix": "Fix coding standards warnings/errors automatically with PHP Code Beautifier",
+            "makepot-audit": "Generate i18n/languages/woocommerce-rave.pot file and run audit",
+            "makepot": "Generate i18n/languages/woocommerce-rave.pot file"
+        }
+    }
 }
