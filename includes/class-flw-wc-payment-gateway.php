@@ -36,35 +36,35 @@ use FLW_WC_Payment_Gateway_Event_Handler as FlwEventHandler;
 class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 
 	/**
-	 * @var bool
+	 * @var bool the should disable log status
 	 */
 	public static bool $log_enabled = false;
 	/**
-	 * @var string
+	 * @var string the public key
 	 */
 	protected string $public_key;
 	/**
-	 * @var string
+	 * @var string the secret key
 	 */
 	protected string $secret_key;
 	/**
-	 * @var string
+	 * @var string the test public key
 	 */
 	private string $test_public_key;
 	/**
-	 * @var string
+	 * @var string the test secret key
 	 */
 	private string $test_secret_key;
 	/**
-	 * @var string
+	 * @var string the live public key
 	 */
 	private string $live_public_key;
 	/**
-	 * @var string
+	 * @var string the go live status
 	 */
 	private string $go_live;
 	/**
-	 * @var string
+	 * @var string the live secret key
 	 */
 	private string $live_secret_key;
 	/**
@@ -72,35 +72,35 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 	 */
 	private $auto_complete_order;
 	/**
-	 * @var WC_Logger
+	 * @var WC_Logger the logger
 	 */
 	private WC_Logger $logger;
 	/**
-	 * @var FlwSdk
+	 * @var FlwSdk the sdk
 	 */
 	private FlwSdk $sdk;
 	/**
-	 * @var string
+	 * @var string the base url
 	 */
 	private string $base_url;
 	/**
-	 * @var string
+	 * @var string the payment options
 	 */
 	private string $payment_options;
 	/**
-	 * @var string
+	 * @var string the payment style
 	 */
 	private string $payment_style;
 	/**
-	 * @var string
+	 * @var string should barter be disabled
 	 */
 	private string $barter;
 	/**
-	 * @var bool
+	 * @var bool the logging option
 	 */
 	private bool $logging_option;
 	/**
-	 * @var string
+	 * @var string the country
 	 */
 	private string $country;
 
@@ -395,7 +395,7 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 		// TODO: New flow on checkout page.
 		wp_enqueue_script( 'flw_js', plugins_url( 'assets/build/js/checkout.js', FLW_WC_PLUGIN_FILE ), array( 'jquery' ), FLW_WC_VERSION, true );
 
-		$payment_args = [];
+		$payment_args = array();
 		wp_localize_script( 'flw_js', 'flw_payment_args', $payment_args );
 	}
 

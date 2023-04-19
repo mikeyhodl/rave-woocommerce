@@ -37,15 +37,15 @@ class FLW_WC_Payment_Gateway_Client {
 	const API_VERSION  = 'v3';
 	const API_BASE_URL = 'https://api.flutterwave.com';
 	/**
-	 * @var string
+	 * @var string - The secret key for the merchant.
 	 */
 	private string $secret_key;
 	/**
-	 * @var \WC_Logger_Interface
+	 * @var \WC_Logger_Interface - The logger for the plugin.
 	 */
 	private \WC_Logger_Interface $logger;
 	/**
-	 * @var array|string[]
+	 * @var array|string[] - The headers for the request.
 	 */
 	private array $headers;
 
@@ -66,13 +66,13 @@ class FLW_WC_Payment_Gateway_Client {
 	}
 
 	/**
-	 * @return void
+	 * @return void - Sets up the headers for the request.
 	 */
 	private function setup() {
-		$this->headers = [
+		$this->headers = array(
 			'Content-Type'  => 'application/json',
 			'Authorization' => 'Bearer ' . $this->secret_key,
-		];
+		);
 	}
 
 	/**
@@ -80,15 +80,15 @@ class FLW_WC_Payment_Gateway_Client {
 	 * @param string     $method - The method to use for the request.
 	 * @param array|null $body - The body of the request.
 	 *
-	 * @return array|\WP_Error
+	 * @return array|\WP_Error - The response from the request.
 	 */
 	public function request( $url, string $method = 'GET', $body = null ) {
 		$body = wp_json_encode( $body, JSON_UNESCAPED_SLASHES );
 
-		$args = [
+		$args = array(
 			'method'  => $method,
 			'headers' => $this->headers,
-		];
+		);
 
 		if ( 'GET' !== $method ) {
 			$args['body'] = $body;
@@ -100,7 +100,7 @@ class FLW_WC_Payment_Gateway_Client {
 	/**
 	 * @param \WP_Error $response - The response from the request.
 	 *
-	 * @return void
+	 * @return void - Logs the error and adds a notice to the cart.
 	 */
 	public function handle_error( \WP_Error $response ) {
 		if ( is_wp_error( $response ) ) {

@@ -30,11 +30,11 @@ require_once __DIR__ . '/class-flw-wc-payment-gateway-client.php';
  */
 final class FLW_WC_Payment_Gateway_Sdk {
 	/**
-	 * @var int
+	 * @var int The number of times to requery the server.
 	 */
 	protected int $requery_count = 0;
 	/**
-	 * @var FLW_WC_Payment_Gateway_Client
+	 * @var FLW_WC_Payment_Gateway_Client The client.
 	 */
 	public FLW_WC_Payment_Gateway_Client $client;
 	/**
@@ -44,15 +44,15 @@ final class FLW_WC_Payment_Gateway_Sdk {
 	 */
 	private FLW_WC_Payment_Gateway_Event_Handler_Interface $event_handler;
 	/**
-	 * @var array
+	 * @var array The data to be sent to the server.
 	 */
 	private array $data;
 	/**
-	 * @var string
+	 * @var string The endpoint to send the data to.
 	 */
 	public static string $standard_inline_endpoint = 'https://api.flutterwave.com/v3/payments';
 	/**
-	 * @var string
+	 * @var string The script to initiate the payment.
 	 */
 	private string $checkout_url = 'https://checkout.flutterwave.com/v3.js';
 	/**
@@ -60,7 +60,7 @@ final class FLW_WC_Payment_Gateway_Sdk {
 	 */
 	private \WC_Logger $logger;
 	/**
-	 * @var FLW_WC_Payment_Gateway
+	 * @var FLW_WC_Payment_Gateway The gateway.
 	 */
 	private FLW_WC_Payment_Gateway $gateway; //phpcs:ignore.
 
@@ -77,23 +77,23 @@ final class FLW_WC_Payment_Gateway_Sdk {
 	}
 
 	/**
-	 * @return null
+	 * @return null The clone method.
 	 */
 	public function __clone() {
 		return null;
 	}
 
 	/**
-	 * @return FLW_WC_Payment_Gateway_Client
+	 * @return FLW_WC_Payment_Gateway_Client The client.
 	 */
 	public function get_client(): FLW_WC_Payment_Gateway_Client {
 		return $this->client;
 	}
 
 	/**
-	 * @param FLW_WC_Payment_Gateway_Event_Handler_Interface $event_handler // phpcs:ignore.
+	 * @param FLW_WC_Payment_Gateway_Event_Handler_Interface $event_handler The event handler.
 	 *
-	 * @return FLW_WC_Payment_Gateway_Sdk
+	 * @return FLW_WC_Payment_Gateway_Sdk The sdk.
 	 */
 	public function set_event_handler( FLW_WC_Payment_Gateway_Event_Handler_Interface $event_handler ): FLW_WC_Payment_Gateway_Sdk {
 		$this->event_handler = $event_handler;
@@ -105,12 +105,12 @@ final class FLW_WC_Payment_Gateway_Sdk {
 	 * @param array $clean_data  This is the data that will be sent to the server.
 	 * @param int   $order_id  The order id.
 	 *
-	 * @return string
+	 * @return string The html to be rendered.
 	 */
 	private function prepare_html( array $clean_data, int $order_id ): string {
 		// TODO: enqueue inline checkout script.
 
-		$html_array = [
+		$html_array = array(
 			'<html lang="en">',
 			'<body>',
 			'   <img src="' . esc_url( plugins_url( 'sdk/ajax-loader.gif', FLW_WC_PLUGIN_FILE ) ) . '" />',
@@ -150,7 +150,7 @@ final class FLW_WC_Payment_Gateway_Sdk {
 			'	</script>',
 			'</body>',
 			'</html>',
-		];
+		);
 
 		return implode( '', $html_array );
 	}
@@ -159,7 +159,7 @@ final class FLW_WC_Payment_Gateway_Sdk {
 	 * @param array $data This is the data to be sent to the payment gateway.
 	 * @param int   $order_id This is the order id.
 	 *
-	 * @return false|string
+	 * @return false|string The json encoded data.
 	 */
 	public function render_modal( array $data, int $order_id ) {
 		$clean_data = $data;
@@ -174,7 +174,7 @@ final class FLW_WC_Payment_Gateway_Sdk {
 	 *
 	 * @param string $tx_ref This is the unique reference for the transaction.
 	 *
-	 * @return void
+	 * @return void The requery transaction.
 	 */
 	public function requery_transaction( string $tx_ref ) {
 		$this->requery_count ++;

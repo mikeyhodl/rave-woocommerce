@@ -21,7 +21,7 @@ use Flutterwave\WooCommerce\Contracts\FLW_WC_Payment_Gateway_Event_Handler_Inter
  * */
 class FLW_WC_Payment_Gateway_Event_Handler implements FLW_WC_Payment_Gateway_Event_Handler_Interface {
 	/**
-	 * @var WC_Order
+	 * @var WC_Order This is the order object.
 	 */
 	private WC_Order $order;
 

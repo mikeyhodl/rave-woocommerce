@@ -23,12 +23,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class FLW_WC_Payment_Gateway_Request {
 
 	/**
-	 * @var int
+	 * @var int - count of requests made.
 	 */
 	protected static int $count = 0;
 
 	/**
-	 * @var string
+	 * @var string - redirect url where the user will be redirected to after payment.
 	 */
 	protected string $notify_url;
 	/**
