@@ -33,7 +33,7 @@ use FLW_WC_Payment_Gateway_Event_Handler as FlwEventHandler;
 /**
  * Main Flutterwave Gateway Class
  */
-class FLW_WC_Payment_Gateway extends \WC_Payment_Gateway {
+class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 
 	/**
 	 * @var bool
@@ -79,6 +79,30 @@ class FLW_WC_Payment_Gateway extends \WC_Payment_Gateway {
 	 * @var FlwSdk
 	 */
 	private FlwSdk $sdk;
+	/**
+	 * @var string
+	 */
+	private string $base_url;
+	/**
+	 * @var string
+	 */
+	private string $payment_options;
+	/**
+	 * @var string
+	 */
+	private string $payment_style;
+	/**
+	 * @var string
+	 */
+	private string $barter;
+	/**
+	 * @var bool
+	 */
+	private bool $logging_option;
+	/**
+	 * @var string
+	 */
+	private string $country;
 
 	/**
 	 * Constructor
@@ -86,12 +110,12 @@ class FLW_WC_Payment_Gateway extends \WC_Payment_Gateway {
 	 * @return void
 	 */
 	public function __construct() {
-		$this->base_url           = 'https://api.ravepay.co';
+		$this->base_url           = 'https://api.flutterwave.com';
 		$this->id                 = 'rave';
 		$this->icon               = plugins_url( 'assets/img/rave.png', FLW_WC_PLUGIN_FILE );
 		$this->has_fields         = false;
-		$this->method_title       = __( 'Rave', 'flw-payments' );
-		$this->method_description = __( 'Rave allows you to accept payment from cards and bank accounts in multiple currencies. You can also accept payment offline via USSD and POS.', 'flw-payments' );
+		$this->method_title       = __( 'Flutterwave', 'flutterwave-woo' );
+		$this->method_description = __( 'Flutterwave allows you to accept payment from cards and bank accounts in multiple currencies. You can also accept payment offline via USSD and POS.', 'flutterwave-woo' );
 		$this->supports           = array(
 			'products',
 		);
@@ -150,8 +174,15 @@ class FLW_WC_Payment_Gateway extends \WC_Payment_Gateway {
 
 		$this->sdk = new FlwSdk( $this->secret_key, self::$log_enabled );
 
-		add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'payment_scripts' ) );
 
+	}
+
+	/**
+	 * @return string
+	 */
+	public function get_secret_key(): string {
+		return $this->secret_key;
 	}
 
 	/**
@@ -164,120 +195,120 @@ class FLW_WC_Payment_Gateway extends \WC_Payment_Gateway {
 		$this->form_fields = array(
 
 			'enabled'            => array(
-				'title'       => __( 'Enable/Disable', 'flw-payments' ),
-				'label'       => __( 'Enable Rave Payment Gateway', 'flw-payments' ),
+				'title'       => __( 'Enable/Disable', 'flutterwave-woo' ),
+				'label'       => __( 'Enable Flutterwave', 'flutterwave-woo' ),
 				'type'        => 'checkbox',
-				'description' => __( 'Enable Rave Payment Gateway as a payment option on the checkout page', 'flw-payments' ),
-				'default'     => 'no',
-				'desc_tip'    => true,
-			),
-			'go_live'            => array(
-				'title'       => __( 'Mode', 'flw-payments' ),
-				'label'       => __( 'Live mode', 'flw-payments' ),
-				'type'        => 'checkbox',
-				'description' => __( 'Check this box if you\'re using your live keys.', 'flw-payments' ),
-				'default'     => 'no',
-				'desc_tip'    => true,
-			),
-			'logging_option'     => array(
-				'title'       => __( 'Disable Logging', 'flw-payments' ),
-				'label'       => __( 'Disable Logging', 'flw-payments' ),
-				'type'        => 'checkbox',
-				'description' => __( 'Check this box if you\'re disabling logging.', 'flw-payments' ),
-				'default'     => 'no',
-				'desc_tip'    => true,
-			),
-			'barter'             => array(
-				'title'       => __( 'Disable Barter', 'flw-payments' ),
-				'label'       => __( 'Disable Barter', 'flw-payments' ),
-				'type'        => 'checkbox',
-				'description' => __( 'Check the box if you want to disable barter.', 'flw-payments' ),
+				'description' => __( 'Enable Flutterwave as a payment option on the checkout page', 'flutterwave-woo' ),
 				'default'     => 'no',
 				'desc_tip'    => true,
 			),
 			'webhook'            => array(
-				'title'       => __( 'Webhook Instruction', 'flw-payments' ),
+				'title'       => __( 'Webhook Instruction', 'flutterwave-woo' ),
 				'type'        => 'hidden',
-				'description' => __( 'Please copy this webhook URL and paste on the webhook section on your dashboard <strong style="color: red"><pre><code>' . WC()->api_request_url( 'Flw_WC_Payment_Webhook' ) . '</code></pre></strong> (<a href="https://rave.flutterwave.com/dashboard/settings/webhooks" target="_blank">Rave Account</a>)', 'flw-payments' ),
+				'description' => __( 'Please copy this webhook URL and paste on the webhook section on your dashboard <strong style="color: red"><pre><code>' . WC()->api_request_url( 'Flw_WC_Payment_Webhook' ) . '</code></pre></strong> (<a href="https://rave.flutterwave.com/dashboard/settings/webhooks" target="_blank">Flutterwave Account</a>)', 'flutterwave-woo' ), //phpcs:ignore
 			),
 			'secret_hash'        => array(
-				'title'       => __( 'Enter Secret Hash', 'flw-payments' ),
+				'title'       => __( 'Enter Secret Hash', 'flutterwave-woo' ),
 				'type'        => 'text',
-				'description' => __( 'Ensure that <b>SECRET HASH</b> is the same with the one on your Rave dashboard', 'flw-payments' ),
-				'default'     => 'Rave-Secret-Hash',
+				'description' => __( 'Ensure that <b>SECRET HASH</b> is the same with the one on your Flutterwave dashboard', 'flutterwave-woo' ),
+				'default'     => hash( 'sha256', 'Rave-Secret-Hash' ),
 			),
 			'title'              => array(
-				'title'       => __( 'Payment method title', 'flw-payments' ),
+				'title'       => __( 'Payment method title', 'flutterwave-woo' ),
 				'type'        => 'text',
-				'description' => __( 'Optional', 'flw-payments' ),
-				'default'     => 'Rave',
+				'description' => __( 'Optional', 'flutterwave-woo' ),
+				'default'     => 'Flutterwave',
 			),
 			'description'        => array(
-				'title'       => __( 'Payment method description', 'flw-payments' ),
+				'title'       => __( 'Payment method description', 'flutterwave-woo' ),
 				'type'        => 'text',
-				'description' => __( 'Optional', 'flw-payments' ),
+				'description' => __( 'Optional', 'flutterwave-woo' ),
 				'default'     => 'Powered by Flutterwave: Accepts Mastercard, Visa, Verve, Discover, AMEX, Diners Club and Union Pay.',
 			),
 			'test_public_key'    => array(
-				'title'   => __( 'Rave Test Public Key', 'flw-payments' ),
-				'type'    => 'text',
-				// 'description' => __( 'Required! Enter your Rave test public key here', 'flw-payments' ),
-				'default' => '',
+				'title'       => __( 'Rave Test Public Key', 'flutterwave-woo' ),
+				'type'        => 'text',
+				'description' => __( 'Required! Enter your Flutterwave test public key here', 'flutterwave-woo' ),
+				'default'     => '',
 			),
 			'test_secret_key'    => array(
-				'title'   => __( 'Rave Test Secret Key', 'flw-payments' ),
-				'type'    => 'text',
-				// 'description' => __( 'Required! Enter your Rave test secret key here', 'flw-payments' ),
-				'default' => '',
+				'title'       => __( 'Rave Test Secret Key', 'flutterwave-woo' ),
+				'type'        => 'password',
+				'description' => __( 'Required! Enter your Flutterwave test secret key here', 'flutterwave-woo' ),
+				'default'     => '',
 			),
 			'live_public_key'    => array(
-				'title'   => __( 'Rave Live Public Key', 'flw-payments' ),
-				'type'    => 'text',
-				// 'description' => __( 'Required! Enter your Rave live public key here', 'flw-payments' ),
-				'default' => '',
+				'title'       => __( 'Rave Live Public Key', 'flutterwave-woo' ),
+				'type'        => 'text',
+				'description' => __( 'Required! Enter your Flutterwave live public key here', 'flutterwave-woo' ),
+				'default'     => '',
 			),
 			'live_secret_key'    => array(
-				'title'   => __( 'Rave Live Secret Key', 'flw-payments' ),
-				'type'    => 'text',
-				// 'description' => __( 'Required! Enter your Rave live secret key here', 'flw-payments' ),
-				'default' => '',
+				'title'       => __( 'Rave Live Secret Key', 'flutterwave-woo' ),
+				'type'        => 'password',
+				'description' => __( 'Required! Enter your Flutterwave live secret key here', 'flutterwave-woo' ),
+				'default'     => '',
 			),
 			'payment_style'      => array(
-				'title'       => __( 'Payment Style on checkout', 'flw-payments' ),
+				'title'       => __( 'Payment Style on checkout', 'flutterwave-woo' ),
 				'type'        => 'select',
-				'description' => __( 'Optional - Choice of payment style to use. Either inline or redirect. (Default: inline)', 'flw-payments' ),
+				'description' => __( 'Optional - Choice of payment style to use. Either inline or redirect. (Default: inline)', 'flutterwave-woo' ),
 				'options'     => array(
-					'inline'   => esc_html_x( 'Popup(Keep payment experience on the website)', 'payment_style', 'flw-payments' ),
-					'redirect' => esc_html_x( 'Redirect', 'payment_style', 'flw-payments' ),
+					'inline'   => esc_html_x( 'Popup(Keep payment experience on the website)', 'payment_style', 'flutterwave-woo' ),
+					'redirect' => esc_html_x( 'Redirect', 'payment_style', 'flutterwave-woo' ),
 				),
 				'default'     => 'inline',
 			),
 			'autocomplete_order' => array(
-				'title'       => __( 'Autocomplete Order After Payment', 'flw-payments' ),
-				'label'       => __( 'Autocomplete Order', 'flw-payments' ),
+				'title'       => __( 'Autocomplete Order After Payment', 'flutterwave-woo' ),
+				'label'       => __( 'Autocomplete Order', 'flutterwave-woo' ),
 				'type'        => 'checkbox',
 				'class'       => 'wc-flw-autocomplete-order',
-				'description' => __( 'If enabled, the order will be marked as complete after successful payment', 'flw-payments' ),
+				'description' => __( 'If enabled, the order will be marked as complete after successful payment', 'flutterwave-woo' ),
 				'default'     => 'no',
 				'desc_tip'    => true,
 			),
 			'payment_options'    => array(
-				'title'       => __( 'Payment Options', 'flw-payments' ),
+				'title'       => __( 'Payment Options', 'flutterwave-woo' ),
 				'type'        => 'select',
-				'description' => __( 'Optional - Choice of payment method to use. Card, Account etc.', 'flw-payments' ),
+				'description' => __( 'Optional - Choice of payment method to use. Card, Account etc.', 'flutterwave-woo' ),
 				'options'     => array(
-					''                    => esc_html_x( 'Default', 'payment_options', 'flw-payments' ),
-					'card'                => esc_html_x( 'Card Only', 'payment_options', 'flw-payments' ),
-					'account'             => esc_html_x( 'Account Only', 'payment_options', 'flw-payments' ),
-					'ussd'                => esc_html_x( 'USSD Only', 'payment_options', 'flw-payments' ),
-					'qr'                  => esc_html_x( 'QR Only', 'payment_options', 'flw-payments' ),
-					'mpesa'               => esc_html_x( 'Mpesa Only', 'payment_options', 'flw-payments' ),
-					'mobilemoneyghana'    => esc_html_x( 'Ghana MM Only', 'payment_options', 'flw-payments' ),
-					'mobilemoneyrwanda'   => esc_html_x( 'Rwanda MM Only', 'payment_options', 'flw-payments' ),
-					'mobilemoneyzambia'   => esc_html_x( 'Zambia MM Only', 'payment_options', 'flw-payments' ),
-					'mobilemoneytanzania' => esc_html_x( 'Tanzania MM Only', 'payment_options', 'flw-payments' ),
+					''                    => esc_html_x( 'Default', 'payment_options', 'flutterwave-woo' ),
+					'card'                => esc_html_x( 'Card Only', 'payment_options', 'flutterwave-woo' ),
+					'account'             => esc_html_x( 'Account Only', 'payment_options', 'flutterwave-woo' ),
+					'ussd'                => esc_html_x( 'USSD Only', 'payment_options', 'flutterwave-woo' ),
+					'qr'                  => esc_html_x( 'QR Only', 'payment_options', 'flutterwave-woo' ),
+					'mpesa'               => esc_html_x( 'Mpesa Only', 'payment_options', 'flutterwave-woo' ),
+					'mobilemoneyghana'    => esc_html_x( 'Ghana MM Only', 'payment_options', 'flutterwave-woo' ),
+					'mobilemoneyrwanda'   => esc_html_x( 'Rwanda MM Only', 'payment_options', 'flutterwave-woo' ),
+					'mobilemoneyzambia'   => esc_html_x( 'Zambia MM Only', 'payment_options', 'flutterwave-woo' ),
+					'mobilemoneytanzania' => esc_html_x( 'Tanzania MM Only', 'payment_options', 'flutterwave-woo' ),
 				),
 				'default'     => '',
+			),
+			'go_live'            => array(
+				'title'       => __( 'Mode', 'flutterwave-woo' ),
+				'label'       => __( 'Live mode', 'flutterwave-woo' ),
+				'type'        => 'checkbox',
+				'description' => __( 'Check this box if you\'re using your live keys.', 'flutterwave-woo' ),
+				'default'     => 'no',
+				'desc_tip'    => true,
+			),
+			'logging_option'     => array(
+				'title'       => __( 'Disable Logging', 'flutterwave-woo' ),
+				'label'       => __( 'Disable Logging', 'flutterwave-woo' ),
+				'type'        => 'checkbox',
+				'description' => __( 'Check this box if you\'re disabling logging.', 'flutterwave-woo' ),
+				'default'     => 'no',
+				'desc_tip'    => true,
+			),
+			'barter'             => array(
+				'title'       => __( 'Disable Barter', 'flutterwave-woo' ),
+				'label'       => __( 'Disable Barter', 'flutterwave-woo' ),
+				'type'        => 'checkbox',
+				'description' => __( 'Check the box if you want to disable barter.', 'flutterwave-woo' ),
+				'default'     => 'no',
+				'desc_tip'    => true,
 			),
 
 		);
@@ -287,9 +318,9 @@ class FLW_WC_Payment_Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Order id
 	 *
-	 * @param $order_id
+	 * @param int $order_id  Order id.
 	 *
-	 * @return array
+	 * @return array|void
 	 */
 	public function process_payment( $order_id ) {
 		include_once dirname( __FILE__ ) . '/client/class-flw-wc-payment-gateway-request.php';
@@ -308,7 +339,11 @@ class FLW_WC_Payment_Gateway extends \WC_Payment_Gateway {
 			);
 		} else {
 			wc_add_notice( 'Unable to Connect to Flutterwave.', 'error' );
-			return;
+			// redirect user to check out page.
+			return array(
+				'result'   => 'fail',
+				'redirect' => $order->get_checkout_payment_url( true ),
+			);
 		}
 
 	}
@@ -323,8 +358,12 @@ class FLW_WC_Payment_Gateway extends \WC_Payment_Gateway {
 		if ( 'yes' === $this->enabled ) {
 
 			if ( empty( $this->public_key ) || empty( $this->secret_key ) ) {
+
+				$message = sprintf(
 				/* translators: %s: url */
-				echo sprintf( '<div class="error"><p>%s</p></div>', sprintf( (string) __( 'Flutterwave is enabled, but the <strong>Public Key</strong> and <strong>Secret Key</strong> are not configured. Please <a href="%s">click here</a> to configure it.', 'flw-payments' ), esc_url( admin_url( 'admin.php?page=wc-settings&tab=checkout&section=rave' ) ), 'flw-payments' ) );
+					__( 'Flutterwave is enabled, but the API keys are not set. Please <a href="%s">set your Flutterwave API keys</a> to be able to accept payments.', 'flutterwave-woo' ),
+					esc_url( admin_url( 'admin.php?page=wc-settings&tab=checkout&section=wc_flw_payment_gateway' ) )
+				);
 			}
 		}
 
@@ -333,17 +372,12 @@ class FLW_WC_Payment_Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Checkout receipt page
 	 *
+	 * @param WC_Order $order Order .
+	 *
 	 * @return void
 	 */
-	public function receipt_page( $order ) {
-
+	public function receipt_page( WC_Order $order ) {
 		$order = wc_get_order( $order );
-
-		echo '<p>' . __( 'Thank you for your order, please click the <b>Make Payment</b> button below to make payment. You will be redirected to a secure page where you can enter you card details or bank account details. <b>Please, do not close your browser at any point in this process.</b>', 'flw-payments' ) . '</p>';
-		echo '<a class="button cancel" href="' . esc_url( $order->get_cancel_order_url() ) . '">';
-		echo __( 'Cancel order &amp; restore cart', 'flw-payments' ) . '</a> ';
-		echo '<button class="button alt  wc-forward" id="flw-pay-now-button">Make Payment</button> ';
-
 	}
 
 	/**
@@ -351,79 +385,17 @@ class FLW_WC_Payment_Gateway extends \WC_Payment_Gateway {
 	 *
 	 * @return void
 	 */
-	public function load_scripts() {
-
-		if ( ! is_checkout_pay_page() ) {
+	public function payment_scripts() {
+		// TODO: on checkout page event using is_checkout.
+		// TODO: on cart page event using is_cart.
+		// Load only on checkout page.
+		if ( ! is_checkout_pay_page() || ! is_checkout() || ! is_cart() ) {
 			return;
 		}
-		$p_key           = $this->public_key;
-		$payment_options = $this->payment_options;
-
-		if ( $this->payment_style === 'inline' ) {
-			wp_enqueue_script( 'flwpbf_inline_js', $this->base_url . '/flwv3-pug/getpaidx/api/flwpbf-inline.js', array(), FLW_WC_VERSION, true );
-		}
-
+		// TODO: New flow on checkout page.
 		wp_enqueue_script( 'flw_js', plugins_url( 'assets/build/js/checkout.js', FLW_WC_PLUGIN_FILE ), array( 'jquery' ), FLW_WC_VERSION, true );
 
 		$payment_args = [];
-
-		if ( get_query_var( 'order-pay' ) ) {
-
-			$order_key = urldecode( sanitize_text_field( $_REQUEST['key'] ) );
-			$order_id  = absint( get_query_var( 'order-pay' ) );
-			$cb_url    = WC()->api_request_url( 'FLW_WC_Payment_Gateway' ) . '?rave_id=' . $order_id;
-
-			if ( $this->payment_style === 'inline' ) { // phpcs:ignore
-				wp_enqueue_script( 'flwpbf_inline_js', $this->base_url . '/flwv3-pug/getpaidx/api/flwpbf-inline.js', array(), '1.0.0', true );
-				$cb_url = WC()->api_request_url( 'FLW_WC_Payment_Gateway' );
-			}
-
-			$order = wc_get_order( $order_id );
-
-			$txnref = 'WOOC_' . $order_id . '_' . time();
-			$txnref = sanitize_text_field( $txnref );
-
-			$amount         = $order->get_total();
-			$email          = $order->get_billing_email();
-			$currency       = $order->get_currency();
-			$main_order_key = $order->get_order_key();
-
-			// set the currency to route to their countries.
-			switch ( $currency ) {
-				case 'KES':
-					$this->country = 'KE';
-					break;
-				case 'GHS':
-					$this->country = 'GH';
-					break;
-				case 'ZAR':
-					$this->country = 'ZA';
-					break;
-				case 'TZS':
-					$this->country = 'TZ';
-					break;
-
-				default:
-					$this->country = 'NG';
-					break;
-			}
-
-			$country       = $this->country;
-			$payment_style = $this->payment_style;
-
-			$payment_args = compact( 'amount', 'email', 'txnref', 'p_key', 'currency', 'country', 'payment_options', 'cb_url', 'payment_style' );
-
-			if ( $main_order_key === $order_key ) {
-				$payment_args['desc']      = filter_var( $this->description, FILTER_SANITIZE_STRING );
-				$payment_args['title']     = filter_var( $this->title, FILTER_SANITIZE_STRING );
-				$payment_args['firstname'] = $order->get_billing_first_name();
-				$payment_args['lastname']  = $order->get_billing_last_name();
-			}
-
-			update_post_meta( $order_id, '_flw_payment_txn_ref', $txnref );
-
-		}
-
 		wp_localize_script( 'flw_js', 'flw_payment_args', $payment_args );
 	}
 
@@ -528,8 +500,12 @@ class FLW_WC_Payment_Gateway extends \WC_Payment_Gateway {
 
 	/**
 	 * Save Customer Card Details
+	 *
+	 * @param object $rave_response The response from Rave.
+	 * @param int    $user_id The user ID.
+	 * @param int    $order_id The order ID.
 	 */
-	public static function save_card_details( $rave_response, $user_id, $order_id ) {
+	public static function save_card_details( object $rave_response, int $user_id, int $order_id ) {
 
 		$token_code = $rave_response->card->card_tokens[0]->embedtoken ?? '';
 
@@ -540,8 +516,11 @@ class FLW_WC_Payment_Gateway extends \WC_Payment_Gateway {
 
 	/**
 	 * Save payment token to the order for automatic renewal for further subscription payment
+	 *
+	 * @param int    $order_id  The order ID.
+	 * @param string $payment_token The payment token.
 	 */
-	public static function save_subscription_payment_token( $order_id, $payment_token ) {
+	public static function save_subscription_payment_token( int $order_id, string $payment_token ) {
 
 		if ( ! function_exists( 'wcs_order_contains_subscription' ) ) {
 			return;
@@ -549,7 +528,7 @@ class FLW_WC_Payment_Gateway extends \WC_Payment_Gateway {
 
 		if ( WC_Subscriptions_Order::order_contains_subscription( $order_id ) && ! empty( $payment_token ) ) {
 
-			// Also store it on the subscriptions being purchased or paid for in the order
+			// Also store it on the subscriptions being purchased or paid for in the order.
 			if ( function_exists( 'wcs_order_contains_subscription' ) && wcs_order_contains_subscription( $order_id ) ) {
 
 				$subscriptions = wcs_get_subscriptions_for_order( $order_id );
