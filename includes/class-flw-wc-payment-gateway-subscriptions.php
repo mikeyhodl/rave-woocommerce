@@ -1,4 +1,17 @@
 <?php
+/**
+ * The file that defines the Flutterwave Subscriptions class
+ *
+ * A class definition that includes attributes and functions used across both the
+ * public-facing side of the site and the admin area.
+ *
+ * @link       https://flutterwave.com
+ * @since      1.0.0
+ *
+ * @package    Flutterwave_WooCommerce
+ * @subpackage Flutterwave_WooCommerce/includes
+ */
+
 declare(strict_types=1);
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -10,7 +23,7 @@ if ( ! defined( 'FLUTTERWAVEACCESS' ) ) {
 }
 
 /**
- *  Flutterwave Subscription Class
+ *  Flutterwave Subscription Class.
  */
 class FLW_WC_Payment_Gateway_Subscriptions extends FLW_WC_Payment_Gateway {
 
@@ -22,28 +35,29 @@ class FLW_WC_Payment_Gateway_Subscriptions extends FLW_WC_Payment_Gateway {
 		parent::__construct();
 
 		if ( class_exists( 'WC_Subscriptions_Order' ) ) {
-
-			// add_action( 'wcs_renewal_order_created', array( $this, 'delete_renewal_meta' ), 10 );
 			add_action( 'woocommerce_scheduled_subscription_payment_' . $this->id, array( $this, 'scheduled_subscription_payment' ), 10, 2 );
-
 		}
 	}
 
 	/**
 	 * Check if an order contains a subscription
+	 *
+	 * @param WC_Order $order The order.
 	 */
-	public function order_contains_subscription( $order_id ) {
-		return function_exists( 'wcs_order_contains_subscription' ) && ( wcs_order_contains_subscription( $order_id ) || wcs_order_contains_renewal( $order_id ) );
+	public function order_contains_subscription( WC_Order $order ): bool {
+		return function_exists( 'wcs_order_contains_subscription' ) && ( wcs_order_contains_subscription( $order ) || wcs_order_contains_renewal( $order ) );
 	}
 
 	/**
-	 * Process a trial subscription order with 0 total
+	 * Process a trial subscription order with 0 total.
+	 *
+	 * @param int $order_id The order ID.
 	 */
 	public function process_payment( $order_id ): array {
 
 		$order = wc_get_order( $order_id );
-		// Check for trial subscription order with 0 total
-		if ( $this->order_contains_subscription( $order ) && $order->get_total() == 0 ) {
+		// Check for trial subscription order with 0 total.
+		if ( $this->order_contains_subscription( $order ) && $order->get_total() === 0 ) {
 
 			$order->payment_complete();
 			$order->add_order_note( 'This subscription has a free trial, reason for the 0 amount' );
@@ -60,52 +74,43 @@ class FLW_WC_Payment_Gateway_Subscriptions extends FLW_WC_Payment_Gateway {
 	}
 
 	/**
-	 * Process a subscription renewal
+	 * Process a subscription renewal.
+	 *
+	 * @param float    $amount_to_charge The amount to charge.
+	 * @param WC_Order $renewal_order The order object.
 	 */
-	public function scheduled_subscription_payment( $amount_to_charge, $renewal_order ) {
+	public function scheduled_subscription_payment( float $amount_to_charge, WC_Order $renewal_order ) {
 
 		$response = $this->process_subscription_payment( $renewal_order, $amount_to_charge );
 
 		if ( is_wp_error( $response ) ) {
 			$renewal_order->update_status( 'failed', sprintf( 'Rave Transaction Failed: (%s)', $response->get_error_message() ) );
-			// WC_Subscriptions_Manager::process_subscription_payment_failure_on_order( $renewal_order, $product_id );
 		}
-		// else {
-		// WC_Subscriptions_Manager::process_subscription_payments_on_order( $order );
-		// }
 	}
 
 	/**
-	 * Process a subscription renewal payment
+	 * Process a subscription renewal payment.
+	 *
+	 * @param WC_Order $order The order object.
+	 * @param float    $amount The amount to charge.
 	 */
 	public function process_subscription_payment( $order = '', $amount = 0 ) {
 
-		$order_id = method_exists( $order, 'get_id' ) ? $order->get_id() : $order->id;
-
-		// get subscription from order
-		// $subscriptions = wcs_get_subscriptions_for_order( $order_id );
-		// file_put_contents('SUB_'.time(), json_encode(json_decode($subscriptions)));
-		// // get the subscription order
-		// foreach ( $subscriptions as $subscription ) {
-
-		// $subscription_id = $subscription->get_id();
-
-		// }
-		// get token attached for this subscription id
+		$order_id = $order->get_id();
+		// get token attached for this subscription id.
 		$auth_code = get_post_meta( $order_id, '_rave_wc_token', true );
-
-		file_put_contents( '4_' . time(), json_encode( $auth_code ) );
 		if ( $auth_code ) {
 
 			$headers = array(
-				'Content-Type' => 'application/json',
+				'Content-Type'  => 'application/json',
+				'Authorization' => 'Bearer ' . $this->get_secret_key(),
 			);
 
 			$txnref         = 'WC_' . $order_id . '_' . time();
-			$order_currency = method_exists( $order, 'get_currency' ) ? $order->get_currency() : $order->get_order_currency();
-			$first_name     = method_exists( $order, 'get_billing_first_name' ) ? $order->get_billing_first_name() : $order->billing_first_name;
-			$last_name      = method_exists( $order, 'get_billing_last_name' ) ? $order->get_billing_last_name() : $order->billing_last_name;
-			$email          = method_exists( $order, 'get_billing_email' ) ? $order->get_billing_email() : $order->billing_email;
+			$order_currency = $order->get_currency();
+			$first_name     = $order->get_billing_first_name();
+			$last_name      = $order->get_billing_last_name();
+			$email          = $order->get_billing_email();
 
 			if ( strpos( $auth_code, '##' ) !== false ) {
 
@@ -119,53 +124,62 @@ class FLW_WC_Payment_Gateway_Subscriptions extends FLW_WC_Payment_Gateway {
 			}
 
 			$body = array(
-				'SECKEY'    => $this->secret_key,
 				'token'     => $token_code,
 				'currency'  => $order_currency,
 				'amount'    => $amount,
 				'email'     => $email,
 				'firstname' => $first_name,
 				'lastname'  => $last_name,
-				// 'IP'        => $ip_address,
-				'txRef'     => $txnref,
+				'tx_ref'    => $txnref,
 			);
 
 			$args = array(
 				'headers' => $headers,
-				'body'    => json_encode( $body ),
+				'body'    => wp_json_encode( $body ),
 				'timeout' => 60,
 			);
 
-			// tokenize url
-			$tokenized_url = $this->base_url . '/flwv3-pug/getpaidx/api/tokenized/charge';
+			// tokenize url.
+			$tokenized_url = 'https://api.flutterwave.com/v3/tokenized-charges';
 			$request       = wp_remote_post( $tokenized_url, $args );
 
-			if ( ! is_wp_error( $request ) && 200 == wp_remote_retrieve_response_code( $request ) ) {
+			if ( ! is_wp_error( $request ) && 200 === wp_remote_retrieve_response_code( $request ) ) {
 
-				$response            = json_decode( wp_remote_retrieve_body( $request ) );
-				$status              = $response->status;
-				$response_code       = $response->data->chargeResponseCode;
-				$payment_currency    = $response->data->currency;
-				$valid_response_code = array( '0', '00' );
+				$response         = json_decode( wp_remote_retrieve_body( $request ) );
+				$status           = $response->status;
+				$response_status  = $response->data->status;
+				$payment_currency = $response->data->currency;
 
-				if ( 'success' === $status && in_array( $response_code, $valid_response_code ) ) {
-					$txn_ref        = $response->data->txRef;
-					$payment_ref    = $response->data->flwRef;
+				if ( 'success' === $status && 'successful' === $response_status && $payment_currency === $order_currency ) {
+					$txn_ref        = $response->data->tx_ref;
+					$payment_ref    = $response->data->flw_ref;
 					$amount_charged = $response->data->charged_amount;
 
 					$order->payment_complete( $order_id );
-					$message = ( sprintf( 'Payment via Rave successful (<strong>Transaction Reference:</strong> %s | <strong>Payment Reference:</strong> %s)', $txn_ref, $payment_ref ) );
-					$order->add_order_note( $message );
+					$order->add_order_note(
+						sprintf(
+							/* translators: 1: payment reference 2: transaction reference */
+							__( 'Payment via Flutterwave successful (Payment Reference: %1$s, Transaction Reference: %2$s)', 'flutterwave-woo' ),
+							$payment_ref,
+							$txn_ref
+						)
+					);
+
+					$flw_settings = get_option( 'woocommerce_' . $order->get_payment_method() . '_settings' );
+
+					if ( isset( $flw_settings['autocomplete_order'] ) && 'yes' === $flw_settings['autocomplete_order'] ) {
+						$order->update_status( 'completed' );
+					}
 					return true;
 				} else {
 
-					return new WP_Error( 'rave_error', 'Rave payment failed. ' . $response->message );
+					return new WP_Error( 'flutterwave_error', 'Flutterwave payment failed. ' . $response->message );
 
 				}
 			}
 		}
 
-		return new WP_Error( 'rave_error', 'This subscription can\'t be renewed automatically. The customer will have to login to his account to renew his subscription' );
+		return new WP_Error( 'flutterwave_error', 'This subscription can\'t be renewed automatically. The customer will have to login to his account to renew his subscription' );
 	}
 }
 
