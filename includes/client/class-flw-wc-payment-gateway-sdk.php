@@ -67,14 +67,14 @@ final class FLW_WC_Payment_Gateway_Sdk {
 	/**
 	 * FLW_WC_Payment_Gateway_Sdk constructor.
 	 *
-	 * @param $secret_key
-	 * @param bool       $log_enabled
+	 * @param string $secret_key  The secret key.
+	 * @param bool   $log_enabled Whether to log or not.
 	 */
 	public function __construct( $secret_key, bool $log_enabled = false ) {
 		$this->client = new FLW_WC_Payment_Gateway_Client( $secret_key, $log_enabled );
-		// if($log_enabled) {
+		// if($log_enabled) { //phpcs:ignore
 		// $this->logger = wc_get_logger();
-		// }
+		// }.phpcs:ignore.
 		$this->logger = wc_get_logger();
 		return $this;
 	}
@@ -117,7 +117,7 @@ final class FLW_WC_Payment_Gateway_Sdk {
 			'<html lang="en">',
 			'<body>',
 			'   <img src="' . esc_url( plugins_url( 'sdk/ajax-loader.gif', FLW_WC_PLUGIN_FILE ) ) . '" />',
-			'   <script type="text/javascript" src="' . esc_url( $this->checkout_url ) . '"></script>',
+			'   <script type="text/javascript" src="' . esc_url( $this->checkout_url ) . '"></script>', // phpcs:ignore.
 			'	<script>',
 			'       var isFlutterwaveCompleted = false;',
 			'       document.addEventListener("DOMContentLoaded", function(event) {',
@@ -144,8 +144,8 @@ final class FLW_WC_Payment_Gateway_Sdk {
 			'                   window.location = "?cancelled=cancelled&order_id=' . $order_id . '";',
 			'               },',
 			'               customizations: {',
-			'                   title: "' . esc_html_e( $clean_data['title'], 'flw-payments' ) . '",',
-			'                   description: "' . esc_html_e( $clean_data['description'], 'flw-payments' ) . '",',
+			'                   title: "' . $clean_data['title'] . '",',
+			'                   description: "' . $clean_data['description'] . '",',
 			'                   logo: "' . $clean_data['logo'] . '",',
 			'               },',
 			'           });',
@@ -160,11 +160,11 @@ final class FLW_WC_Payment_Gateway_Sdk {
 
 	/**
 	 * @param array $data This is the data to be sent to the payment gateway.
-	 * @param int   $order_id This is the order id.
+	 * @param int $order_id This is the order id.
 	 *
 	 * @return false|string
 	 */
-	public function render_modal( array $data, $order_id ) {
+	public function render_modal( array $data, int $order_id ) {
 		$clean_data = $data;
 		$html       = $this->prepare_html( $clean_data, $order_id );
 		$this->logger->notice( 'Loading Payment Modal for order:' . $order_id );
