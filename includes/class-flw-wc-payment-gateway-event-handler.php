@@ -24,28 +24,28 @@ class FLW_WC_Payment_Gateway_Event_Handler implements FLW_WC_Payment_Gateway_Eve
 	/**
 	 * FLW_WC_Payment_Gateway_Event_Handler constructor.
 	 *
-	 * @param $order
+	 * @param WC_Order $order This is the order object.
 	 */
-	public function __construct( $order ) {
+	public function __construct( WC_Order $order ) {
 		$this->order = $order;
 	}
 
 	/**
 	 * This is called when the Flutterwave class is initialized
 	 *
-	 * @param $initialization_data
+	 * @param object $initialization_data - This is the transaction data as returned from the Flutterwave payment gateway.
 	 */
 	public function on_init( $initialization_data ) {
 		// Save the transaction to your DB.
 		$this->order->add_order_note( 'Payment initialized via Flutterwave' );
-		update_post_meta( $this->order->get_id(), '_flw_payment_txn_ref', $initialization_data['txref'] );
-		$this->order->add_order_note( 'Your transaction reference: ' . $initialization_data['txref'] );
+		update_post_meta( $this->order->get_id(), '_flw_payment_txn_ref', $initialization_data->txref );
+		$this->order->add_order_note( 'Your transaction reference: ' . $initialization_data->txref );
 	}
 
 	/**
 	 * This is called only when a transaction is successful.
 	 *
-	 * @param $transaction_data - This is the transaction data as returned from the Flutterwave payment gateway.
+	 * @param object $transaction_data - This is the transaction data as returned from the Flutterwave payment gateway.
 	 */
 	public function on_successful( $transaction_data ) {
 		if ( 'successful' === $transaction_data->status ) {
@@ -76,36 +76,27 @@ class FLW_WC_Payment_Gateway_Event_Handler implements FLW_WC_Payment_Gateway_Eve
 
 				$customer_note  = 'Thank you for your order.<br>';
 				$customer_note .= 'Your payment was successful, we are now <strong>processing</strong> your order.';
-
 				$this->order->add_order_note( $customer_note, 1 );
-
 			}
 			wc_add_notice( $customer_note, 'notice' );
-
 			// get order_id from the txref.
 			$get_order_id = explode( '_', $transaction_data->tx_ref );
 			$order_id     = $get_order_id[1];
-
 			// save the card token returned here.
 			FLW_WC_Payment_Gateway::save_card_details( $transaction_data, $this->order->get_user_id(), $order_id );
-
 			WC()->cart->empty_cart();
-
 		} else {
-
 			$this->on_failure( $transaction_data );
-
 		}
 
 	}
 
 	/**
 	 * This is called only when a transaction failed
-	 * */
+	 *
+	 * @param object $transaction_data - This is the transaction data as returned from the Flutterwave payment gateway.
+	 */
 	public function on_failure( $transaction_data ) {
-		// Get the transaction from your DB using the transaction reference (txref)
-		// Update the db transaction record (includeing parameters that didn't exist before the transaction is completed. for audit purpose)
-		// You can also redirect to your failure page from here.
 		$this->order->update_status( 'Failed' );
 		$this->order->add_order_note( 'The payment failed on Rave' );
 		$customer_note  = 'Your payment <strong>failed</strong>. ';
@@ -118,14 +109,18 @@ class FLW_WC_Payment_Gateway_Event_Handler implements FLW_WC_Payment_Gateway_Eve
 
 	/**
 	 * This is called when a transaction is requeryed from the payment gateway
+	 *
+	 * @param string $transaction_reference - This is the transaction reference (txref) of the transaction you want to requery.
 	 * */
-	function on_requery( $transactionReference ) {
+	public function on_requery( $transaction_reference ) {
 		// Do something, anything!.
 		$this->order->add_order_note( 'Confirming payment on Flutterwave' );
 	}
 
 	/**
 	 * This is called a transaction requery returns with an error
+	 *
+	 * @param object $requery_response - This is the response from the payment gateway when a transaction is requeryed.
 	 * */
 	public function on_requery_error( $requery_response ) {
 		// Do something, anything!.
@@ -145,8 +140,10 @@ class FLW_WC_Payment_Gateway_Event_Handler implements FLW_WC_Payment_Gateway_Eve
 
 	/**
 	 * This is called when a transaction is canceled by the user
+	 *
+	 * @param string $transaction_reference - This is the transaction reference (txref) of the transaction you want to requery.
 	 * */
-	public function on_cancel( $transaction_reference ) {
+	public function on_cancel( string $transaction_reference ) {
 		// Do something, anything!
 		// Note: Somethings a payment can be successful, before a user clicks the cancel button so proceed with caution.
 		$this->order->add_order_note( 'The customer clicked on the cancel button on Rave' );
@@ -158,6 +155,9 @@ class FLW_WC_Payment_Gateway_Event_Handler implements FLW_WC_Payment_Gateway_Eve
 
 	/**
 	 * This is called when a transaction doesn't return with a success or a failure response. This can be a timedout transaction on the Rave server or an abandoned transaction by the customer.
+	 *
+	 * @param string $transaction_reference - This is the transaction reference (txref) of the transaction you want to requery.
+	 * @param object $data - This is the data returned from the payment gateway.
 	 * */
 	public function on_timeout( $transaction_reference, $data ) {
 		// Get the transaction from your DB using the transaction reference (txref)
