@@ -7,7 +7,7 @@
  * Author: Flutterwave Developers
  * Author URI: http://flutterwave.com/us
  * License: MIT License
- * Text Domain: flw-payments
+ * Text Domain: flutterwave-woo
  * WC requires at least:   3.0.0
  * WC tested up to:        4.9.2
  * Requires at least:      5.6
