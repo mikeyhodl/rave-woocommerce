@@ -36,7 +36,7 @@
 
 	<rule ref="WordPress.WP.I18n">
 		<properties>
-			<property name="text_domain" value="flw-payments"/>
+			<property name="text_domain" value="flutterwave-woo"/>
 		</properties>
 	</rule>
 
