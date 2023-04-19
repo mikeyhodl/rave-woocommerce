@@ -98,11 +98,11 @@ class FLW_WC_Payment_Gateway_Client {
 	}
 
 	/**
-	 * @param $response
+	 * @param \WP_Error $response - The response from the request.
 	 *
 	 * @return void
 	 */
-	public function handle_error( $response ) {
+	public function handle_error( \WP_Error $response ) {
 		if ( is_wp_error( $response ) ) {
 			$this->logger->log( 'error', $response->get_error_message(), array( 'source' => 'flutterwave' ) );
 			wc_add_notice( 'Unable to connect to Flutterwave. Please Try Again', 'error' );
