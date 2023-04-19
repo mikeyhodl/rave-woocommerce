@@ -1,4 +1,4 @@
-name: PHPCS check
+name: WordPress and WooCommerce checks
 on:
   push
 
