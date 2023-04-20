@@ -54,7 +54,7 @@ class FLW_WC_Payment_Gateway_Event_Handler implements FLW_WC_Payment_Gateway_Eve
 	public function on_successful( object $transaction_data ) {
 		if ( 'successful' === $transaction_data->status ) {
 
-			$amount = (string) $transaction_data->amount;
+			$amount = (string) ( (float) $transaction_data->amount );
 			if ( $transaction_data->currency !== $this->order->get_currency() || $amount !== $this->order->get_total() ) {
 				$this->order->update_status( 'on-hold' );
 				$customer_note  = 'Thank you for your order.<br>';
@@ -92,7 +92,6 @@ class FLW_WC_Payment_Gateway_Event_Handler implements FLW_WC_Payment_Gateway_Eve
 		} else {
 			$this->on_failure( $transaction_data );
 		}
-
 	}
 
 	/**
@@ -185,9 +184,9 @@ class FLW_WC_Payment_Gateway_Event_Handler implements FLW_WC_Payment_Gateway_Eve
 	 * This is called when a webhook is received from the payment gateway
 	 *
 	 * @param string $event_type The type of event received. eg: charge.successful.
-	 * @param array  $event_data The data sent with the event.
+	 * @param object $event_data The data sent with the event.
 	 * */
-	public function on_webhook( string $event_type, array $event_data ) {
+	public function on_webhook( string $event_type, object $event_data ) {
 		$status = 'pending';
 		// TODO: Save the event data to clients database.
 	}

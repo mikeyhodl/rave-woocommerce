@@ -503,9 +503,9 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 	 *
 	 * @param object $rave_response The response from Rave.
 	 * @param int    $user_id The user ID.
-	 * @param int    $order_id The order ID.
+	 * @param string $order_id The order ID.
 	 */
-	public static function save_card_details( object $rave_response, int $user_id, int $order_id ) {
+	public static function save_card_details( object $rave_response, int $user_id, string $order_id ) {
 
 		$token_code = $rave_response->card->card_tokens[0]->embedtoken ?? '';
 
@@ -517,10 +517,10 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 	/**
 	 * Save payment token to the order for automatic renewal for further subscription payment
 	 *
-	 * @param int    $order_id  The order ID.
-	 * @param string $payment_token The payment token.
+	 * @param mixed|string $order_id  The order ID.
+	 * @param string       $payment_token The payment token.
 	 */
-	public static function save_subscription_payment_token( int $order_id, string $payment_token ) {
+	public static function save_subscription_payment_token( string $order_id, string $payment_token ) {
 
 		if ( ! function_exists( 'wcs_order_contains_subscription' ) ) {
 			return;
