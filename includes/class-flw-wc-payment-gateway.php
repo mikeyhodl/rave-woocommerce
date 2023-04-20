@@ -151,6 +151,7 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 			'subscription_payment_method_change_customer',
 			'subscription_payment_method_change_admin',
 			'multiple_subscriptions',
+			'gateway_scheduled_payments',
 		);
 
 		add_action( 'admin_notices', array( $this, 'admin_notices' ) );

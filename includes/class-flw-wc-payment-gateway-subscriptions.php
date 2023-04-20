@@ -33,7 +33,8 @@ class FLW_WC_Payment_Gateway_Subscriptions extends FLW_WC_Payment_Gateway {
 	public function __construct() {
 
 		parent::__construct();
-
+		// https://woocommerce.com/document/subscriptions/develop/payment-gateway-integration/ .
+		// https://woocommerce.com/document/subscriptions/develop/functions/order-cart-functions/#section-9 .
 		if ( class_exists( 'WC_Subscriptions_Order' ) ) {
 			add_action( 'woocommerce_scheduled_subscription_payment_' . $this->id, array( $this, 'scheduled_subscription_payment' ), 10, 2 );
 		}
