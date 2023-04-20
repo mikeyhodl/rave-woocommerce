@@ -8,6 +8,7 @@
  * Author URI: http://flutterwave.com/us
  * License: MIT License
  * Text Domain: flutterwave-woo
+ * Domain Path: i18n/languages
  * WC requires at least:   3.0.0
  * WC tested up to:        4.9.2
  * Requires at least:      5.6
