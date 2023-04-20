@@ -58,6 +58,7 @@
 	},
 	"files": [
 		"assets",
+		"i18n",
 		"includes",
 		"woocommerce-rave.php",
 		"README.md",
