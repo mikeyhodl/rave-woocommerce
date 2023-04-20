@@ -53,8 +53,8 @@ class FLW_WC_Payment_Gateway_Event_Handler implements FLW_WC_Payment_Gateway_Eve
 	 */
 	public function on_successful( object $transaction_data ) {
 		if ( 'successful' === $transaction_data->status ) {
-
-			$amount = (string) ( (float) $transaction_data->amount );
+			$amount = (float) $transaction_data->amount;
+			$amount = number_format( $amount, 2, '.', '' );
 			if ( $transaction_data->currency !== $this->order->get_currency() || $amount !== $this->order->get_total() ) {
 				$this->order->update_status( 'on-hold' );
 				$customer_note  = 'Thank you for your order.<br>';
