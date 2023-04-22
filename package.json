@@ -1,5 +1,6 @@
 {
 	"name": "woocommerce-rave",
+	"title": "flutterwave-woocommerce",
 	"version": "2.3.2",
 	"description": "Official WooCommerce payment gateway for Flutterwave",
 	"main": "assets/js/src/checkout.js",
