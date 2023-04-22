@@ -32,6 +32,6 @@ inspection:
 
 build: i18n-pot && build-production-js && zip
 
-create-release: build
+release: build
 clean:
 	npm run clean
