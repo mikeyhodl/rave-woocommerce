@@ -2,9 +2,18 @@
 .gitignore
 .github
 package-lock.json
-package.json
 README.md
 webpack.config.js
 Makefile
 assets/src
+bin
+docs
+.wordpress-org
+.eslintrc.js
+.env.e2e.example
+.prettierrc.js
+.wp-env.json
+phpcs.xml
+phpunit.xml.dist
+playwright.config.js
 
