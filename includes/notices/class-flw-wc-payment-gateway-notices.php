@@ -25,6 +25,6 @@ class FLW_WC_Payment_Gateway_Notices {
 	 */
 	public function woocommerce_wc_not_supported() {
 		/* translators: $1. Minimum WooCommerce version. $2. Current WooCommerce version. */
-		echo sprintf( '<div class="error"><p><strong>%s</strong></p></div>', sprintf( esc_html__( 'Flutterwave WooCommerce requires WooCommerce %1$s or greater to be installed and active. WooCommerce %2$s is no longer supported.', 'woocommerce-rave' ), FLW_WC_MIN_WC_VER, WC_VERSION ) );
+		echo sprintf(  '<div class="error"><p><strong>%s</strong></p></div>', sprintf( esc_html__( 'Flutterwave WooCommerce requires WooCommerce %1$s or greater to be installed and active. WooCommerce %2$s is no longer supported.', 'woocommerce-rave' ), FLW_WC_MIN_WC_VER, WC_VERSION ) ); //phpcs:ignore
 	}
 }

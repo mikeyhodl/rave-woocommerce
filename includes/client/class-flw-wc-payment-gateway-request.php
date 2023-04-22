@@ -67,6 +67,7 @@ final class FLW_WC_Payment_Gateway_Request {
 	 * This method prepares the payload for the request
 	 *
 	 * @param \WC_Order $order Order object.
+	 * @param string    $secret_key APi key.
 	 *
 	 * @return array
 	 */
