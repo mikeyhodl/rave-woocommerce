@@ -1,68 +1,59 @@
-jQuery(function($) {
-  $('[id=flw-pay-now-button]').each( function(index) {
-      $(this).on('click', function (evt) {
-          evt.preventDefault();
-          const {log} = console;
-          let payment_made = false;
-          let cancelUrl = window.location.href;
+jQuery( function ( $ ) {
+	$.blockUI({message: '<p> Loading Payment Modal...</p>'});
+	let payment_made = false;
+	const redirectPost = function (location, args) {
+		let form = "";
+		$.each(args, function (key, value) {
+			// value = value.split('"').join('\"')
+			form += '<input type="hidden" name="' + key + '" value="' + value + '">';
+		});
+		$('<form action="' + location + '" method="POST">' + form + "</form>")
+			.appendTo($(document.body))
+			.submit();
+	};
 
-          const { payment_style, cb_url, currency } = flw_payment_args;
-          const redirectPost = function (location, args) {
-              let form = "";
-              $.each(args, function (key, value) {
-                  // value = value.split('"').join('\"')
-                  form += '<input type="hidden" name="' + key + '" value="' + value + '">';
-              });
-              $('<form action="' + location + '" method="POST">' + form + "</form>")
-                  .appendTo($(document.body))
-                  .submit();
-          };
-          
-          const processData = () => {
-              const cbUrl = flw_payment_args.cb_url;
-              let payload = {
-                  amount: flw_payment_args.amount,
-                  country: flw_payment_args.country,
-                  currency: flw_payment_args.currency,
-                  custom_description: flw_payment_args.desc,
-                  customer_email: flw_payment_args.email,
-                  customer_firstname: flw_payment_args.firstname,
-                  customer_lastname: flw_payment_args.lastname,
-                  txref: flw_payment_args.txnref,
-                  payment_options: flw_payment_args.payment_options,
-                  PBFPubKey: flw_payment_args.p_key,
-                  onclose: function () {
-                      if (payment_made) {
-                          $.blockUI({message: '<p> confirming transaction ...</p>'});
-                          redirectPost(cbUrl + "?txref=" + tr, flw_payment_args.txnref);
-                      }
-                  },
-                  callback: function (response) {
-                      let tr =
-                          response.data.data?.txRef || response.data.transactionobject?.txRef;
-                      if (
-                          response.tx.chargeResponseCode == "00" ||
-                          response.tx.chargeResponseCode == "0"
-                      ) {
-                          payment_made = true;
-                          // popup.close();
-                          $.blockUI({message: '<p> confirming transaction ...</p>'});
-                          redirectPost(cbUrl + "?txref=" + tr, response.tx);
-                      } else {
-                          alert(response.respmsg);
-                      }
-
-                      popup.close(); // close modal
-                  },
-              };
-              let popup = window.getpaidSetup(payload);
-          }
-
-          if (payment_style === "inline") {
-              processData();
-          } else {
-              location.href = cb_url;
-          }
-      });
-  });
-});
+	const processData = () => {
+		return {
+			public_key: flw_payment_args.public_key,
+			tx_ref: flw_payment_args.tx_ref,
+			amount: flw_payment_args.amount,
+			currency: flw_payment_args.currency,
+			payment_options: flw_payment_args.payment_options,
+			redirect_url: flw_payment_args.redirect_url,
+			onclose: function () {
+				$.unblockUI();
+				if (payment_made) {
+					$.blockUI({message: '<p> confirming transaction ...</p>'});
+					redirectPost(flw_payment_args.redirect_url + "?tx_ref=" + flw_payment_args.tx_ref, {});
+				} else {
+					$.blockUI({message: '<p> Canceling Payment ...</p>'});
+					window.location.href = flw_payment_args.cancel_url;
+				}
+			},
+			callback: function (response) {
+				let tr = response.tx_ref;
+				if ( 'successful' === response.status ) {
+					payment_made = true;
+					$.blockUI({message: '<p> confirming transaction ...</p>'});
+					redirectPost(flw_payment_args.redirect_url + "?txref=" + tr, response);
+				}
+				this.close(); // close modal
+			},
+			meta: {
+				consumer_id: flw_payment_args.consumer_id,
+			},
+			customer: {
+				email: flw_payment_args.email,
+				phone_number: flw_payment_args.phone_number,
+				name: flw_payment_args.first_name + " " + flw_payment_args.last_name,
+			},
+			customizations: {
+				title: flw_payment_args.title,
+				description: flw_payment_args.description,
+				logo: flw_payment_args.logo,
+			},
+		}
+	}
+	let payload = processData();
+	let x = window.FlutterwaveCheckout(payload);
+} );
