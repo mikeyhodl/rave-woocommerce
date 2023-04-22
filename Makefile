@@ -6,26 +6,29 @@
 init:
 	echo "Specify an Action"
 
-dev:
+dev-js:
 	npm run dev
 
-build:
+build-production-js:
 	npm run prod
 
-docs-build:
+build-production-docs:
 	npm run docs:build
 
-devdocs:
+dev-docs:
 	npm run docs:dev
 
 wp-format:
 	npm run format
 
 zip:
-	npm run plugin-zip
+	rm woocommerce-rave.zip && npm run plugin-zip
 
 inspection:
 	./vendor/bin/phpcs -p . --standard=PHPCompatibilityWP
 
+build: build-production-js && zip
+
+create-release: build
 clean:
 	npm run clean
