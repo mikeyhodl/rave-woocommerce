@@ -90,6 +90,6 @@
 	<exclude-pattern>*/vendor/*</exclude-pattern>
 	<exclude-pattern type="relative">assets/build/*</exclude-pattern>
 	<exclude-pattern type="relative">^logs/*</exclude-pattern>
-	<exclude-pattern>/assets/build/js/*.js</exclude-pattern>
+	<exclude-pattern>*/assets/*</exclude-pattern>
 	<exclude-pattern>*config.js</exclude-pattern>
 </ruleset>
