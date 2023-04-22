@@ -21,6 +21,9 @@ dev-docs:
 wp-format:
 	npm run format
 
+i18n:
+	composer run makepot
+
 zip:
 	rm woocommerce-rave.zip && npm run plugin-zip
 
