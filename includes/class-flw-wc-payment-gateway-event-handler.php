@@ -101,12 +101,13 @@ class FLW_WC_Payment_Gateway_Event_Handler implements FLW_WC_Payment_Gateway_Eve
 	 * @param object $transaction_data - This is the transaction data as returned from the Flutterwave payment gateway.
 	 */
 	public function on_failure( object $transaction_data ) {
-		$this->order->update_status( 'Failed' );
-		$this->order->add_order_note( 'The payment failed on Rave' );
+		$this->order->update_status( 'failed' );
+		$this->order->add_order_note( 'The payment failed on Flutterwave' );
 		$customer_note  = 'Your payment <strong>failed</strong>. ';
-		$customer_note .= 'Please, try again or contact us for assistance.';
+		$customer_note .= 'Please, try again or use another Payment Method on the modal.';
+		$reason         = $transaction_data->processor_response ?? ' - ';
 
-		$this->order->add_order_note( $customer_note, 1 );
+		$this->order->add_order_note( 'Reason for Failure : ' . $reason );
 
 		wc_add_notice( $customer_note, 'notice' );
 	}
@@ -148,11 +149,10 @@ class FLW_WC_Payment_Gateway_Event_Handler implements FLW_WC_Payment_Gateway_Eve
 	 * @param string $transaction_reference - This is the transaction reference (txref) of the transaction you want to requery.
 	 * */
 	public function on_cancel( string $transaction_reference ) {
-		// Do something, anything!
-		// Note: Somethings a payment can be successful, before a user clicks the cancel button so proceed with caution.
-		$this->order->add_order_note( 'The customer clicked on the cancel button on Rave' );
-		$this->order->update_status( 'Cancelled' );
-		$admin_note  = 'Attention: Customer clicked on the cancel button on the payment gateway. We have updated the order to canceled. <br>';
+		// Note: Sometimes a payment can be successful, before a user clicks the cancel button so proceed with caution.
+		$this->order->add_order_note( 'The customer clicked on the cancel button on Checkout.' );
+		$this->order->update_status( 'cancelled' );
+		$admin_note  = 'Attention: Customer clicked on the cancel button on the payment gateway. We have updated the order to cancelled status. <br>';
 		$admin_note .= 'Please, confirm from the order notes that there is no note of a successful transaction. If there is, this means that the user was debited and you either have to give value for the transaction or refund the customer.';
 		$this->order->add_order_note( $admin_note );
 	}

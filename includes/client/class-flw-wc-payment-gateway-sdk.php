@@ -229,4 +229,15 @@ final class FLW_WC_Payment_Gateway_Sdk {
 			$this->logger->notice( 'Webhook Verification Failed' );
 		}
 	}
+
+	/**
+	 * @param string $tx_ref This is the transaction ref to be cancelled.
+	 *
+	 * @return void
+	 */
+	public function cancel_payment( string $tx_ref ) {
+		if ( isset( $this->event_handler ) ) {
+			$this->event_handler->on_cancel( $tx_ref );
+		}
+	}
 }

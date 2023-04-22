@@ -324,14 +324,35 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 	 * @return array|void
 	 */
 	public function process_payment( $order_id ) {
+		// For Redirect Checkout.
+		if ( 'redirect' === $this->payment_style ) {
+			return $this->process_redirect_payments( $order_id );
+		}
+
+		// For inline Checkout.
+		$order = wc_get_order( $order_id );
+
+		return array(
+			'result'   => 'success',
+			'redirect' => $order->get_checkout_payment_url( true ),
+		);
+	}
+
+	/**
+	 * Order id
+	 *
+	 * @param int $order_id  Order id.
+	 *
+	 * @return array|void
+	 */
+	public function process_redirect_payments( $order_id ) {
 		include_once dirname( __FILE__ ) . '/client/class-flw-wc-payment-gateway-request.php';
 
 		$order               = wc_get_order( $order_id );
-		$flutterwave_request = ( new FLW_WC_Payment_Gateway_Request() )->get_prepared_payload( $order );
+		$flutterwave_request = ( new FLW_WC_Payment_Gateway_Request() )->get_prepared_payload( $order, $this->get_secret_key() );
 		$sdk                 = $this->sdk->set_event_handler( new FlwEventHandler( $order ) );
 
 		$response = $sdk->get_client()->request( $this->sdk::$standard_inline_endpoint, 'POST', $flutterwave_request );
-		//phpcs:ignore 'redirect' => $order->get_checkout_payment_url( true )
 		if ( ! is_wp_error( $response ) ) {
 			$response = json_decode( $response['body'] );
 			return array(
@@ -346,7 +367,6 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 				'redirect' => $order->get_checkout_payment_url( true ),
 			);
 		}
-
 	}
 
 	/**
@@ -373,12 +393,12 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 	/**
 	 * Checkout receipt page
 	 *
-	 * @param WC_Order $order Order .
+	 * @param int $order_id Order id.
 	 *
 	 * @return void
 	 */
-	public function receipt_page( WC_Order $order ) {
-		$order = wc_get_order( $order );
+	public function receipt_page( int $order_id ) {
+		$order = wc_get_order( $order_id );
 	}
 
 	/**
@@ -387,17 +407,61 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 	 * @return void
 	 */
 	public function payment_scripts() {
-		// TODO: on checkout page event using is_checkout.
-		// TODO: on cart page event using is_cart.
+
 		// Load only on checkout page.
-		if ( ! is_checkout_pay_page() || ! is_checkout() || ! is_cart() ) {
+		if ( ! is_checkout_pay_page() ) {
 			return;
 		}
-		// TODO: New flow on checkout page.
-		wp_enqueue_script( 'flw_js', plugins_url( 'assets/build/js/checkout.js', FLW_WC_PLUGIN_FILE ), array( 'jquery' ), FLW_WC_VERSION, true );
 
+		$order_key = urldecode( $_GET['key'] ); //phpcs:ignore
+		$order_id  = absint( get_query_var( 'order-pay' ) );
+
+		$order = wc_get_order( $order_id );
+
+		if ( $this->id !== $order->get_payment_method() ) {
+			return;
+		}
+
+		wp_enqueue_script( 'jquery' );
+
+		wp_enqueue_script( 'flutterwave', 'https://checkout.flutterwave.com/v3.js', array( 'jquery' ), FLW_WC_VERSION, false );
+
+		wp_enqueue_script( 'flutterwave_js', plugins_url( 'assets/build/js/checkout.js', FLW_WC_PLUGIN_FILE ), array( 'jquery', 'flutterwave' ), FLW_WC_VERSION, false );
 		$payment_args = array();
-		wp_localize_script( 'flw_js', 'flw_payment_args', $payment_args );
+
+		if ( is_checkout_pay_page() && get_query_var( 'order-pay' ) ) {
+
+			$email         = $order->get_billing_email();
+			$amount        = $order->get_total();
+			$txnref        = 'WOOC_' . $order_id . '_' . time();
+			$the_order_id  = $order->get_id();
+			$the_order_key = $order->get_order_key();
+			$currency      = $order->get_currency();
+			$redirect_url  = WC()->api_request_url( 'FLW_WC_Payment_Gateway' ) . '?order_id=' . $order_id;
+
+			if ( $the_order_id === $order_id && $the_order_key === $order_key ) {
+
+				$payment_args['email']           = $email;
+				$payment_args['amount']          = $amount;
+				$payment_args['tx_ref']          = $txnref;
+				$payment_args['currency']        = $currency;
+				$payment_args['public_key']      = $this->public_key;
+				$payment_args['redirect_url']    = $redirect_url;
+				$payment_args['payment_options'] = 'card,ussd,qr,PayPal';
+				$payment_args['phone_number']    = $order->get_billing_phone();
+				$payment_args['first_name']      = $order->get_billing_first_name();
+				$payment_args['last_name']       = $order->get_billing_last_name();
+				$payment_args['consumer_id']     = $order->get_customer_id();
+				$payment_args['ip_address']      = $order->get_customer_ip_address();
+				$payment_args['title']           = esc_html__( 'Order Payment', 'flutterwave-woo' );
+				$payment_args['description']     = 'Payment for Order: ' . $order_id;
+				$payment_args['logo']            = '';
+				$payment_args['checkout_url']    = wc_get_checkout_url();
+				$payment_args['cancel_url']      = $order->get_cancel_order_url();
+			}
+			update_post_meta( $order_id, '_flw_payment_txn_ref', $txnref );
+		}
+		wp_localize_script( 'flutterwave_js', 'flw_payment_args', $payment_args );
 	}
 
 	/**
@@ -411,19 +475,15 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 		$logging_option = $this->logging_option;
 		$sdk            = $this->sdk;
 
-		if ( isset( $_GET['cancelled'] ) && isset( $_GET['order_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-			$order_id     = urldecode( sanitize_text_field( wp_unslash( $_GET['order_id'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
-			$order        = wc_get_order( $order_id );
-			$redirect_url = $order->get_checkout_payment_url( true );
-			header( 'Location: ' . $redirect_url );
-			die();
-		}
-
 		if ( isset( $_POST['tx_ref'] ) || isset( $_GET['tx_ref'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 			$txn_ref  = urldecode( sanitize_text_field( wp_unslash( $_GET['tx_ref'] ) ) ) ?? sanitize_text_field( wp_unslash( $_POST['tx_ref'] ) );// phpcs:ignore WordPress.Security.NonceVerification
 			$o        = explode( '_', sanitize_text_field( $txn_ref ) );
 			$order_id = intval( $o[1] );
 			$order    = wc_get_order( $order_id );
+
+			if ( isset( $_GET['status'] ) && 'cancelled' === $_GET['status'] ) {// phpcs:ignore WordPress.Security.NonceVerification
+				header( 'Location: ' . $order->get_cancel_order_url() );
+			}
 
 			$sdk->set_event_handler( new FlwEventHandler( $order ) )->requery_transaction( $txn_ref );
 
@@ -464,7 +524,7 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 		$event = json_decode( $event );
 
 		if ( 'charge.completed' === $event->event ) {
-			sleep( 10 );
+			sleep( 6 );
 
 			$event_type = $event->event;
 			$event_data = $event->data;
@@ -485,6 +545,11 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 			do_action( 'flw_webhook_after_action', wp_json_encode( $event, true ) );
 			// TODO: Handle Checkout draft status for WooCommerce Blocks users.
 			$statuses_in_question = array( 'pending', 'on-hold' );
+			if ( 'failed' === $current_order_status ) {
+				// NOTE: customer must have tried to make payment again in the same session.
+				// TODO: add timeline to order notes to brief merchant as to why the order status changed.
+				$statuses_in_question[] = 'failed';
+			}
 			if ( ! in_array( $current_order_status, $statuses_in_question, true ) ) {
 				$msg = wp_json_encode(
 					array(
