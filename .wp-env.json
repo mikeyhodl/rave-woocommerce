@@ -1,7 +1,8 @@
 {
   "core": "https://wordpress.org/latest.zip",
+  "phpVersion": "7.4",
   "plugins": [
-    "."
+    "woocommerce-rave.zip"
   ],
   "port": 1000,
   "testsPort": 1001,
