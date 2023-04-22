@@ -21,7 +21,7 @@ dev-docs:
 wp-format:
 	npm run format
 
-i18n:
+i18n-pot:
 	composer run makepot
 
 zip:
@@ -30,7 +30,7 @@ zip:
 inspection:
 	./vendor/bin/phpcs -p . --standard=PHPCompatibilityWP
 
-build: build-production-js && zip
+build: i18n-pot && build-production-js && zip
 
 create-release: build
 clean:

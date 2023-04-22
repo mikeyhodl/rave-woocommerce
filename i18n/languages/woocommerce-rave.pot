@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-04-22T14:37:06+00:00\n"
+"POT-Creation-Date: 2023-04-22T19:47:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.5.0\n"
 "X-Domain: woocommerce-rave\n"
@@ -34,6 +34,74 @@ msgstr ""
 
 #. Author URI of the plugin
 msgid "http://flutterwave.com/us"
+msgstr ""
+
+#: includes/class-flw-wc-payment-gateway-event-handler.php:44
+msgid "Payment initialized via Flutterwave"
+msgstr ""
+
+#: includes/class-flw-wc-payment-gateway-event-handler.php:46
+msgid "Your transaction reference: "
+msgstr ""
+
+#: includes/class-flw-wc-payment-gateway-event-handler.php:64
+msgid "Attention: New order has been placed on hold because of incorrect payment amount or currency. Please, look into it."
+msgstr ""
+
+#: includes/class-flw-wc-payment-gateway-event-handler.php:65
+msgid "Amount paid: "
+msgstr ""
+
+#: includes/class-flw-wc-payment-gateway-event-handler.php:65
+msgid "Order amount: "
+msgstr ""
+
+#: includes/class-flw-wc-payment-gateway-event-handler.php:65
+msgid " Reference: "
+msgstr ""
+
+#: includes/class-flw-wc-payment-gateway-event-handler.php:105
+msgid "The payment failed on Flutterwave"
+msgstr ""
+
+#: includes/class-flw-wc-payment-gateway-event-handler.php:110
+msgid "Reason for Failure : "
+msgstr ""
+
+#: includes/class-flw-wc-payment-gateway-event-handler.php:122
+msgid "Confirming payment on Flutterwave"
+msgstr ""
+
+#: includes/class-flw-wc-payment-gateway-event-handler.php:132
+msgid "An error occured while confirming payment on Flutterwave"
+msgstr ""
+
+#: includes/class-flw-wc-payment-gateway-event-handler.php:137
+msgid "Attention: New order has been placed on hold because we could not confirm the payment. Please, look into it."
+msgstr ""
+
+#: includes/class-flw-wc-payment-gateway-event-handler.php:153
+msgid "The customer clicked on the cancel button on Checkout."
+msgstr ""
+
+#: includes/class-flw-wc-payment-gateway-event-handler.php:155
+msgid "Attention: Customer clicked on the cancel button on the payment gateway. We have updated the order to cancelled status. "
+msgstr ""
+
+#: includes/class-flw-wc-payment-gateway-event-handler.php:156
+msgid "Please, confirm from the order notes that there is no note of a successful transaction. If there is, this means that the user was debited and you either have to give value for the transaction or refund the customer."
+msgstr ""
+
+#: includes/class-flw-wc-payment-gateway-event-handler.php:170
+msgid "The payment didn't return a valid response. It could have timed out or abandoned by the customer on Flutterwave"
+msgstr ""
+
+#: includes/class-flw-wc-payment-gateway-event-handler.php:175
+msgid "Attention: New order has been placed on hold because we could not get a definite response from the payment gateway. Kindly contact the Rave support team at hi@flutterwave.com to confirm the payment."
+msgstr ""
+
+#: includes/class-flw-wc-payment-gateway-event-handler.php:176
+msgid "Payment Reference: "
 msgstr ""
 
 #. translators: 1: payment reference 2: transaction reference
@@ -249,7 +317,7 @@ msgstr ""
 msgid "Order Payment"
 msgstr ""
 
-#: includes/client/class-flw-wc-payment-gateway-request.php:107
+#: includes/client/class-flw-wc-payment-gateway-request.php:108
 msgid "Payment for order %s"
 msgstr ""
 
