@@ -37,19 +37,27 @@ class FLW_WC_Payment_Gateway_Client {
 	const API_VERSION  = 'v3';
 	const API_BASE_URL = 'https://api.flutterwave.com';
 	/**
+	 * Secret key for the merchant.
+	 *
 	 * @var string - The secret key for the merchant.
 	 */
 	private string $secret_key;
 	/**
+	 * The logger for the plugin.
+	 *
 	 * @var \WC_Logger_Interface - The logger for the plugin.
 	 */
 	private \WC_Logger_Interface $logger;
 	/**
+	 * The headers for the request.
+	 *
 	 * @var array|string[] - The headers for the request.
 	 */
 	private array $headers;
 
 	/**
+	 * FLW_WC_Payment_Gateway_Client constructor.
+	 *
 	 * @param string $secret_key - The secret key for the merchant.
 	 * @param bool   $is_logging_enabled - Whether to log the request or not.
 	 */
@@ -66,6 +74,8 @@ class FLW_WC_Payment_Gateway_Client {
 	}
 
 	/**
+	 * Set up the headers for the request.
+	 *
 	 * @return void - Sets up the headers for the request.
 	 */
 	private function setup() {
@@ -76,6 +86,8 @@ class FLW_WC_Payment_Gateway_Client {
 	}
 
 	/**
+	 * Request to the Flutterwave API.
+	 *
 	 * @param string     $url - The url to make the request to.
 	 * @param string     $method - The method to use for the request.
 	 * @param array|null $body - The body of the request.
@@ -98,6 +110,8 @@ class FLW_WC_Payment_Gateway_Client {
 	}
 
 	/**
+	 * Handle the error from the request.
+	 *
 	 * @param \WP_Error $response - The response from the request.
 	 *
 	 * @return void - Logs the error and adds a notice to the cart.

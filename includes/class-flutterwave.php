@@ -14,11 +14,15 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Flutterwave {
 	/**
+	 * Plugin version.
+	 *
 	 * @var string
 	 */
 	public string $version = '2.3.2';
 
 	/**
+	 * Plugin API version.
+	 *
 	 * @var string
 	 */
 	public string $api_version = 'v3';
@@ -89,6 +93,9 @@ final class Flutterwave {
 	}
 
 	/**
+	 * Initialize the plugin.
+	 * Checks for an existing instance of this class in the global scope and if it doesn't find one, creates it.
+	 *
 	 * @return void
 	 */
 	private function init() {

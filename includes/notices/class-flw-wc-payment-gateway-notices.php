@@ -14,6 +14,8 @@ defined( 'ABSPATH' ) || exit;
 class FLW_WC_Payment_Gateway_Notices {
 
 	/**
+	 *  WooCommerce_not_installed
+	 *
 	 * @return void
 	 */
 	public function woocommerce_not_installed() {
@@ -21,6 +23,8 @@ class FLW_WC_Payment_Gateway_Notices {
 	}
 
 	/**
+	 *  Woocommerce_wc_not_supported
+	 *
 	 * @return void
 	 */
 	public function woocommerce_wc_not_supported() {

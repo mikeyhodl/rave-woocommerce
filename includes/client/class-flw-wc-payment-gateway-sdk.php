@@ -30,10 +30,14 @@ require_once __DIR__ . '/class-flw-wc-payment-gateway-client.php';
  */
 final class FLW_WC_Payment_Gateway_Sdk {
 	/**
+	 * Count of the number of times the server has been queried.
+	 *
 	 * @var int The number of times to requery the server.
 	 */
 	protected int $requery_count = 0;
 	/**
+	 * Client
+	 *
 	 * @var FLW_WC_Payment_Gateway_Client The client.
 	 */
 	public FLW_WC_Payment_Gateway_Client $client;
@@ -44,22 +48,32 @@ final class FLW_WC_Payment_Gateway_Sdk {
 	 */
 	private FLW_WC_Payment_Gateway_Event_Handler_Interface $event_handler;
 	/**
+	 * Data
+	 *
 	 * @var array The data to be sent to the server.
 	 */
 	private array $data;
 	/**
+	 * Standard inline endpoint
+	 *
 	 * @var string The endpoint to send the data to.
 	 */
 	public static string $standard_inline_endpoint = 'https://api.flutterwave.com/v3/payments';
 	/**
+	 * Inline Checkout Script
+	 *
 	 * @var string The script to initiate the payment.
 	 */
-	private string $checkout_url = 'https://checkout.flutterwave.com/v3.js';
+	public static string $checkout_url = 'https://checkout.flutterwave.com/v3.js';
 	/**
+	 * Logger
+	 *
 	 * @var mixed
 	 */
 	private \WC_Logger $logger;
 	/**
+	 * Gateway
+	 *
 	 * @var FLW_WC_Payment_Gateway The gateway.
 	 */
 	private FLW_WC_Payment_Gateway $gateway; //phpcs:ignore.
@@ -77,6 +91,11 @@ final class FLW_WC_Payment_Gateway_Sdk {
 	}
 
 	/**
+	 * Clone method.
+	 * Prevents cloning of this class.
+	 *
+	 * @since 2.3.2
+	 *
 	 * @return null The clone method.
 	 */
 	public function __clone() {
@@ -84,6 +103,11 @@ final class FLW_WC_Payment_Gateway_Sdk {
 	}
 
 	/**
+	 * Get the client.
+	 * Returns the client.
+	 *
+	 * @since 2.3.2
+	 *
 	 * @return FLW_WC_Payment_Gateway_Client The client.
 	 */
 	public function get_client(): FLW_WC_Payment_Gateway_Client {
@@ -91,6 +115,8 @@ final class FLW_WC_Payment_Gateway_Sdk {
 	}
 
 	/**
+	 * Set the event handler.
+	 *
 	 * @param FLW_WC_Payment_Gateway_Event_Handler_Interface $event_handler The event handler.
 	 *
 	 * @return FLW_WC_Payment_Gateway_Sdk The sdk.
@@ -102,6 +128,8 @@ final class FLW_WC_Payment_Gateway_Sdk {
 	}
 
 	/**
+	 * Prepares the html to be rendered.
+	 *
 	 * @param array $clean_data  This is the data that will be sent to the server.
 	 * @param int   $order_id  The order id.
 	 *
@@ -156,6 +184,8 @@ final class FLW_WC_Payment_Gateway_Sdk {
 	}
 
 	/**
+	 * Render the modal.
+	 *
 	 * @param array $data This is the data to be sent to the payment gateway.
 	 * @param int   $order_id This is the order id.
 	 *
@@ -208,6 +238,8 @@ final class FLW_WC_Payment_Gateway_Sdk {
 	}
 
 	/**
+	 * Webhook Verification.
+	 *
 	 * @param string $event_type The event type.
 	 * @param object $event_data The event data.
 	 */
@@ -231,6 +263,8 @@ final class FLW_WC_Payment_Gateway_Sdk {
 	}
 
 	/**
+	 * Cancel Payment.
+	 *
 	 * @param string $tx_ref This is the transaction ref to be cancelled.
 	 *
 	 * @return void

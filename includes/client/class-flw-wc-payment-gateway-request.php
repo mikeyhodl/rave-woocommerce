@@ -23,11 +23,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class FLW_WC_Payment_Gateway_Request {
 
 	/**
+	 * Count of requests made.
+	 *
 	 * @var int - count of requests made.
 	 */
 	protected static int $count = 0;
 
 	/**
+	 * Redirect url where the user will be redirected to after payment.
+	 *
 	 * @var string - redirect url where the user will be redirected to after payment.
 	 */
 	protected string $notify_url;
@@ -46,6 +50,8 @@ final class FLW_WC_Payment_Gateway_Request {
 	}
 
 	/**
+	 * Generate a request hash for the request.
+	 *
 	 * @param array $data This is the request data.
 	 *
 	 * @return string
@@ -77,13 +83,13 @@ final class FLW_WC_Payment_Gateway_Request {
 		$amount        = $order->get_total();
 		$currency      = $order->get_currency();
 		$email         = $order->get_billing_email();
-		$data_to_hash  = [
+		$data_to_hash  = array(
 			'amount'     => $amount,
 			'currency'   => $currency,
 			'email'      => $email,
 			'tx_ref'     => $txnref,
 			'secret_key' => $secret_key,
-		];
+		);
 		$checkout_hash = $this->generate_checkout_hash( $data_to_hash );
 
 		return array(

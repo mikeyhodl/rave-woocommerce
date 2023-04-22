@@ -36,70 +36,104 @@ use FLW_WC_Payment_Gateway_Event_Handler as FlwEventHandler;
 class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 
 	/**
-	 * @var bool the should disable log status
+	 * Disable logging.
+	 *
+	 * @var bool the should logging be disabled.
 	 */
 	public static bool $log_enabled = false;
 	/**
+	 * Public Key
+	 *
 	 * @var string the public key
 	 */
 	protected string $public_key;
 	/**
+	 * Secret Key
+	 *
 	 * @var string the secret key
 	 */
 	protected string $secret_key;
 	/**
+	 * Test Public Key
+	 *
 	 * @var string the test public key
 	 */
 	private string $test_public_key;
 	/**
+	 * Test Secret Key
+	 *
 	 * @var string the test secret key
 	 */
 	private string $test_secret_key;
 	/**
+	 * Live Public Key
+	 *
 	 * @var string the live public key
 	 */
 	private string $live_public_key;
 	/**
+	 * Go Live Status
+	 *
 	 * @var string the go live status
 	 */
 	private string $go_live;
 	/**
+	 * Live Secret Key
+	 *
 	 * @var string the live secret key
 	 */
 	private string $live_secret_key;
 	/**
+	 * Auto Complete Order
+	 *
 	 * @var false|mixed|null
 	 */
 	private $auto_complete_order;
 	/**
+	 * Logger
+	 *
 	 * @var WC_Logger the logger
 	 */
 	private WC_Logger $logger;
 	/**
+	 * Flutterwave Sdk
+	 *
 	 * @var FlwSdk the sdk
 	 */
 	private FlwSdk $sdk;
 	/**
+	 * Base Url
+	 *
 	 * @var string the base url
 	 */
 	private string $base_url;
 	/**
+	 * Payment Options
+	 *
 	 * @var string the payment options
 	 */
 	private string $payment_options;
 	/**
+	 * Payment Style
+	 *
 	 * @var string the payment style
 	 */
 	private string $payment_style;
 	/**
+	 * Barter
+	 *
 	 * @var string should barter be disabled
 	 */
 	private string $barter;
 	/**
+	 * Logging Option
+	 *
 	 * @var bool the logging option
 	 */
 	private bool $logging_option;
 	/**
+	 * Country
+	 *
 	 * @var string the country
 	 */
 	private string $country;
@@ -180,6 +214,8 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 	}
 
 	/**
+	 * Get Secret Key
+	 *
 	 * @return string
 	 */
 	public function get_secret_key(): string {
@@ -424,7 +460,7 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 
 		wp_enqueue_script( 'jquery' );
 
-		wp_enqueue_script( 'flutterwave', 'https://checkout.flutterwave.com/v3.js', array( 'jquery' ), FLW_WC_VERSION, false );
+		wp_enqueue_script( 'flutterwave', $this->sdk::$checkout_url, array( 'jquery' ), FLW_WC_VERSION, false );
 
 		wp_enqueue_script( 'flutterwave_js', plugins_url( 'assets/build/js/checkout.js', FLW_WC_PLUGIN_FILE ), array( 'jquery', 'flutterwave' ), FLW_WC_VERSION, false );
 		$payment_args = array();
