@@ -46,23 +46,54 @@ final class FLW_WC_Payment_Gateway_Request {
 	}
 
 	/**
+	 * @param array $data This is the request data.
+	 *
+	 * @return string
+	 */
+	private function generate_checkout_hash( array $data ): string {
+		// format: sha256(amount+currency+customeremail+txref+sha256(secretkey)).
+		$complete_hash = '';
+		foreach ( $data as $key => $value ) {
+			if ( 'secret_key' === $key ) {
+				$complete_hash .= hash( 'sha256', $value );
+			} else {
+				$complete_hash .= $value;
+			}
+		}
+		return hash( 'sha256', $complete_hash );
+	}
+
+	/**
 	 * This method prepares the payload for the request
 	 *
 	 * @param \WC_Order $order Order object.
 	 *
 	 * @return array
 	 */
-	public function get_prepared_payload( \WC_Order $order ): array {
-		$order_id = $order->get_id();
-		$txnref   = 'WOOC_' . $order_id . '_' . time();
+	public function get_prepared_payload( \WC_Order $order, $secret_key ): array {
+		$order_id      = $order->get_id();
+		$txnref        = 'WOOC_' . $order_id . '_' . time();
+		$amount        = $order->get_total();
+		$currency      = $order->get_currency();
+		$email         = $order->get_billing_email();
+		$data_to_hash  = [
+			'amount'     => $amount,
+			'currency'   => $currency,
+			'email'      => $email,
+			'tx_ref'     => $txnref,
+			'secret_key' => $secret_key,
+		];
+		$checkout_hash = $this->generate_checkout_hash( $data_to_hash );
+
 		return array(
-			'amount'          => $order->get_total(),
+			'amount'          => $amount,
 			'tx_ref'          => $txnref,
-			'currency'        => $order->get_currency(),
+			'currency'        => $currency,
 			'payment_options' => 'card',
 			'redirect_url'    => $this->notify_url . '?order_id=' . $order_id,
+			'checkout_hash'   => $checkout_hash,
 			'customer'        => array(
-				'email'        => $order->get_billing_email(),
+				'email'        => $email,
 				'phone_number' => $order->get_billing_phone(),
 				'name'         => $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),
 			),
