@@ -160,7 +160,7 @@ class FLW_WC_Payment_Gateway_Subscriptions extends FLW_WC_Payment_Gateway {
 					$order->add_order_note(
 						sprintf(
 							/* translators: 1: payment reference 2: transaction reference */
-							__( 'Payment via Flutterwave successful (Payment Reference: %1$s, Transaction Reference: %2$s)', 'flutterwave-woo' ),
+							__( 'Payment via Flutterwave successful (Payment Reference: %1$s, Transaction Reference: %2$s)', 'woocommerce-rave' ),
 							$payment_ref,
 							$txn_ref
 						)

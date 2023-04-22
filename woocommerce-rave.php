@@ -7,7 +7,7 @@
  * Author: Flutterwave Developers
  * Author URI: http://flutterwave.com/us
  * License: MIT License
- * Text Domain: flutterwave-woo
+ * Text Domain: woocommerce-rave
  * Domain Path: i18n/languages
  * WC requires at least:   7.1
  * WC tested up to:        7.6.0

@@ -104,7 +104,7 @@ final class FLW_WC_Payment_Gateway_Request {
 			),
 			'customizations'  => array(
 				'title'       => get_bloginfo( 'name' ),
-				'description' => sprintf( __( 'Payment for order %s', 'flutterwave-woo' ), $order->get_order_number() ), // phpcs:ignore
+				'description' => sprintf( __( 'Payment for order %s', 'woocommerce-rave' ), $order->get_order_number() ), // phpcs:ignore
 				// phpcs:ignore
 //				'logo' => $this->gateway->get_option('logo'),
 			),
