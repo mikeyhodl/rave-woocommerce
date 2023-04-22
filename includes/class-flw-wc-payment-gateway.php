@@ -518,7 +518,9 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 			$order    = wc_get_order( $order_id );
 
 			if ( isset( $_GET['status'] ) && 'cancelled' === $_GET['status'] ) {// phpcs:ignore WordPress.Security.NonceVerification
-				header( 'Location: ' . $order->get_cancel_order_url() );
+				$sdk->set_event_handler( new FlwEventHandler( $order ) )->cancel_payment( $txn_ref );
+				header( 'Location: ' . wc_get_cart_url() );
+				die();
 			}
 
 			$sdk->set_event_handler( new FlwEventHandler( $order ) )->requery_transaction( $txn_ref );
