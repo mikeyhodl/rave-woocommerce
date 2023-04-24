@@ -150,9 +150,6 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 		$this->has_fields         = false;
 		$this->method_title       = 'Flutterwave';
 		$this->method_description = 'Flutterwave'. __( 'allows you to accept payment from cards and bank accounts in multiple currencies. You can also accept payment offline via USSD and POS.', 'woocommerce-rave' );
-		$this->supports           = array(
-			'products',
-		);
 
 		$this->init_form_fields();
 		$this->init_settings();

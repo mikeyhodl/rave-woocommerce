@@ -2,7 +2,7 @@
 /**
  * The file that defines the Flutterwave_WC_Gateway_Blocks_Support class
  *
- * a class that defines a block type
+ * A class that defines a block type
  *
  * @link       https://flutterwave.com
  * @since      2.3.2
@@ -40,8 +40,8 @@ final class Flutterwave_WC_Gateway_Blocks_Support extends AbstractPaymentMethodT
 	 */
 	public function initialize() {
 		$this->settings = get_option( 'woocommerce_rave_settings', [] );
-		$gateways = WC()->payment_gateways()->payment_gateways();
-		$this->gateway = $gateways[$this->name];
+		$gateways       = WC()->payment_gateways()->payment_gateways();
+		$this->gateway  = $gateways[ $this->name ];
 	}
 
 	/**
@@ -112,15 +112,15 @@ final class Flutterwave_WC_Gateway_Blocks_Support extends AbstractPaymentMethodT
 	 * @return array
 	 */
 	public function get_payment_method_data(): array {
-		// We need to call array_merge_recursive so the blocks 'button' setting doesn't overwrite
+		// We need to call array_merge_recursive so the blocks 'button' setting doesn't overwrite.
 		// what's provided from the gateway or payment request configuration.
 		return array_replace_recursive(
 			$this->get_gateway_javascript_params(),
-			// Blocks-specific options
+			// Blocks-specific options.
 			[
-				'icons'                          => $this->get_icons(),
-				'supports'                       => $this->get_supported_features(),
-				'isAdmin'                        => is_admin(),
+				'icons'    => $this->get_icons(),
+				'supports' => $this->get_supported_features(),
+				'isAdmin'  => is_admin(),
 			]
 		);
 	}
@@ -134,16 +134,22 @@ final class Flutterwave_WC_Gateway_Blocks_Support extends AbstractPaymentMethodT
 		$js_configuration = [];
 
 		$gateways = WC()->payment_gateways()->get_available_payment_gateways();
-		if ( isset( $gateways[$this->name] ) ) {
-			$js_configuration = $gateways[$this->name]->javascript_params();
+		if ( isset( $gateways[ $this->name ] ) ) {
+			$js_configuration = $gateways[ $this->name ]->javascript_params();
 		}
 
+		// Filter the JS configuration.
 		return apply_filters(
 			'wc_rave_params',
 			$js_configuration
 		);
 	}
 
+	/**
+	 * Returns an array of icons for the payment method.
+	 *
+	 * @return array
+	 */
 	private function get_icons(): array {
 		$icons_src = [
 			'visa'       => [
@@ -176,5 +182,4 @@ final class Flutterwave_WC_Gateway_Blocks_Support extends AbstractPaymentMethodT
 		}
 		return $icons_src;
 	}
-
 }
