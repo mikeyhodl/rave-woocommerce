@@ -67,7 +67,6 @@ final class Flutterwave_WC_Gateway_Blocks_Support extends AbstractPaymentMethodT
 	 *
 	 * @return array
 	 */
-
 	public function get_payment_method_script_handles(): array {
 		wp_register_script(
 			'flutterwave',
@@ -138,7 +137,9 @@ final class Flutterwave_WC_Gateway_Blocks_Support extends AbstractPaymentMethodT
 			$js_configuration = $gateways[ $this->name ]->javascript_params();
 		}
 
-		// Filter the JS configuration.
+		/**
+		 * Filter the JS configuration.
+		 */
 		return apply_filters(
 			'wc_rave_params',
 			$js_configuration
