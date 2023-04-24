@@ -93,6 +93,7 @@
 	<exclude-pattern type="relative">^logs/*</exclude-pattern>
 	<exclude-pattern>*/assets/*</exclude-pattern>
 	<exclude-pattern>*/clients/*</exclude-pattern>
+	<exclude-pattern>build/*.asset.php</exclude-pattern>
 	<exclude-pattern>*/clients/blocks/*.js</exclude-pattern>
 	<exclude-pattern>*/clients/*/*.js</exclude-pattern>
 	<exclude-pattern>*config.js</exclude-pattern>

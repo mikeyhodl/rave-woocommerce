@@ -148,8 +148,8 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 		$this->id                 = 'rave';
 		$this->icon               = plugins_url( 'assets/img/rave.png', FLW_WC_PLUGIN_FILE );
 		$this->has_fields         = false;
-		$this->method_title       = __( 'Flutterwave', 'woocommerce-rave' );
-		$this->method_description = __( 'Flutterwave allows you to accept payment from cards and bank accounts in multiple currencies. You can also accept payment offline via USSD and POS.', 'woocommerce-rave' );
+		$this->method_title       = 'Flutterwave';
+		$this->method_description = 'Flutterwave'. __( 'allows you to accept payment from cards and bank accounts in multiple currencies. You can also accept payment offline via USSD and POS.', 'woocommerce-rave' );
 		$this->supports           = array(
 			'products',
 		);
