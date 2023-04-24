@@ -3,10 +3,11 @@ vendor/
 docs/.vitepress/dist
 docs/.vitepress/cache
 .idea
-*.zip
+woocommerce-rave.zip
 .env
 .env.e2e
 .phpunit.result.cache
 .DS_Store
 */.DS_Store
 phpcs-report.xml
+build/
