@@ -36,6 +36,8 @@ final class Flutterwave_WC_Gateway_Blocks_Support extends AbstractPaymentMethodT
 	protected ?WC_Payment_Gateway $gateway = null;
 
 	/**
+	 * Initialize the Block.
+	 *
 	 * @inheritDoc
 	 */
 	public function initialize() {

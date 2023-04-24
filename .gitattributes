@@ -12,6 +12,9 @@
 /composer.json export-ignore
 /phpunit.xml.dist export-ignore
 /phpunit.xml export-ignore
+/phpcs.xml export-ignore
+/phpcbf.xml export-ignore
+/*.config.js export-ignore
 /.eslintrc export-ignore
 /.eslintrc.js export-ignore
 /.eslintignore export-ignore
@@ -24,6 +27,7 @@
 /.prettierrc.js export-ignore
 /.babelrc export-ignore
 /webpack.config.js export-ignore
+/playwrignt.config.js
 docs export-ignore
 assets/css/*.scss export-ignore
 # Directories
