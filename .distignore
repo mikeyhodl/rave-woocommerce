@@ -16,4 +16,5 @@ docs
 phpcs.xml
 phpunit.xml.dist
 playwright.config.js
+.gitpod.yml
 
