@@ -18,6 +18,7 @@
 		<exclude-pattern type="relative">^logs/*</exclude-pattern>
 		<exclude-pattern>/assets/build/js/*.js</exclude-pattern>
 		<exclude-pattern>*config.js</exclude-pattern>
+		<exclude-pattern>*/clients/*/*.js</exclude-pattern>
 	</rule>
 
 	<rule ref="WooCommerce-Core" />
@@ -91,5 +92,8 @@
 	<exclude-pattern type="relative">assets/build/*</exclude-pattern>
 	<exclude-pattern type="relative">^logs/*</exclude-pattern>
 	<exclude-pattern>*/assets/*</exclude-pattern>
+	<exclude-pattern>*/clients/*</exclude-pattern>
+	<exclude-pattern>*/clients/blocks/*.js</exclude-pattern>
+	<exclude-pattern>*/clients/*/*.js</exclude-pattern>
 	<exclude-pattern>*config.js</exclude-pattern>
 </ruleset>

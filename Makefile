@@ -7,7 +7,7 @@ init:
 	echo "Specify an Action"
 
 dev-js:
-	npm run dev
+	npm run preuglify && npm run uglify
 
 build-production-js:
 	npm run prod
@@ -33,5 +33,3 @@ inspection:
 build: i18n-pot && build-production-js && zip
 
 release: build
-clean:
-	npm run clean

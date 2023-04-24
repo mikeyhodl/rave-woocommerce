@@ -462,7 +462,13 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 
 		wp_enqueue_script( 'flutterwave', $this->sdk::$checkout_url, array( 'jquery' ), FLW_WC_VERSION, false );
 
-		wp_enqueue_script( 'flutterwave_js', plugins_url( 'assets/build/js/checkout.js', FLW_WC_PLUGIN_FILE ), array( 'jquery', 'flutterwave' ), FLW_WC_VERSION, false );
+		$checkout_frontend_script = 'assets/js/checkout.js';
+		if( 'yes' === $this->go_live) {
+			$checkout_frontend_script = 'assets/js/checkout.min.js';
+		}
+
+		wp_enqueue_script( 'flutterwave_js',plugins_url( $checkout_frontend_script , FLW_WC_PLUGIN_FILE ) , array( 'jquery', 'flutterwave' ), FLW_WC_VERSION, false );
+
 		$payment_args = array();
 
 		if ( is_checkout_pay_page() && get_query_var( 'order-pay' ) ) {
@@ -491,7 +497,7 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 				$payment_args['ip_address']      = $order->get_customer_ip_address();
 				$payment_args['title']           = esc_html__( 'Order Payment', 'woocommerce-rave' );
 				$payment_args['description']     = 'Payment for Order: ' . $order_id;
-				$payment_args['logo']            = '';
+				$payment_args['logo']            = wp_get_attachment_url( get_theme_mod( 'custom_logo' ) );
 				$payment_args['checkout_url']    = wc_get_checkout_url();
 				$payment_args['cancel_url']      = $order->get_cancel_order_url();
 			}
