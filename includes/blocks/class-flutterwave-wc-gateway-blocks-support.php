@@ -139,7 +139,7 @@ final class Flutterwave_WC_Gateway_Blocks_Support extends AbstractPaymentMethodT
 
 		/**
 		 * Filter the JS configuration.
-		 * 
+		 *
 		 * @since 2.3.2
 		 */
 		return apply_filters(
