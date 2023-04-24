@@ -39,7 +39,7 @@ final class Flutterwave_WC_Gateway_Blocks_Support extends AbstractPaymentMethodT
 	 * @inheritDoc
 	 */
 	public function initialize() {
-		$this->settings = get_option( 'woocommerce_rave_settings', [] );
+		$this->settings = get_option( 'woocommerce_rave_settings', array() );
 		$gateways       = WC()->payment_gateways()->payment_gateways();
 		$this->gateway  = $gateways[ $this->name ];
 	}
@@ -72,14 +72,14 @@ final class Flutterwave_WC_Gateway_Blocks_Support extends AbstractPaymentMethodT
 		wp_register_script(
 			'flutterwave',
 			'https://checkout.flutterwave.com/v3.js',
-			[],
+			array(),
 			'2.3.2',
 			true
 		);
 
 		$asset_path   = dirname( FLW_WC_PLUGIN_FILE ) . '/build/index.asset.php';
 		$version      = FLW_WC_VERSION;
-		$dependencies = [];
+		$dependencies = array();
 		if ( file_exists( $asset_path ) ) {
 			$asset        = require $asset_path;
 			$version      = is_array( $asset ) && isset( $asset['version'] )
@@ -92,7 +92,7 @@ final class Flutterwave_WC_Gateway_Blocks_Support extends AbstractPaymentMethodT
 		wp_register_script(
 			'wc-flutterwave-blocks',
 			dirname( FLW_WC_PLUGIN_FILE ) . '/build/index.js',
-			array_merge( [ 'flutterwave' ], $dependencies ),
+			array_merge( array( 'flutterwave' ), $dependencies ),
 			$version,
 			true
 		);
@@ -101,9 +101,9 @@ final class Flutterwave_WC_Gateway_Blocks_Support extends AbstractPaymentMethodT
 			'woocommerce-rave'
 		);
 
-		return [
+		return array(
 			'wc-flutterwave-blocks',
-		];
+		);
 	}
 
 	/**
@@ -117,11 +117,11 @@ final class Flutterwave_WC_Gateway_Blocks_Support extends AbstractPaymentMethodT
 		return array_replace_recursive(
 			$this->get_gateway_javascript_params(),
 			// Blocks-specific options.
-			[
+			array(
 				'icons'    => $this->get_icons(),
 				'supports' => $this->get_supported_features(),
 				'isAdmin'  => is_admin(),
-			]
+			)
 		);
 	}
 
@@ -131,7 +131,7 @@ final class Flutterwave_WC_Gateway_Blocks_Support extends AbstractPaymentMethodT
 	 * @return mixed  the JS configuration from the Flutterwave.
 	 */
 	private function get_gateway_javascript_params() {
-		$js_configuration = [];
+		$js_configuration = array();
 
 		$gateways = WC()->payment_gateways()->get_available_payment_gateways();
 		if ( isset( $gateways[ $this->name ] ) ) {
@@ -151,34 +151,34 @@ final class Flutterwave_WC_Gateway_Blocks_Support extends AbstractPaymentMethodT
 	 * @return array
 	 */
 	private function get_icons(): array {
-		$icons_src = [
-			'visa'       => [
+		$icons_src = array(
+			'visa'       => array(
 				'src' => dirname( FLW_WC_PLUGIN_FILE ) . '/assets/img/visa.svg',
 				'alt' => __( 'Visa', 'woocommerce-rave' ),
-			],
-			'amex'       => [
+			),
+			'amex'       => array(
 				'src' => dirname( FLW_WC_PLUGIN_FILE ) . '/assets/img/amex.svg',
 				'alt' => __( 'American Express', 'woocommerce-rave' ),
-			],
-			'mastercard' => [
+			),
+			'mastercard' => array(
 				'src' => dirname( FLW_WC_PLUGIN_FILE ) . '/assets/img/mastercard.svg',
 				'alt' => __( 'Mastercard', 'woocommerce-rave' ),
-			],
-		];
+			),
+		);
 
 		if ( 'USD' === get_woocommerce_currency() ) {
-			$icons_src['discover'] = [
+			$icons_src['discover'] = array(
 				'src' => dirname( FLW_WC_PLUGIN_FILE ) . '/assets/img/discover.svg',
 				'alt' => _x( 'Discover', 'Name of credit card', 'woocommerce-rave' ),
-			];
-			$icons_src['jcb']      = [
+			);
+			$icons_src['jcb']      = array(
 				'src' => dirname( FLW_WC_PLUGIN_FILE ) . '/assets/img/jcb.svg',
 				'alt' => __( 'JCB', 'woocommerce-rave' ),
-			];
-			$icons_src['diners']   = [
+			);
+			$icons_src['diners']   = array(
 				'src' => dirname( FLW_WC_PLUGIN_FILE ) . '/assets/img/diners.svg',
 				'alt' => __( 'Diners', 'woocommerce-rave' ),
-			];
+			);
 		}
 		return $icons_src;
 	}

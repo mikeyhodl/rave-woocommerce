@@ -149,7 +149,7 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 		$this->icon               = plugins_url( 'assets/img/rave.png', FLW_WC_PLUGIN_FILE );
 		$this->has_fields         = false;
 		$this->method_title       = 'Flutterwave';
-		$this->method_description = 'Flutterwave'. __( 'allows you to accept payment from cards and bank accounts in multiple currencies. You can also accept payment offline via USSD and POS.', 'woocommerce-rave' );
+		$this->method_description = 'Flutterwave' . __( 'allows you to accept payment from cards and bank accounts in multiple currencies. You can also accept payment offline via USSD and POS.', 'woocommerce-rave' );
 
 		$this->init_form_fields();
 		$this->init_settings();
@@ -460,11 +460,11 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 		wp_enqueue_script( 'flutterwave', $this->sdk::$checkout_url, array( 'jquery' ), FLW_WC_VERSION, false );
 
 		$checkout_frontend_script = 'assets/js/checkout.js';
-		if( 'yes' === $this->go_live) {
+		if ( 'yes' === $this->go_live ) {
 			$checkout_frontend_script = 'assets/js/checkout.min.js';
 		}
 
-		wp_enqueue_script( 'flutterwave_js',plugins_url( $checkout_frontend_script , FLW_WC_PLUGIN_FILE ) , array( 'jquery', 'flutterwave' ), FLW_WC_VERSION, false );
+		wp_enqueue_script( 'flutterwave_js', plugins_url( $checkout_frontend_script, FLW_WC_PLUGIN_FILE ), array( 'jquery', 'flutterwave' ), FLW_WC_VERSION, false );
 
 		$payment_args = array();
 
