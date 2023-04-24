@@ -7,10 +7,10 @@ init:
 	echo "Specify an Action"
 
 dev-js:
-	npm run preuglify && npm run uglify
+	npm run start
 
 build-production-js:
-	npm run prod
+	npm run preuglify && npm run uglify
 
 build-production-docs:
 	npm run docs:build
@@ -30,6 +30,7 @@ zip:
 inspection:
 	./vendor/bin/phpcs -p . --standard=PHPCompatibilityWP
 
-build: i18n-pot && build-production-js && zip
+build:
+	npm run build
 
 release: build
