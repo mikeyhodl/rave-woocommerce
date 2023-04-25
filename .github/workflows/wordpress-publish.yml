@@ -15,10 +15,8 @@ jobs:
               if: ${{ always() }}
             - name: Checkout code
               uses: actions/checkout@v3
-            - name: Build
-              run: |
-                npm install
-                npm run build
+            - name: Build Plugin
+              uses: ./.github/actions/build
             - name: WordPress Plugin Deploy
               id: deploy
               uses: 10up/action-wordpress-plugin-deploy@stable
