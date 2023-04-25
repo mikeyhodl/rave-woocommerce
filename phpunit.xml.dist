@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<phpunit
+        bootstrap="tests/PPHUnit/bootstrap.php"
+        backupGlobals="false"
+        colors="true"
+        convertErrorsToExceptions="true"
+        convertNoticesToExceptions="true"
+        convertWarningsToExceptions="true"
+        convertDeprecationsToExceptions="false"
+>
+    <testsuites>
+        <testsuite name="FLWWC">
+            <directory prefix="test-" suffix=".php">./tests/PHPUnit</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist>
+            <file>./woocommerce-rave.php</file>
+            <directory>./includes</directory>
+        </whitelist>
+    </filter>
+</phpunit>

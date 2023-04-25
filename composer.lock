@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b78b637a3ae931e3fb9a70a45a02ce2d",
+    "content-hash": "3e7404ad46054ca3881ab14fe011aa7b",
     "packages": [],
     "packages-dev": [
         {
@@ -312,6 +312,50 @@
                 "wiki": "https://github.com/squizlabs/PHP_CodeSniffer/wiki"
             },
             "time": "2023-02-22T23:07:41+00:00"
+        },
+        {
+            "name": "woocommerce/woocommerce-sniffs",
+            "version": "0.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/woocommerce/woocommerce-sniffs.git",
+                "reference": "4576d54595614d689bc4436acff8baaece3c5bb0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/woocommerce/woocommerce-sniffs/zipball/4576d54595614d689bc4436acff8baaece3c5bb0",
+                "reference": "4576d54595614d689bc4436acff8baaece3c5bb0",
+                "shasum": ""
+            },
+            "require": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
+                "php": ">=7.0",
+                "phpcompatibility/phpcompatibility-wp": "^2.1.0",
+                "wp-coding-standards/wpcs": "^2.3.0"
+            },
+            "type": "phpcodesniffer-standard",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Claudio Sanches",
+                    "email": "claudio@automattic.com"
+                }
+            ],
+            "description": "WooCommerce sniffs",
+            "keywords": [
+                "phpcs",
+                "standards",
+                "woocommerce",
+                "wordpress"
+            ],
+            "support": {
+                "issues": "https://github.com/woocommerce/woocommerce-sniffs/issues",
+                "source": "https://github.com/woocommerce/woocommerce-sniffs/tree/0.1.3"
+            },
+            "time": "2022-02-17T15:34:51+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",

@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.3.2: 25-04-2023
+
+[ADDED] Add support for WooCommerce Blocks. 
+[REMOVED] Remove outdated PHP Software Development Kit (SDK) from the plugin.
+[CHANGED] Updated Payment Gateway Checkout Process for better user experience.
+[CHANGED] Updated Payment Tokenization for saved cards feature.
+[CHANGED] Support for Flutterwave V3 API.
+[CHANGED] Updated WooCommerce Subscription Integration.
+
+## 2.3.0: 25-10-2022
+
+[FIXED] Handled MobileMoney Payment Handler Error.
+
+## 2.2.9: 23-09-2022
+
+[FIXED] PHP 8 support for v3 Webhook Handler.
+
 ## 2.2.8: 20-06-2022
 
 ### Recurring Payments
