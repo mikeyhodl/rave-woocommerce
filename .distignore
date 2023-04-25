@@ -1,6 +1,18 @@
 .distignore
-.gitignore
-.github
+/.gitignore
+/.github
+composer.json
+composer.lock
+/.docker
+/.git
+/.gitattributes
+/.gitignore
+/.npmrc
+/.nvmrc
+CHANGELOG.md
+README.md
+i18n/.gitkeep
+/tests
 package-lock.json
 README.md
 webpack.config.js
@@ -19,4 +31,5 @@ playwright.config.js
 .gitpod.yml
 /node_modules
 /vendor
+woocommerce-rave.zip
 
