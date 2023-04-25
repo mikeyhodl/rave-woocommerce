@@ -143,6 +143,7 @@ final class Flutterwave {
 	 */
 	public function includes() {
 		include_once dirname( FLW_WC_PLUGIN_FILE ) . '/includes/notices/class-flw-wc-payment-gateway-notices.php';
+		require_once dirname( FLW_WC_PLUGIN_FILE ) . '/includes/blocks/class-flutterwave-wc-gateway-blocks-support.php';
 	}
 
 	/**
@@ -225,7 +226,6 @@ final class Flutterwave {
 	 */
 	protected function flutterwave_woocommerce_blocks_support() {
 		if ( class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) {
-			require_once dirname( FLW_WC_PLUGIN_FILE ) . '/includes/blocks/class-flutterwave-wc-gateway-blocks-support.php';
 			add_action(
 				'woocommerce_blocks_payment_method_type_registration',
 				function ( Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry ) {

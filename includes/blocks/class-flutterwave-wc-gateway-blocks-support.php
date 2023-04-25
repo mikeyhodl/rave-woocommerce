@@ -18,6 +18,8 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Class Flutterwave_WC_Gateway_Blocks_Support
  *
+ * @since 2.3.2
+ * @extends AbstractPaymentMethodType
  * @package Flutterwave
  */
 final class Flutterwave_WC_Gateway_Blocks_Support extends AbstractPaymentMethodType {
@@ -74,7 +76,7 @@ final class Flutterwave_WC_Gateway_Blocks_Support extends AbstractPaymentMethodT
 			'flutterwave',
 			'https://checkout.flutterwave.com/v3.js',
 			array(),
-			'2.3.2',
+			FLW_WC_VERSION,
 			true
 		);
 
