@@ -1,4 +1,11 @@
 == Changelog ==
+= 2.3.2 =
+* Added: Support for WooCommerce Blocks.
+* Updated: WooCommerce Checkout Process.
+= 2.3.0 =
+* Fix: Handled MobileMoney Payment Handler Error.
+= 2.2.9 =
+*  Fixed: PHP 8 support for v3 Webhook Handler.
 = 2.2.8 =
 *  Fixed: Woocommerce Subscription processing function error.
 *  New Feat: Switched to WC-Logger class for logging.
