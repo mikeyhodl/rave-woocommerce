@@ -9,6 +9,13 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: "Install WP-CLI"
+      id: install_wp_cli
+      shell: bash
+      run: |
+        curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+        chmod +x wp-cli.phar
+        sudo mv wp-cli.phar /usr/local/bin/wp
     - name: "Build the plugin"
       id: build_plugin
       shell: bash

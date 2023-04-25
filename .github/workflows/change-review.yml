@@ -105,10 +105,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      - name: "Validate composer.json and composer.lock"
+        run: composer validate --strict
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "7.4"
+          php-version: ${{ matrix.php }}
           ini-values: "memory_limit=1G"
           coverage: none
           tools: cs2pr
