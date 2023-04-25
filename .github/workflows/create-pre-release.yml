@@ -55,7 +55,7 @@ jobs:
 
       - name: "Build the plugin"
         id: build_plugin
-        uses: ./.github/actions/build
+        uses: ./.github/actions/make-build
 
       - name: "Create GH pre-release"
         env:
