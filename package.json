@@ -6,7 +6,7 @@
 	"scripts": {
 		"postinstall": "composer install",
 		"prebuild": "npm install && composer install",
-		"build": "npm run uglify && composer run makepot && npm run build:webpack && rm woocommerce-rave.zip && npm run plugin-zip",
+		"build": "npm run uglify && composer run makepot && npm run build:webpack && npm run plugin-zip",
 		"build:webpack": "wp-scripts build",
 		"i18n:merge": "php bin/update-pot-file-references.php i18n/languages/woocommerce-rave.pot",
 		"start": "npm run start:webpack",
