@@ -4,3 +4,5 @@
 /**
  * Command line script for updating the file references of JS files in a .pot file.
  */
+
+// TODO: Add support for updating the file references of JS files.
