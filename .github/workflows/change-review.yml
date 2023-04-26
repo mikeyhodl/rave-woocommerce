@@ -42,14 +42,15 @@ jobs:
       max-parallel: 10
       matrix: ${{ fromJSON(needs.generate-wc-compat-matrix.outputs.matrix) }}
     steps:
-      # clone the repository
+      - name: clone the repository
       - uses: actions/checkout@v3
-      # enable dependencies caching
+      - name: enable dependencies caching
       - uses: actions/cache@v3
         with:
           path: ~/.cache/composer/
           key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
       # setup PHP, but without debug extensions for reasonable performance
+      - name: Set up PHP
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
