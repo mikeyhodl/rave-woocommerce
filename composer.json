@@ -1,8 +1,7 @@
 {
-    "name": "flutterwave/woocommerce-v2",
+    "name": "flutterwavedev/woocommerce",
     "description": "The Official Flutterwave Woocommerce Plugin",
     "type": "wordpress-plugin",
-    "version": "2.3.2",
     "license": "MIT",
     "autoload": {
         "psr-4": {
