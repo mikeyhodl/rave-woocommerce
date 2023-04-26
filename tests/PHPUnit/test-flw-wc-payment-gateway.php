@@ -8,7 +8,7 @@
 /**
  * Tests for the FLW_WC_Payment_Gateway class.
  */
-class Test_FLW_WC_Payment_Gateway extends WP_UnitTestCase {
+class Test_FLW_WC_Payment_Gateway extends \Yoast\PHPUnitPolyfills\TestCases\TestCase {
 	/**
 	 * Flutterwave Gateway under test.
 	 *
@@ -50,55 +50,6 @@ class Test_FLW_WC_Payment_Gateway extends WP_UnitTestCase {
 	 * Tests the gateway supports.
 	 */
 	public function test_supports() {
-
-	}
-
-	/**
-	 * Tests the gateway is available.
-	 */
-	public function test_is_available() {
-
-	}
-
-	/**
-	 * Tests the gateway payment fields.
-	 */
-	public function test_payment_fields() {
-
-	}
-
-	/**
-	 * Tests the gateway process payment.
-	 */
-	public function test_process_payment() {
-
-	}
-
-	/**
-	 * Tests the gateway payment complete.
-	 */
-	public function test_payment_complete() {
-
-	}
-
-	/**
-	 * Tests the gateway admin options.
-	 */
-	public function test_admin_options() {
-
-	}
-
-	/**
-	 * Tests the gateway payment scripts.
-	 */
-	public function test_payment_scripts() {
-
-	}
-
-	/**
-	 * Tests the gateway validate order.
-	 */
-	public function test_validate_order() {
-
+		$this->assertTrue( $this->gateway->supports( 'products' ) );
 	}
 }
