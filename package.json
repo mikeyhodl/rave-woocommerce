@@ -27,6 +27,7 @@
 		"plugin-zip": "wp-scripts plugin-zip",
 		"test:e2e": "wp-scripts test-e2e",
 		"test:unit": "wp-scripts test-unit-js",
+		"test:php": "./bin/run-tests.sh",
 		"docs:dev": "vitepress dev  docs",
 		"docs:build": "vitepress build docs",
 		"docs:preview": "vitepress preview docs",
