@@ -5,9 +5,10 @@
  * @package Flutterwave\WooCommerce\Tests\phpunit
  */
 
-namespace phpunit;
-
-class FLW_WC_Payment_Gateway_Test extends WP_Unit_Test_Case {
+/**
+ * Tests for the FLW_WC_Payment_Gateway class.
+ */
+class Test_FLW_WC_Payment_Gateway extends WP_UnitTestCase {
 	/**
 	 * Flutterwave Gateway under test.
 	 *
@@ -15,6 +16,11 @@ class FLW_WC_Payment_Gateway_Test extends WP_Unit_Test_Case {
 	 */
 	private \FLW_WC_Payment_Gateway $gateway;
 
+	/**
+	 * Expected gateway name.
+	 *
+	 * @var string
+	 */
 	private string $expected_gateway_name = 'rave';
 
 	/**
@@ -23,8 +29,7 @@ class FLW_WC_Payment_Gateway_Test extends WP_Unit_Test_Case {
 	public function set_up() {
 		parent::set_up();
 
-		$this->gateway         = new \FLW_WC_Payment_Gateway();
-
+		$this->gateway = new \FLW_WC_Payment_Gateway();
 	}
 
 	/**
@@ -72,7 +77,6 @@ class FLW_WC_Payment_Gateway_Test extends WP_Unit_Test_Case {
 	/**
 	 * Tests the gateway payment complete.
 	 */
-
 	public function test_payment_complete() {
 
 	}
@@ -80,7 +84,6 @@ class FLW_WC_Payment_Gateway_Test extends WP_Unit_Test_Case {
 	/**
 	 * Tests the gateway admin options.
 	 */
-
 	public function test_admin_options() {
 
 	}
@@ -88,16 +91,13 @@ class FLW_WC_Payment_Gateway_Test extends WP_Unit_Test_Case {
 	/**
 	 * Tests the gateway payment scripts.
 	 */
-
 	public function test_payment_scripts() {
-
 
 	}
 
 	/**
 	 * Tests the gateway validate order.
 	 */
-
 	public function test_validate_order() {
 
 	}
