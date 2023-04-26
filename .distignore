@@ -14,9 +14,11 @@ README.md
 i18n/.gitkeep
 /tests
 package-lock.json
+package.json
 README.md
 webpack.config.js
 Makefile
+CONTRUBUTING.md
 assets/src
 bin
 docs
