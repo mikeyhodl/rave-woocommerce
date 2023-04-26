@@ -4,8 +4,7 @@ on:
   push:
     branches: ['dev']
   pull_request:
-    types:
-      - opened
+    types: [opened, synchronize, reopened]
 
 env:
   WC_MIN_SUPPORTED_VERSION: '7.4.1'
