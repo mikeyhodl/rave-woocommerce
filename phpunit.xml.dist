@@ -16,7 +16,7 @@
     </coverage>
     <testsuites>
         <testsuite name="FLWWC">
-            <directory suffix=".php">./tests/phpunit</directory>
+            <directory suffix=".php">./tests/PHPUnit</directory>
         </testsuite>
     </testsuites>
 </phpunit>
