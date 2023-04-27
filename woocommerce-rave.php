@@ -39,6 +39,27 @@ function flutterwave_bootstrap() {
 add_action( 'plugins_loaded', 'flutterwave_bootstrap', 99 );
 
 /**
+ * Register the Flutterwave payment gateway for WooCommerce Blocks.
+ *
+ * @return void
+ */
+function flutterwave_woocommerce_blocks_support() {
+	if ( class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) {
+		require_once dirname( FLW_WC_PLUGIN_FILE ).'/includes/blocks/class-flutterwave-wc-gateway-blocks-support.php';
+		add_action(
+			'woocommerce_blocks_payment_method_type_registration',
+			function ( Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry ) {
+
+				$payment_method_registry->register( new Flutterwave_WC_Gateway_Blocks_Support() );
+			}
+		);
+	}
+}
+
+// add woocommerce block support.
+add_action( 'woocommerce_blocks_loaded', 'flutterwave_woocommerce_blocks_support' );
+
+/**
  * Add the Settings link to the plugin
  *
  * @param  array $links Existing links on the plugin page.
