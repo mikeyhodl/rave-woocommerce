@@ -569,7 +569,7 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 		http_response_code( 200 );
 		$event = json_decode( $event );
 
-		if('test_assess' === $event->event){
+		if ( 'test_assess' === $event->event ) {
 			$msg = wp_json_encode(
 				array(
 					'status'  => 'error',
@@ -579,7 +579,6 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 			die( $msg ); //phpcs:ignore
 		}
 
-
 		if ( 'charge.completed' === $event->event ) {
 			sleep( 6 );
 
@@ -587,7 +586,7 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 			$event_data = $event->data;
 
 			$txn_ref  = sanitize_text_field( $event_data->tx_ref );
-			$o        = explode( '_',  $txn_ref );
+			$o        = explode( '_', $txn_ref );
 			$order_id = intval( $o[1] );
 			$order    = wc_get_order( $order_id );
 			// get order status.
