@@ -5,7 +5,7 @@
  * @package Flutterwave\WooCommerce\Tests
  */
 
-require_once __DIR__ . '/../../vendor/yoast/phpunit-polyfills/phpunitpolyfills-autoload.php';
+// require_once __DIR__ . '/../../vendor/yoast/phpunit-polyfills/phpunitpolyfills-autoload.php';
 
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
 
@@ -33,7 +33,14 @@ require_once "{$_tests_dir}/includes/functions.php";
  * Manually load the plugin being tested.
  */
 function _manually_load_plugin() {
+	// Load the WooCommerce plugin so we can use its classes in our WooCommerce Payments plugin.
 	require_once ABSPATH . 'wp-content/plugins/woocommerce/woocommerce.php';
+
+	/**
+	 * Set up shared by all tests.
+	 */
+	update_option( 'woocommerce_default_country', 'US:CA' );
+
 	$_plugin_dir = __DIR__ . '/../../';
 	require $_plugin_dir . 'woocommerce-rave.php';
 }
