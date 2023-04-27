@@ -98,5 +98,5 @@
 	<exclude-pattern>*/clients/blocks/*.js</exclude-pattern>
 	<exclude-pattern>*/clients/*/*.js</exclude-pattern>
 	<exclude-pattern>*config.js</exclude-pattern>
-	<exclude-pattern>./docker/*</exclude-pattern>
+	<exclude-pattern>*/./docker/*</exclude-pattern>
 </ruleset>
