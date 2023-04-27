@@ -54,6 +54,45 @@ class Test_FLW_WC_Payment_Gateway extends \WP_UnitTestCase {
 		$this->assertTrue( $this->gateway->supports( 'products' ) );
 	}
 
+
+	/**
+	 * Tests the gateway webhook.
+	 *
+	 * @dataProvider webhook_provider
+	 */
+	public function test_webhook_is_accessible( array $data ) {
+		$webhook_url = WC()->api_request_url( 'Flw_WC_Payment_Webhook' );
+
+		//make a request to the webhook url.
+		$response = wp_remote_post( $webhook_url, array(
+			'method'      => 'POST',
+			'headers'     => array(
+				'Content-Type' => 'application/json',
+				'Authorization' => 'Bearer '.getenv('SECRET_KEY'),
+				'VERIF-HASH' => ''
+			),
+			'body'        => wp_json_encode( $data )
+		) );
+
+		$response_body = wp_remote_retrieve_body( $response );
+
+		$this->assertEquals( '200', wp_remote_retrieve_response_code( $response ) );
+	}
+
+	/**
+	 * Data provider for webhook.
+	 *
+	 * @return array
+	 */
+	public function webhook_provider(): array {
+		return array(
+			'amount' => 2000,
+			'currency' => 'NGN',
+			'status' => 'successful',
+			'event' => 'test_assess'
+		);
+	}
+
 	/**
 	 * Tear down things all tests need.
 	 *
