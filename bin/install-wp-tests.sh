@@ -108,6 +108,16 @@ install_wp() {
 	download https://raw.github.com/markoheijnen/wp-mysqli/master/db.php $WP_CORE_DIR/wp-content/db.php
 }
 
+configure_wp() {
+	WP_SITE_URL="http://local.wordpress.test"
+	wait_db
+
+	if [[ ! -f "$WP_CORE_DIR/wp-config.php" ]]; then
+		wp core config --dbname=$DB_NAME --dbuser=$DB_USER --dbpass=$DB_PASS --dbhost=$DB_HOST --dbprefix=wptests_
+	fi
+	wp core install --url="$WP_SITE_URL" --title="Example" --admin_user=admin --admin_password=password --admin_email=info@example.com --skip-email
+}
+
 install_test_suite() {
 	# portable in-place argument for both GNU sed and Mac OSX sed
 	if [[ $(uname -s) == 'Darwin' ]]; then
@@ -215,6 +225,7 @@ install_woocommerce() {
 }
 
 install_wp
-install_test_suite
 install_db
+configure_wp
+install_test_suite
 install_woocommerce
