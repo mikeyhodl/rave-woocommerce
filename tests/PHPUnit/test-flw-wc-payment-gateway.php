@@ -60,7 +60,7 @@ class Test_FLW_WC_Payment_Gateway extends \WP_UnitTestCase {
 	 *
 	 * @dataProvider webhook_provider
 	 */
-	public function test_webhook_is_accessible( array $data ) {
+	public function test_webhook_is_accessible( string $hash, array $data ) {
 		$webhook_url = WC()->api_request_url( 'Flw_WC_Payment_Webhook' );
 
 		//make a request to the webhook url.
@@ -69,7 +69,7 @@ class Test_FLW_WC_Payment_Gateway extends \WP_UnitTestCase {
 			'headers'     => array(
 				'Content-Type' => 'application/json',
 				'Authorization' => 'Bearer '.getenv('SECRET_KEY'),
-				'VERIF-HASH' => ''
+				'VERIF-HASH' => $hash
 			),
 			'body'        => wp_json_encode( $data )
 		) );
@@ -86,10 +86,13 @@ class Test_FLW_WC_Payment_Gateway extends \WP_UnitTestCase {
 	 */
 	public function webhook_provider(): array {
 		return array(
-			'amount' => 2000,
-			'currency' => 'NGN',
-			'status' => 'successful',
-			'event' => 'test_assess'
+'a4a6e4c86fc1347a48eeab1171f7fea1a10eecbac223b86db3b3e3e134fefa40',
+			array(
+				'amount' => 2000,
+				'currency' => 'NGN',
+				'status' => 'successful',
+				'event' => 'test_assess'
+			)
 		);
 	}
 
