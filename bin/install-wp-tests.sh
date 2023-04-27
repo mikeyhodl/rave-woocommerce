@@ -26,6 +26,18 @@ download() {
     fi
 }
 
+wp() {
+	WORKING_DIR="$PWD"
+	cd "$WP_CORE_DIR"
+
+	if [ ! -f $TMPDIR/wp-cli.phar ]; then
+		download https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar  "$TMPDIR/wp-cli.phar"
+	fi
+	php "$TMPDIR/wp-cli.phar" $@
+
+	cd "$WORKING_DIR"
+}
+
 if [[ $WP_VERSION =~ ^[0-9]+\.[0-9]+\-(beta|RC)[0-9]+$ ]]; then
 	WP_BRANCH=${WP_VERSION%\-*}
 	WP_TESTS_TAG="branches/$WP_BRANCH"
