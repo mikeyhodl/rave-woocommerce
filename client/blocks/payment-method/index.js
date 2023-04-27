@@ -16,7 +16,7 @@ import {
  * Content component
  */
 const Content = () => {
-	return <div>{ decodeEntities( getBlocksConfiguration()?.description || ' lorem ipsum ' ) }</div>;
+	return <div>{ decodeEntities( getBlocksConfiguration()?.description || __('You may be redirected to a secure page to complete your payment.', 'woocommerce-rave') ) }</div>;
 };
 
 const FLW_ASSETS = getBlocksConfiguration()?.asset_url ?? null;
@@ -43,7 +43,6 @@ const paymentMethod = {
 	canMakePayment: () => true,
 	content: <Content />,
 	edit: <Content />,
-	savedTokenComponent: <div>Flutterwave 3</div>,
 	paymentMethodId: PAYMENT_METHOD_NAME,
 	supports: {
 		features:  getBlocksConfiguration()?.supports ?? [],
