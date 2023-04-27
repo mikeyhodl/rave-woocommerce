@@ -557,12 +557,28 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 		$local_signature = $this->get_option( 'secret_hash' );
 
 		if ( $signature !== $local_signature ) {
-			echo 'Access Denied Hash does not match';
-			exit();
+			$msg = wp_json_encode(
+				array(
+					'status'  => 'error',
+					'message' => 'Access Denied Hash does not match',
+				)
+			);
+			die( $msg ); //phpcs:ignore
 		}
 
 		http_response_code( 200 );
 		$event = json_decode( $event );
+
+		if('test_assess' === $event->event){
+			$msg = wp_json_encode(
+				array(
+					'status'  => 'error',
+					'message' => 'Test Webhook Successful',
+				)
+			);
+			die( $msg ); //phpcs:ignore
+		}
+
 
 		if ( 'charge.completed' === $event->event ) {
 			sleep( 6 );
@@ -571,7 +587,7 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 			$event_data = $event->data;
 
 			$txn_ref  = sanitize_text_field( $event_data->tx_ref );
-			$o        = explode( '_', sanitize_text_field( $txn_ref ) );
+			$o        = explode( '_',  $txn_ref );
 			$order_id = intval( $o[1] );
 			$order    = wc_get_order( $order_id );
 			// get order status.
@@ -603,6 +619,9 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 
 			$sdk->set_event_handler( new FlwEventHandler( $order ) )->webhook_verify( $event_type, $event_data );
 		}
+
+		wp_safe_redirect( home_url() );
+		exit();
 	}
 
 	/**
