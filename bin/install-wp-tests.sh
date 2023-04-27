@@ -38,6 +38,45 @@ wp() {
 	cd "$WORKING_DIR"
 }
 
+get_db_connection_flags() {
+	# parse DB_HOST for port or socket references
+	local DB_HOST_PARTS=(${DB_HOST//\:/ })
+	local DB_HOSTNAME=${DB_HOST_PARTS[0]};
+	local DB_SOCK_OR_PORT=${DB_HOST_PARTS[1]};
+	local EXTRA_FLAGS=""
+
+	if ! [ -z $DB_HOSTNAME ] ; then
+		if [ $(echo $DB_SOCK_OR_PORT | grep -e '^[0-9]\{1,\}$') ]; then
+			EXTRA_FLAGS=" --host=$DB_HOSTNAME --port=$DB_SOCK_OR_PORT --protocol=tcp"
+		elif ! [ -z $DB_SOCK_OR_PORT ] ; then
+			EXTRA_FLAGS=" --socket=$DB_SOCK_OR_PORT"
+		elif ! [ -z $DB_HOSTNAME ] ; then
+			EXTRA_FLAGS=" --host=$DB_HOSTNAME --protocol=tcp"
+		fi
+	fi
+	echo "--user=$DB_USER --password=$DB_PASS $EXTRA_FLAGS";
+}
+
+
+wait_db() {
+	local MYSQLADMIN_FLAGS=$(get_db_connection_flags)
+	local WAITS=0
+
+	set +e
+	mysqladmin status $MYSQLADMIN_FLAGS > /dev/null
+	while [[ $? -ne 0 ]]; do
+		((WAITS++))
+		if [ $WAITS -ge 6 ]; then
+			echo "Maximum database wait time exceeded"
+			exit 1
+		fi;
+		echo "Waiting until the database is available..."
+		sleep 5s
+		mysqladmin status $MYSQLADMIN_FLAGS > /dev/null
+	done
+	set -e
+}
+
 if [[ $WP_VERSION =~ ^[0-9]+\.[0-9]+\-(beta|RC)[0-9]+$ ]]; then
 	WP_BRANCH=${WP_VERSION%\-*}
 	WP_TESTS_TAG="branches/$WP_BRANCH"
