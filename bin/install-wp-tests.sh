@@ -177,6 +177,32 @@ install_db() {
 	fi
 }
 
+install_woocommerce() {
+	WC_INSTALL_EXTRA=''
+	INSTALLED_WC_VERSION=$(wp plugin get woocommerce --field=version)
+
+	if [[ $WC_VERSION == 'beta' ]]; then
+		# Get the latest non-trunk version number from the .org repo. This will usually be the latest release, beta, or rc.
+		WC_VERSION=$(curl https://api.wordpress.org/plugins/info/1.0/woocommerce.json | jq -r '.versions | with_entries(select(.key|match("beta";"i"))) | keys[-1]' --sort-keys)
+	fi
+
+	if [[ -n $INSTALLED_WC_VERSION ]] && [[ $WC_VERSION == 'latest' ]]; then
+		# WooCommerce is already installed, we just must update it to the latest stable version
+		wp plugin update woocommerce
+		wp plugin activate woocommerce
+	else
+		if [[ $INSTALLED_WC_VERSION != $WC_VERSION ]]; then
+			# WooCommerce is installed but it's the wrong version, overwrite the installed version
+			WC_INSTALL_EXTRA+=" --force"
+		fi
+		if [[ $WC_VERSION != 'latest' ]] && [[ $WC_VERSION != 'beta' ]]; then
+			WC_INSTALL_EXTRA+=" --version=$WC_VERSION"
+		fi
+		wp plugin install woocommerce --activate$WC_INSTALL_EXTRA
+	fi
+}
+
 install_wp
 install_test_suite
 install_db
+install_woocommerce

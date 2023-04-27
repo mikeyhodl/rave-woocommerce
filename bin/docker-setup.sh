@@ -4,7 +4,7 @@
 set -e
 
 WP_CONTAINER=${1-woocommerce_rave}
-SITE_URL=${WP_URL-"localhost:8082"}
+SITE_URL=${WP_URL-"localhost:8080"}
 
 redirect_output() {
 	if [[ -z "$DEBUG" ]]; then
