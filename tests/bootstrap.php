@@ -41,7 +41,7 @@ function _manually_load_plugin() {
 	 */
 	update_option( 'woocommerce_default_country', 'US:CA' );
 
-	$_plugin_dir = __DIR__ . '/../../';
+	$_plugin_dir = __DIR__ . '/../';
 	require $_plugin_dir . 'woocommerce-rave.php';
 }
 
