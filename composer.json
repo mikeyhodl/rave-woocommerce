@@ -31,13 +31,13 @@
     },
     "scripts": {
         "test": "./vendor/bin/pest --coverage=coverage --coverage-text",
-        "standards:check": "./vendor/bin/phpcs --standard=WordPress --extensions=php --ignore=*/vendor/*,*/tests/*,*/data/*,*/assets/*,*/.docker/* .",
-        "standards:fix": "./vendor/bin/phpcbf --standard=WordPress --extensions=php --ignore=*/vendor/*,*/tests/*,*/data/*,*/assets/*,*/.docker/* .",
-        "phpcompatibility:check": "./vendor/bin/phpcs --standard=PHPCompatibilityWP --extensions=php --ignore=vendor/* .",
-        "phpcompatibility:fix": "./vendor/bin/phpcbf --standard=PHPCompatibilityWP --extensions=php --ignore=*/vendor/*,*/tests/*,*/data/*,*/assets/*,*/.docker/* .",
-        "phpcompatibility:check:php-7-2": "./vendor/bin/phpcs --runtime-set testVersion 7.2- --standard=PHPCompatibilityWP --extensions=php --ignore=vendor/* .",
+        "standards:check": "./vendor/bin/phpcs --standard=WordPress --extensions=php --ignore=*/vendor/*,*/tests/*,*/data/*,*/assets/*,*/.docker/*,*/build/*.asset.php,*/node_modules/* .",
+        "standards:fix": "./vendor/bin/phpcbf --standard=WordPress --extensions=php --ignore=*/vendor/*,*/tests/*,*/data/*,*/assets/*,*/.docker/*,*/build/*.asset.php,*/node_modules/* .",
+        "phpcompatibility:check": "./vendor/bin/phpcs --standard=PHPCompatibilityWP --extensions=php --ignore=*/vendor/*,*/tests/*,*/data/*,*/assets/*,*/.docker/*,*/build/*.asset.php,*/node_modules/* .",
+        "phpcompatibility:fix": "./vendor/bin/phpcbf --standard=PHPCompatibilityWP --extensions=php --ignore=*/vendor/*,*/tests/*,*/data/*,*/assets/*,*/.docker/*,*/build/*.asset.php,*/node_modules/* .",
+        "phpcompatibility:check:php-7-2": "./vendor/bin/phpcs --runtime-set testVersion 7.2- --standard=PHPCompatibilityWP --extensions=php --ignore=vendor/*,*/build/*.asset.php,*/node_modules/* .",
         "woocommerce:check": [
-            "./vendor/bin/phpcs --standard=Woocommerce-Core --extensions=php --ignore=*/vendor/*,*/tests/*,*/data/*,*/assets/*,*/.docker/* ."
+            "./vendor/bin/phpcs --standard=Woocommerce-Core --extensions=php --ignore=*/vendor/*,*/tests/*,*/data/*,*/assets/*,*/.docker/*,*/build/*.asset.php,*/node_modules/* ."
         ],
         "makepot-audit": [
             "wp --allow-root i18n make-pot . --exclude=\".github,.wordpress-org,bin,node_modules,tests,docs\" --slug=woocommerce-rave --debug"
