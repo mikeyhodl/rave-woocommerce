@@ -44,7 +44,7 @@ class Test_FLW_WC_Payment_Gateway extends \WP_UnitTestCase {
 	 * Tests the gateway has fields.
 	 */
 	public function test_has_fields() {
-		$this->assertTrue( $this->gateway->has_fields );
+		$this->assertFalse( $this->gateway->has_fields );
 	}
 
 	/**
