@@ -30,7 +30,7 @@ require_once "{$_tests_dir}/includes/functions.php";
  * Manually load the plugin being tested.
  */
 function _manually_load_plugin() {
-	require_once ABSPATH . '/wp-content/plugins/woocommerce/woocommerce.php';
+	require_once ABSPATH . 'wp-content/plugins/woocommerce/woocommerce.php';
 	$_plugin_dir = __DIR__ . '/../../';
 	require $_plugin_dir . 'woocommerce-rave.php';
 }
