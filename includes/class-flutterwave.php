@@ -144,9 +144,6 @@ final class Flutterwave {
 	public function includes() {
 		// Include classes that can run on WP Freely.
 		include_once dirname( FLW_WC_PLUGIN_FILE ) . '/includes/notices/class-flw-wc-payment-gateway-notices.php';
-		if ( class_exists( 'WooCommerce' ) ) {
-			// Include classes that need WooCommerce Installed here.
-		}
 	}
 
 	/**

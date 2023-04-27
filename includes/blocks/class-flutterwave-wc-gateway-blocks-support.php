@@ -115,11 +115,11 @@ final class Flutterwave_WC_Gateway_Blocks_Support extends AbstractPaymentMethodT
 	 */
 	public function get_payment_method_data(): array {
 		return array(
-				'icons'    => $this->get_icons(),
-				'supports' => array_filter( $this->get_supported_features(), [ $this->gateway, 'supports' ] ),
-				'isAdmin'  => is_admin(),
-				'public_key' => ( 'yes' === $this->settings['go_live'] ) ? $this->settings['live_public_key']: $this->settings['test_public_key'],
-				'asset_url' => plugins_url( 'assets', FLW_WC_PLUGIN_FILE )
+			'icons'      => $this->get_icons(),
+			'supports'   => array_filter( $this->get_supported_features(), array( $this->gateway, 'supports' ) ),
+			'isAdmin'    => is_admin(),
+			'public_key' => ( 'yes' === $this->settings['go_live'] ) ? $this->settings['live_public_key'] : $this->settings['test_public_key'],
+			'asset_url'  => plugins_url( 'assets', FLW_WC_PLUGIN_FILE ),
 		);
 	}
 
