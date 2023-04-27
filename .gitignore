@@ -11,3 +11,7 @@ woocommerce-rave.zip
 */.DS_Store
 phpcs-report.xml
 build/
+.docker/bin
+.docker/logs
+.docker/data
+.docker/wordpress

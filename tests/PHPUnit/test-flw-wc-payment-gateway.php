@@ -8,7 +8,7 @@
 /**
  * Tests for the FLW_WC_Payment_Gateway class.
  */
-class Test_FLW_WC_Payment_Gateway extends \Yoast\PHPUnitPolyfills\TestCases\TestCase {
+class Test_FLW_WC_Payment_Gateway extends \WP_UnitTestCase {
 	/**
 	 * Flutterwave Gateway under test.
 	 *
@@ -29,6 +29,7 @@ class Test_FLW_WC_Payment_Gateway extends \Yoast\PHPUnitPolyfills\TestCases\Test
 	public function set_up() {
 		parent::set_up();
 
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		$this->gateway = new \FLW_WC_Payment_Gateway();
 	}
 
@@ -51,5 +52,16 @@ class Test_FLW_WC_Payment_Gateway extends \Yoast\PHPUnitPolyfills\TestCases\Test
 	 */
 	public function test_supports() {
 		$this->assertTrue( $this->gateway->supports( 'products' ) );
+	}
+
+	/**
+	 * Tear down things all tests need.
+	 *
+	 * @return void
+	 */
+	public function tearDown(): void {
+		parent::tearDown();
+
+		unset( $this->gateway );
 	}
 }

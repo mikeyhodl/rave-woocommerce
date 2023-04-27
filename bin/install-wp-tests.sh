@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 
-if [ $# -lt 3 ]; then
+if [ $# -lt 3 ] && [ -z $WC_FLUTTERWAVE_DIR ]; then
 	echo "usage: $0 <db-name> <db-user> <db-pass> [db-host] [wp-version] [skip-database-creation]"
 	exit 1
 fi
 
-DB_NAME=$1
-DB_USER=$2
-DB_PASS=$3
-DB_HOST=${4-localhost}
+DB_NAME=${1-wc_flutterwave_tests}
+DB_USER=${2-root}
+DB_PASS=${3-$MYSQL_ROOT_PASSWORD}
+DB_HOST=${4-$WORDPRESS_DB_HOST}
 WP_VERSION=${5-latest}
-SKIP_DB_CREATE=${6-false}
+WC_VERSION=${6-latest}
+SKIP_DB_CREATE=${7-false}
 
 TMPDIR=${TMPDIR-/tmp}
 TMPDIR=$(echo $TMPDIR | sed -e "s/\/$//")

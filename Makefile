@@ -7,10 +7,10 @@ init:
 	echo "Specify an Action"
 
 up:
-	docker-compose up --build --force-recreate -d && ./bin/docker-setup.sh
+	docker-compose -f .docker/docker-compose.yml up  --build --force-recreate -d &&  ./bin/docker-setup.sh
 
 down:
-	docker-compose down
+	docker-compose -f .docker/docker-compose.yml  down
 
 
 dev-js:
