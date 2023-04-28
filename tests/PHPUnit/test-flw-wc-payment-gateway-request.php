@@ -9,7 +9,39 @@ use Flutterwave\WooCommerce\Client\FLW_WC_Payment_Gateway_Request;
 
 class Test_FLW_WC_Payment_Gateway_Request extends \WP_UnitTestCase {
 
+	private array $gateway_options;
+
+	public function set_up() {
+		parent::set_up();
+
+		$this->gateway_options = [
+			'enabled' => 'yes',
+			'go_live' => 'no',
+			'logging_option' => 'no',
+			'barter' => 'yes',
+			'webhook' => '',
+			'secret_hash' => '581e4231-441e-4730-88bf-8f181897759ea8f1',
+			'title' => 'Flutterwave',
+			'description' => 'Powered by Flutterwave: Accepts Mastercard, Visa, Verve, Discover, AMEX, Diners Club and Union Pay.',
+			'test_public_key' => '',
+			'test_secret_key' => '',
+			'live_public_key' => '',
+			'live_secret_key' => '',
+			'payment_style' => 'inline',
+			'autocomplete_order' => 'no',
+			'payment_options' => '',
+		];
+
+		update_option( 'woocommerce_rave_settings', $this->gateway_options);
+	}
+
 	public function data_provider_for_test_get_prepared_payload(): array {
+			$secret_key = 'FLWSECK-XXXXXXXXXXXXXXX-X';
+			update_option( 'woocommerce_rave_settings', [
+				...$this->gateway_options, 
+				'test_secret_key' => $secret_key 
+			]);
+
 			$order = new WC_Order();
 			$order->set_id( 1 );
 			$order->set_currency( 'NGN' );
@@ -25,7 +57,7 @@ class Test_FLW_WC_Payment_Gateway_Request extends \WP_UnitTestCase {
 			$order->set_billing_country( 'GB' );
 			$order->set_shipping_first_name( 'James' );
 			$order->set_shipping_last_name( 'Bond' );
-			$order->set_customer_ip_address( $_SERVER['REMOTE_ADDR']);
+			// $order->set_customer_ip_address( $_SERVER['REMOTE_ADDR']);
 
 			$txnref = 'WOOC_'.$order->get_id().'_TEST';
 			$stringToHash = $order->get_total().$order->get_currency().$order->get_billing_email().'WOOC_'.$txnref.hash('sha256', getenv( 'SECRET_KEY' ) );
@@ -62,7 +94,7 @@ class Test_FLW_WC_Payment_Gateway_Request extends \WP_UnitTestCase {
 			];
 
 	}
-	
+
 	/**
 	 * @dataProvider data_provider_for_test_get_prepared_payload
 	 */
@@ -81,7 +113,7 @@ class Test_FLW_WC_Payment_Gateway_Request extends \WP_UnitTestCase {
 		$order->set_billing_email( 'sample@gmail.com' );
 		(new FLW_WC_Payment_Gateway_Request())->get_prepared_payload( $order, '', true );
 		$this->expectExceptionMessage('This Payment Method is current unavailable as Administrator is yet to Configure it.Please contact Administrator for more information.');
+		$this->expectException(\InvalidArgumentException::class);
 
 	}
-
 }
