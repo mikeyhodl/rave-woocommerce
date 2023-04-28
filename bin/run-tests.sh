@@ -14,4 +14,5 @@ echo "Running the tests..."
 docker-compose -f .docker/docker-compose.yml exec -u www-data wordpress \
 	/var/www/html/wp-content/plugins/woocommerce-rave/vendor/bin/phpunit \
 	--configuration /var/www/html/wp-content/plugins/woocommerce-rave/phpunit.xml.dist \
+	--coverage-clover coverage.xml .\
 	$*
