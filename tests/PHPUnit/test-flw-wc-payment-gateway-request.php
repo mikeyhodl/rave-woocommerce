@@ -42,8 +42,8 @@ class Test_FLW_WC_Payment_Gateway_Request extends \WP_UnitTestCase {
 			$order->set_billing_state( 'London' );
 			$order->set_billing_postcode( '00007' );
 			$order->set_billing_country( 'GB' );
-			$order->set_shipping_first_name( 'James' );
-			$order->set_shipping_last_name( 'Bond' );
+			$order->set_billing_first_name( 'James' );
+			$order->set_billing_last_name( 'Bond' );
 			// $order->set_customer_ip_address( $_SERVER['REMOTE_ADDR']);
 
 			$txnref = 'WOOC_'.$order->get_id().'_TEST';
@@ -56,9 +56,9 @@ class Test_FLW_WC_Payment_Gateway_Request extends \WP_UnitTestCase {
 					$order,
 					'FLWSECK-XXXXXXXXXXXXXXX-X',
 					[
-						'amount'          => 1000,
+						'amount'          => $order->get_total(),
 						'tx_ref'          => $txnref,
-						'currency'        => 'NGN',
+						'currency'        => $order->get_currency(),
 						'payment_options' => 'card',
 						'redirect_url'    => get_site_url().'/wc-api/FLW_WC_Payment_Gateway?order_id=1',
 						'checkout_hash'   => $hash,
