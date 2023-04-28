@@ -382,7 +382,18 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 		include_once dirname( __FILE__ ) . '/client/class-flw-wc-payment-gateway-request.php';
 
 		$order               = wc_get_order( $order_id );
-		$flutterwave_request = ( new FLW_WC_Payment_Gateway_Request() )->get_prepared_payload( $order, $this->get_secret_key() );
+
+		try{
+			$flutterwave_request = ( new FLW_WC_Payment_Gateway_Request() )->get_prepared_payload( $order, $this->get_secret_key() );
+		}catch( \InvalidArgumentException $flw_e) {
+			wc_add_notice( $flw_e, 'error' );
+			// redirect user to check out page.
+			return array(
+				'result'   => 'fail',
+				'redirect' => $order->get_checkout_payment_url( true ),
+			);
+		}
+		
 		$sdk                 = $this->sdk->set_event_handler( new FlwEventHandler( $order ) );
 
 		$response = $sdk->get_client()->request( $this->sdk::$standard_inline_endpoint, 'POST', $flutterwave_request );
