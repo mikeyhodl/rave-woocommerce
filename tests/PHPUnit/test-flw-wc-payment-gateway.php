@@ -85,15 +85,17 @@ class Test_FLW_WC_Payment_Gateway extends \WP_UnitTestCase {
 	 * @return array
 	 */
 	public function webhook_provider(): array {
-		return array(
-'a4a6e4c86fc1347a48eeab1171f7fea1a10eecbac223b86db3b3e3e134fefa40',
+		return [
+			[
+				'a4a6e4c86fc1347a48eeab1171f7fea1a10eecbac223b86db3b3e3e134fefa40',
 			array(
 				'amount' => 2000,
 				'currency' => 'NGN',
 				'status' => 'successful',
 				'event' => 'test_assess'
 			)
-		);
+			]
+		];
 	}
 
 	/**
