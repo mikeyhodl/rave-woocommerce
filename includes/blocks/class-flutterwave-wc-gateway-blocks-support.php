@@ -11,9 +11,9 @@
  * @subpackage FLW_WC_Payment_Gateway/includes
  */
 
-use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
-
 defined( 'ABSPATH' ) || exit;
+
+use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
 
 /**
  * Class Flutterwave_WC_Gateway_Blocks_Support
@@ -33,9 +33,9 @@ final class Flutterwave_WC_Gateway_Blocks_Support extends AbstractPaymentMethodT
 	/**
 	 * Settings from the WP options table
 	 *
-	 * @var WC_Payment_Gateway|null
+	 * @var WC_Payment_Gateway
 	 */
-	protected ?WC_Payment_Gateway $gateway = null;
+	protected WC_Payment_Gateway $gateway;
 
 	/**
 	 * Initialize the Block.
@@ -44,8 +44,7 @@ final class Flutterwave_WC_Gateway_Blocks_Support extends AbstractPaymentMethodT
 	 */
 	public function initialize() {
 		$this->settings = get_option( 'woocommerce_rave_settings', array() );
-		$gateways       = WC()->payment_gateways()->payment_gateways();
-		$this->gateway  = $gateways[ $this->name ];
+		$this->gateway  = new FLW_WC_Payment_Gateway();
 	}
 
 	/**
@@ -115,40 +114,12 @@ final class Flutterwave_WC_Gateway_Blocks_Support extends AbstractPaymentMethodT
 	 * @return array
 	 */
 	public function get_payment_method_data(): array {
-		// We need to call array_merge_recursive so the blocks 'button' setting doesn't overwrite.
-		// what's provided from the gateway or payment request configuration.
-		return array_replace_recursive(
-			$this->get_gateway_javascript_params(),
-			// Blocks-specific options.
-			array(
-				'icons'    => $this->get_icons(),
-				'supports' => $this->get_supported_features(),
-				'isAdmin'  => is_admin(),
-			)
-		);
-	}
-
-	/**
-	 * Returns the Flutterwave Payment Gateway JavaScript configuration object.
-	 *
-	 * @return mixed  the JS configuration from the Flutterwave.
-	 */
-	private function get_gateway_javascript_params() {
-		$js_configuration = array();
-
-		$gateways = WC()->payment_gateways()->get_available_payment_gateways();
-		if ( isset( $gateways[ $this->name ] ) ) {
-			$js_configuration = $gateways[ $this->name ]->javascript_params();
-		}
-
-		/**
-		 * Filter the JS configuration.
-		 *
-		 * @since 2.3.2
-		 */
-		return apply_filters(
-			'wc_rave_params',
-			$js_configuration
+		return array(
+			'icons'      => $this->get_icons(),
+			'supports'   => array_filter( $this->get_supported_features(), array( $this->gateway, 'supports' ) ),
+			'isAdmin'    => is_admin(),
+			'public_key' => ( 'yes' === $this->settings['go_live'] ) ? $this->settings['live_public_key'] : $this->settings['test_public_key'],
+			'asset_url'  => plugins_url( 'assets', FLW_WC_PLUGIN_FILE ),
 		);
 	}
 

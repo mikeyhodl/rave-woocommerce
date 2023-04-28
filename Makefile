@@ -6,6 +6,13 @@
 init:
 	echo "Specify an Action"
 
+up:
+	docker-compose -f .docker/docker-compose.yml up  --build --force-recreate -d &&  ./bin/docker-setup.sh
+
+down:
+	docker-compose -f .docker/docker-compose.yml  down
+
+
 dev-js:
 	npm run start
 

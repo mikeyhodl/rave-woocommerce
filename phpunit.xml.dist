@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <phpunit
-        bootstrap="tests/PPHUnit/bootstrap.php"
+        bootstrap="tests/bootstrap.php"
         backupGlobals="false"
         colors="true"
         convertErrorsToExceptions="true"
@@ -8,15 +8,15 @@
         convertWarningsToExceptions="true"
         convertDeprecationsToExceptions="false"
 >
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory prefix="test-" suffix=".php">./includes</directory>
+            <file>./woocommerce-rave.php</file>
+        </include>
+    </coverage>
     <testsuites>
         <testsuite name="FLWWC">
-            <directory prefix="test-" suffix=".php">./tests/PHPUnit</directory>
+            <directory suffix=".php">./tests/PHPUnit</directory>
         </testsuite>
     </testsuites>
-    <filter>
-        <whitelist>
-            <file>./woocommerce-rave.php</file>
-            <directory>./includes</directory>
-        </whitelist>
-    </filter>
 </phpunit>

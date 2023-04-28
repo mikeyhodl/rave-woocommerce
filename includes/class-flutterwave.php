@@ -103,7 +103,9 @@ final class Flutterwave {
 
 		// Check if WooCommerce is active.
 		if ( ! class_exists( 'WooCommerce' ) ) {
+
 			add_action( 'admin_notices', array( $notices, 'woocommerce_not_installed' ) );
+			return;
 		}
 
 		if ( ! class_exists( 'WC_Payment_Gateway' ) ) {
@@ -120,8 +122,6 @@ final class Flutterwave {
 
 		$this->register_payment_gateway();
 
-		// add woocommerce block support.
-		add_action( 'woocommerce_blocks_loaded', array( $this, 'flutterwave_woocommerce_blocks_support' ) );
 	}
 
 	/**
@@ -142,8 +142,8 @@ final class Flutterwave {
 	 * Include required core files used in admin and on the frontend.
 	 */
 	public function includes() {
+		// Include classes that can run on WP Freely.
 		include_once dirname( FLW_WC_PLUGIN_FILE ) . '/includes/notices/class-flw-wc-payment-gateway-notices.php';
-		require_once dirname( FLW_WC_PLUGIN_FILE ) . '/includes/blocks/class-flutterwave-wc-gateway-blocks-support.php';
 	}
 
 	/**
@@ -217,30 +217,5 @@ final class Flutterwave {
 
 		return $links;
 
-	}
-
-	/**
-	 * Register the Flutterwave payment gateway for WooCommerce Blocks.
-	 *
-	 * @return void
-	 */
-	protected function flutterwave_woocommerce_blocks_support() {
-		if ( class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) {
-			add_action(
-				'woocommerce_blocks_payment_method_type_registration',
-				function ( Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry ) {
-					$container = Automattic\WooCommerce\Blocks\Package::container();
-					// registers as shared instance.
-					$container->register(
-						Flutterwave_WC_Gateway_Blocks_Support::class,
-						function() {
-							return new Flutterwave_WC_Gateway_Blocks_Support();
-						}
-					);
-
-					$payment_method_registry->register( new Flutterwave_WC_Gateway_Blocks_Support() );
-				}
-			);
-		}
 	}
 }

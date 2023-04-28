@@ -1,7 +1,11 @@
-name: Compatibility - WC, WP and PHP
+name: Review changes on Dev (Commits/PRs)
 
 on:
-  pull_request
+  push:
+    branches: ['master']
+  pull_request:
+    branches: ['dev']
+    types: [opened, synchronize, reopened]
 
 env:
   WC_MIN_SUPPORTED_VERSION: '7.4.1'
@@ -51,9 +55,16 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           tools: composer
-          coverage: none
+          coverage: xdebug
       # run CI checks
       - run: bash bin/run-ci-tests.bash
+      # report to codecov
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODE_COV_TOKEN }}
+          files: ./coverage.xml
+          verbose: true
 
   generate-wc-compat-beta-matrix:
     name: "Generate the matrix for compatibility-woocommerce-beta dynamically"
@@ -93,5 +104,45 @@ jobs:
           php-version: ${{ matrix.php }}
           tools:       composer
           coverage:    none
+      # Check if php version is greater than 8.0 and install phpunit 9
+      - uses: ./.github/actions/check-php-version-phpunit-support
+        with:
+          php-version: ${{ matrix.php }}
       # run CI checks
       - run: bash bin/run-ci-tests.bash
+  phpcs:
+    name: PHPCS
+    strategy:
+      matrix:
+        operating-system: [ 'ubuntu-latest' ]
+        php-versions: ['7.4','8.0' ,'8.1' ]
+        phpunit-versions: ['7.5.20','latest']
+    runs-on: ${{ matrix.operating-system }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: "Validate composer.json and composer.lock"
+        run: composer validate --strict
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          ini-values: "memory_limit=1G"
+          coverage: none
+          tools: cs2pr
+      - name: Install Composer dependencies
+        uses: "ramsey/composer-install@v2"
+      - name: Run PHPCS checks
+        continue-on-error: true
+        run: vendor/bin/phpcs --ignore=*/tests/*,*/data/*,*/assets/* --report-full --report-checkstyle=./phpcs-report.xml
+      - name: Git Blame
+        continue-on-error: true
+        run: vendor/bin/phpcs  -s --report=gitblame --ignore=*/tests/*,*/data/*,*/assets/* .
+      - name: Show PHPCS results in PR
+        run: cs2pr ./phpcs-report.xml
+      - name: Run WordPress Checks
+        continue-on-error: true
+        run: composer run standards:check
+      - name: Run WooCommerce Checks
+        continue-on-error: true
+        run: composer run woocommerce:check

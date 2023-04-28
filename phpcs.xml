@@ -19,6 +19,7 @@
 		<exclude-pattern>/assets/build/js/*.js</exclude-pattern>
 		<exclude-pattern>*config.js</exclude-pattern>
 		<exclude-pattern>*/clients/*/*.js</exclude-pattern>
+		<exclude-pattern>.docker/*</exclude-pattern>
 	</rule>
 
 	<rule ref="WooCommerce-Core" />
@@ -42,7 +43,6 @@
 	</rule>
 
 	<rule ref="WordPress.Files.FileName.InvalidClassFileName">
-		<exclude-pattern>tests/*</exclude-pattern>
 		<exclude-pattern>src/*</exclude-pattern>
 	</rule>
 
@@ -53,6 +53,7 @@
 		<exclude-pattern>bin/*</exclude-pattern>
 	</rule>
 	<rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
+		<exclude-pattern>tests/*</exclude-pattern>
 		<exclude-pattern>src/*</exclude-pattern>
 	</rule>
 
@@ -97,4 +98,5 @@
 	<exclude-pattern>*/clients/blocks/*.js</exclude-pattern>
 	<exclude-pattern>*/clients/*/*.js</exclude-pattern>
 	<exclude-pattern>*config.js</exclude-pattern>
+	<exclude-pattern>*/./docker/*</exclude-pattern>
 </ruleset>

@@ -99,6 +99,9 @@ By contributing to the Flutterwave WooCommerce, you agree that your contribution
 1. You need to open an account on [Flutterwave for Business](https://dashboard.flutterwave.com)
 
 == Changelog ==
+= 2.3.2 =
+* Added: Support for WooCommerce Blocks.
+* Updated: WooCommerce Checkout Process.
 = 2.3.0 =
 * Fix: Handled MobileMoney Payment Handler Error.
 = 2.2.9 =

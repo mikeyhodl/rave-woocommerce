@@ -74,15 +74,27 @@ final class FLW_WC_Payment_Gateway_Request {
 	 *
 	 * @param \WC_Order $order Order object.
 	 * @param string    $secret_key APi key.
+	 * @param bool      $testing is ci.
+	 * @throws \InvalidArgumentException When the secret key is not spplied.
 	 *
 	 * @return array
 	 */
-	public function get_prepared_payload( \WC_Order $order, $secret_key ): array {
-		$order_id      = $order->get_id();
-		$txnref        = 'WOOC_' . $order_id . '_' . time();
-		$amount        = $order->get_total();
-		$currency      = $order->get_currency();
-		$email         = $order->get_billing_email();
+	public function get_prepared_payload( \WC_Order $order, string $secret_key, bool $testing ): array {
+		$order_id = $order->get_id();
+		$txnref   = 'WOOC_' . $order_id . '_' . time();
+		$amount   = $order->get_total();
+		$currency = $order->get_currency();
+		$email    = $order->get_billing_email();
+
+		if ( $testing ) {
+			$txnref = 'WOOC_' . $order_id . '_TEST';
+		}
+
+		if ( empty( $secret_key ) ) {
+			// let admin know that the secret key is not set.
+			throw new \InvalidArgumentException( 'This Payment Method is current unavailable as Administrator is yet to Configure it.Please contact Administrator for more information.' );
+		}
+
 		$data_to_hash  = array(
 			'amount'     => $amount,
 			'currency'   => $currency,

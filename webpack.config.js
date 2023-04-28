@@ -7,6 +7,28 @@ const webpack = require( 'webpack' );
 const defaultConfig = require( '@wordpress/scripts/config/webpack.config' );
 const WooCommerceDependencyExtractionWebpackPlugin = require( '@woocommerce/dependency-extraction-webpack-plugin' );
 
+const wcDepMap = {
+	'@woocommerce/blocks-registry': ['wc', 'wcBlocksRegistry'],
+	'@woocommerce/settings'       : ['wc', 'wcSettings']
+};
+
+const wcHandleMap = {
+	'@woocommerce/blocks-registry': 'wc-blocks-registry',
+	'@woocommerce/settings'       : 'wc-settings'
+};
+
+const requestToExternal = (request) => {
+	if (wcDepMap[request]) {
+		return wcDepMap[request];
+	}
+};
+
+const requestToHandle = (request) => {
+	if (wcHandleMap[request]) {
+		return wcHandleMap[request];
+	}
+};
+
 const CLIENT_DIR = path.resolve( __dirname, 'client' );
 
 const entry = {
@@ -14,21 +36,6 @@ const entry = {
 };
 
 const rules = [
-	// {
-	// 	test: /\.js$/,
-	// 	include: [ JS_DIR ],
-	// 	exclude: /node_modules/,
-	// 	use: 'babel-loader'
-	// },
-	// {
-	// 	test: /\.scss$/,
-	// 	exclude: /node_modules/,
-	// 	use: [
-	// 		MiniCssExtractPlugin.loader,
-	// 		'css-loader',
-	// 		'sass-loader',
-	// 	]
-	// },
 	{
 		test: /\.(png|jpg|svg|jpeg|gif|ico)$/,
 		use: {
@@ -40,18 +47,6 @@ const rules = [
 			},
 		},
 	},
-	// {
-	// 	test: /\.(ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
-	// 	exclude: [ IMG_DIR, /node_modules/ ],
-	// 	use: {
-	// 		loader: 'file-loader',
-	// 		options: {
-	// 			name: '[path][name].[ext]',
-	// 			publicPath:
-	// 				'production' === process.env.NODE_ENV ? '../' : '../../',
-	// 		},
-	// 	},
-	// },
 ];
 
 module.exports = {
@@ -79,12 +74,12 @@ module.exports = {
 			( plugin ) =>
 				plugin.constructor.name !== 'DependencyExtractionWebpackPlugin'
 		),
-		new WooCommerceDependencyExtractionWebpackPlugin(),
-		// new webpack.DefinePlugin( {
-		// 	__PAYMENT_METHOD_FEES_ENABLED: JSON.stringify(
-		// 		process.env.PAYMENT_METHOD_FEES_ENABLED === 'true'
-		// 	),
-		// } ),
+		new WooCommerceDependencyExtractionWebpackPlugin(
+			{
+				requestToExternal,
+				requestToHandle
+			}
+		),
 	],
 	resolve: {
 		extensions: [ '.json', '.js', '.jsx' ],
@@ -94,10 +89,4 @@ module.exports = {
 		},
 	},
 	entry,
-	// module: {
-	// 	rules,
-	// },
-	// externals: {
-	// 	jquery: 'jQuery',
-	// },
 };

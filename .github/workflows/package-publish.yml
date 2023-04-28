@@ -1,4 +1,4 @@
-name: Deploy to WordPress.org
+name: Publish to WordPress.org
 on:
     release:
         types: [released]
@@ -16,25 +16,19 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v3
             - name: Build Plugin
-              uses: ./.github/actions/build
+              uses: ./.github/actions/make-build
             - name: WordPress Plugin Deploy
               id: deploy
               uses: 10up/action-wordpress-plugin-deploy@stable
               env:
                   SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
                   SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
-                  SLUG: woocommerce-rave
-            - name: Upload release asset
-              uses: actions/upload-release-asset@v1
+                  SLUG: rave-woocommerce-payment-gateway
+            - name: push build status to Slack
+              uses: 8398a7/action-slack@v3
+              with:
+                status: ${{ job.status }}
+                fields: repo,message,commit,author,action,eventName,ref,workflow,job,took,pullRequest
               env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              with:
-                  upload_url: ${{ github.event.release.upload_url }}
-                  asset_path: ${{github.workspace}}/woocommerce-rave.zip
-                  asset_name: woocommerce-rave.zip
-                  asset_content_type: application/zip
-            - uses: act10ns/slack@v2
-              with:
-                  status: ${{ job.status }}
-                  steps: ${{ toJson(steps) }}
-              if: ${{ always() }}
+                SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+              if: always()
