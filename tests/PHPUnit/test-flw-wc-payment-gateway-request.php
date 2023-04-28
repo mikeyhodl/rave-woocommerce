@@ -47,7 +47,23 @@ class Test_FLW_WC_Payment_Gateway_Request extends \WP_UnitTestCase {
 			// $order->set_customer_ip_address( $_SERVER['REMOTE_ADDR']);
 
 			$txnref = 'WOOC_'.$order->get_id().'_TEST';
-			$stringToHash = $order->get_total().$order->get_currency().$order->get_billing_email().'WOOC_'.$txnref.hash('sha256', getenv( 'SECRET_KEY' ) );
+
+			$data_to_join  = array(
+				'amount'     => $order->get_total(),
+				'currency'   => $order->get_currency(),
+				'email'      => $order->get_billing_email(),
+				'tx_ref'     => $txnref,
+				'secret_key' => 'FLWSECK-XXXXXXXXXXXXXXX-X',
+			);
+
+			$stringToHash = '';
+			foreach ( $data_to_join as $key => $value ) {
+				if ( 'secret_key' === $key ) {
+					$stringToHash .= hash( 'sha256', $value );
+				} else {
+					$stringToHash .= $value;
+				}
+			}
 
 			$hash = hash( 'sha256', $stringToHash );
 
