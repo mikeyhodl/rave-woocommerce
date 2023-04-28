@@ -55,9 +55,12 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           tools: composer
-          coverage: none
+          coverage: xdebug
       # run CI checks
       - run: bash bin/run-ci-tests.bash
+      # report to codecov
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
 
   generate-wc-compat-beta-matrix:
     name: "Generate the matrix for compatibility-woocommerce-beta dynamically"
