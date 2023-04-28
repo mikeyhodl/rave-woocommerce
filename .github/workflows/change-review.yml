@@ -61,6 +61,10 @@ jobs:
       # report to codecov
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODE_COV_TOKEN }}
+          files: ./coverage.xml
+          verbose: true
 
   generate-wc-compat-beta-matrix:
     name: "Generate the matrix for compatibility-woocommerce-beta dynamically"
