@@ -31,6 +31,14 @@ class Test_FLW_WC_Payment_Gateway extends \WP_UnitTestCase {
 
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		$this->gateway = new \FLW_WC_Payment_Gateway();
+
+		update_option( 'woocommerce_rave_settings', [
+			'enabled' => 'yes',
+			'go_live' => 'no',
+			'logging_option' => 'no',
+			'secret_hash' => '581e4231-441e-4730-88bf-8f181897759ea8f1',
+			'autocomplete_order' => 'yes',
+		]);
 	}
 
 	/**
