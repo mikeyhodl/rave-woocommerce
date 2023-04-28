@@ -381,11 +381,11 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 	public function process_redirect_payments( $order_id ) {
 		include_once dirname( __FILE__ ) . '/client/class-flw-wc-payment-gateway-request.php';
 
-		$order               = wc_get_order( $order_id );
+		$order = wc_get_order( $order_id );
 
-		try{
+		try {
 			$flutterwave_request = ( new FLW_WC_Payment_Gateway_Request() )->get_prepared_payload( $order, $this->get_secret_key() );
-		}catch( \InvalidArgumentException $flw_e) {
+		} catch ( \InvalidArgumentException $flw_e ) {
 			wc_add_notice( $flw_e, 'error' );
 			// redirect user to check out page.
 			return array(
@@ -393,8 +393,8 @@ class FLW_WC_Payment_Gateway extends WC_Payment_Gateway {
 				'redirect' => $order->get_checkout_payment_url( true ),
 			);
 		}
-		
-		$sdk                 = $this->sdk->set_event_handler( new FlwEventHandler( $order ) );
+
+		$sdk = $this->sdk->set_event_handler( new FlwEventHandler( $order ) );
 
 		$response = $sdk->get_client()->request( $this->sdk::$standard_inline_endpoint, 'POST', $flutterwave_request );
 		if ( ! is_wp_error( $response ) ) {
