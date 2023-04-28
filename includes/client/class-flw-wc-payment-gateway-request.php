@@ -74,7 +74,8 @@ final class FLW_WC_Payment_Gateway_Request {
 	 *
 	 * @param \WC_Order $order Order object.
 	 * @param string    $secret_key APi key.
-	 * @param bool      $testing
+	 * @param bool      $testing is ci.
+	 * @throws \InvalidArgumentException When the secret key is not spplied.
 	 *
 	 * @return array
 	 */
